@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cluster_Key__c</fullName>
+    <description>Foreign key to NM_Specialty_Cluster__mdt.Cluster_Key__c — maps this military code to a civilian skill cluster</description>
+    <label>Cluster Key</label>
+    <length>50</length>
+    <type>Text</type>
+    <unique>false</unique>
+    <externalId>false</externalId>
+</CustomField>
