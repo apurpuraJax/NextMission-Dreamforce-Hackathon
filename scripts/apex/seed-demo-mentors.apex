@@ -1,15 +1,8 @@
-// Seed script: demo mentor records for hackathon — one per cluster minimum,
-// two or three for clusters most likely to appear in a live demo
-// (Communications_IT, Engineering, Healthcare, Intelligence, Logistics).
+// Seed script: demo mentor records for hackathon — two per cluster minimum,
+// three for CombatArms (highest demo-traffic cluster).
 //
 // Run:    sf apex run --file scripts/apex/seed-demo-mentors.apex --target-org dreamforce-hackathon
 // Safe to re-run: idempotent by Name — existing records are skipped.
-//
-// TO ADD THE 9TH CLUSTER (Law Enforcement / Security):
-//   1. Add the CMDT record for LawEnforcement_Security in NM_Specialty_Cluster__mdt.
-//   2. Append the Name to the existing.containsKey check list below.
-//   3. Copy one of the example blocks below the "9TH CLUSTER" marker, un-comment it,
-//      and populate the fields.  Re-run.  Done.
 
 List<NM_Mentor__c> toInsert = new List<NM_Mentor__c>();
 
@@ -17,9 +10,14 @@ List<NM_Mentor__c> toInsert = new List<NM_Mentor__c>();
 Set<String> targetNames = new Set<String>{
     // Original five
     'Alex R.', 'Jordan M.', 'Morgan T.', 'Casey W.', 'Taylor B.',
-    // Expanded coverage
+    // Round 1 expansion
     'Devon S.', 'Riley K.', 'Quinn A.', 'Sage P.', 'Avery L.',
-    'Cameron J.', 'Parker N.', 'Reese H.'
+    'Cameron J.', 'Parker N.', 'Reese H.',
+    // Round 2 — LawEnforcement_Security ×2, CombatArms +2, Aviation +1, FinanceAdmin +1
+    'Finley O.', 'Rowan T.',
+    'Sam D.', 'Marcus E.',
+    'Blake V.',
+    'Harper C.'
 };
 
 Map<String, NM_Mentor__c> existing = new Map<String, NM_Mentor__c>();
@@ -27,10 +25,10 @@ for (NM_Mentor__c m : [SELECT Name FROM NM_Mentor__c WHERE Name IN :targetNames]
     existing.put(m.Name, m);
 }
 
-// ── Helper: only insert if not already present ─────────────────────────────
+// ── Only insert if not already present ─────────────────────────────────────
 List<NM_Mentor__c> desired = new List<NM_Mentor__c>();
 
-// ── AVIATION (1) ───────────────────────────────────────────────────────────
+// ── AVIATION (2) ───────────────────────────────────────────────────────────
 desired.add(new NM_Mentor__c(
     Name               = 'Devon S.',
     Branch__c          = 'Navy',
@@ -42,8 +40,19 @@ desired.add(new NM_Mentor__c(
     Contact_Email__c   = 'devon.s.demo@example.com',
     Active__c          = true
 ));
+desired.add(new NM_Mentor__c(
+    Name               = 'Blake V.',
+    Branch__c          = 'Army',
+    Specialty_Cluster__c = 'Aviation',
+    Civilian_Role__c   = 'Helicopter EMS Pilot',
+    Employer__c        = 'Heartland Air Medical',
+    Years_Since_Transition__c = 4,
+    Bio__c             = 'I flew UH-60 Black Hawks as a Warrant Officer for ten years — aeromedical evacuation for the last four. When I transitioned I went straight to helicopter EMS. The flight hours transfer well; the adjustment is learning FAA Part 135 operations instead of Army regs. Happy to walk through what the interview process looks like at air medical programs and which civilian ratings to get first.',
+    Contact_Email__c   = 'blake.v.demo@example.com',
+    Active__c          = true
+));
 
-// ── COMBAT ARMS (1) ────────────────────────────────────────────────────────
+// ── COMBAT ARMS (3) ────────────────────────────────────────────────────────
 desired.add(new NM_Mentor__c(
     Name               = 'Casey W.',
     Branch__c          = 'Marine Corps',
@@ -53,6 +62,28 @@ desired.add(new NM_Mentor__c(
     Years_Since_Transition__c = 5,
     Bio__c             = 'I was an 0311 infantry rifleman. When I got out, law enforcement was a natural fit — the discipline, judgment under pressure, and team dynamic were already there. I went through the academy and made sergeant in three years. Let me know if you want to talk through how that transition looks.',
     Contact_Email__c   = 'casey.w.demo@example.com',
+    Active__c          = true
+));
+desired.add(new NM_Mentor__c(
+    Name               = 'Sam D.',
+    Branch__c          = 'Army',
+    Specialty_Cluster__c = 'CombatArms',
+    Civilian_Role__c   = 'Operations Manager',
+    Employer__c        = 'Redstone Defense Systems',
+    Years_Since_Transition__c = 6,
+    Bio__c             = 'I was an 11B Infantryman, then Ranger School, then a few years leading rifle platoons. I got out and went into defense contracting in a program operations role. The planning tempo and execution culture I was used to were real competitive advantages. I can help you figure out how to position a combat arms background for roles outside law enforcement — there are more options than most infantry vets realize.',
+    Contact_Email__c   = 'sam.d.demo@example.com',
+    Active__c          = true
+));
+desired.add(new NM_Mentor__c(
+    Name               = 'Marcus E.',
+    Branch__c          = 'Army',
+    Specialty_Cluster__c = 'CombatArms',
+    Civilian_Role__c   = 'Emergency Management Specialist',
+    Employer__c        = 'Clairmont County Emergency Services',
+    Years_Since_Transition__c = 3,
+    Bio__c             = 'I served as a 19K Armor Crewman and later moved into a training NCO role. When I transitioned I used FEMA\'s Integrated Emergency Management Course and my existing crisis management experience to land in county emergency management. A lot of combat arms vets don\'t realize how directly their incident-command and mass-casualty experience maps to civilian EM certifications. Happy to walk through that path.',
+    Contact_Email__c   = 'marcus.e.demo@example.com',
     Active__c          = true
 ));
 
@@ -104,7 +135,7 @@ desired.add(new NM_Mentor__c(
     Active__c          = true
 ));
 
-// ── FINANCE / ADMIN (1) ───────────────────────────────────────────────────
+// ── FINANCE / ADMIN (2) ───────────────────────────────────────────────────
 desired.add(new NM_Mentor__c(
     Name               = 'Avery L.',
     Branch__c          = 'Air Force',
@@ -114,6 +145,17 @@ desired.add(new NM_Mentor__c(
     Years_Since_Transition__c = 4,
     Bio__c             = 'I was a Financial Management specialist for eight years. I came out with a solid foundation in government contracting and budgeting, and added a CFA Level 1 during my last deployment. The transition to a civilian financial analyst role took about four months of targeted networking. Happy to share what worked.',
     Contact_Email__c   = 'avery.l.demo@example.com',
+    Active__c          = true
+));
+desired.add(new NM_Mentor__c(
+    Name               = 'Harper C.',
+    Branch__c          = 'Navy',
+    Specialty_Cluster__c = 'FinanceAdmin',
+    Civilian_Role__c   = 'HR Business Partner',
+    Employer__c        = 'Stonebridge Financial Group',
+    Years_Since_Transition__c = 5,
+    Bio__c             = 'I was a Navy Personnelman for eight years, managing records, benefits, and advancement processes for a command of 600 sailors. The jump to civilian HR was almost seamless — I essentially already knew the job. I can help you understand which HR certifications (SHRM-CP, PHR) are worth the time and how to frame your personnel management experience for civilian hiring managers who have never seen a DD-214.',
+    Contact_Email__c   = 'harper.c.demo@example.com',
     Active__c          = true
 ));
 
@@ -165,6 +207,30 @@ desired.add(new NM_Mentor__c(
     Active__c          = true
 ));
 
+// ── LAW ENFORCEMENT / SECURITY (2) ────────────────────────────────────────
+desired.add(new NM_Mentor__c(
+    Name               = 'Finley O.',
+    Branch__c          = 'Marine Corps',
+    Specialty_Cluster__c = 'LawEnforcement_Security',
+    Civilian_Role__c   = 'Federal Law Enforcement Officer',
+    Employer__c        = 'Department of Homeland Security',
+    Years_Since_Transition__c = 3,
+    Bio__c             = 'I was a Military Police officer and later worked in the Provost Marshal\'s office. The federal law enforcement hiring process is long — background investigations for DHS took about fourteen months — but veteran preference points and the experience crossover made me a strong candidate. I can help you understand which federal agencies are most receptive to military police backgrounds and how the USAJobs application process actually works in practice.',
+    Contact_Email__c   = 'finley.o.demo@example.com',
+    Active__c          = true
+));
+desired.add(new NM_Mentor__c(
+    Name               = 'Rowan T.',
+    Branch__c          = 'Army',
+    Specialty_Cluster__c = 'LawEnforcement_Security',
+    Civilian_Role__c   = 'Corporate Security Director',
+    Employer__c        = 'Vantage Financial Group',
+    Years_Since_Transition__c = 7,
+    Bio__c             = 'I was a 31B Military Police Corps officer and later managed physical security for a 4,000-person installation. When I transitioned I went private sector — corporate security was wide open for someone with that background. I now run a 40-person security program for a financial services firm. If you\'re weighing federal law enforcement versus private-sector security leadership, I can give you an honest breakdown of both paths and what the salary trajectories actually look like.',
+    Contact_Email__c   = 'rowan.t.demo@example.com',
+    Active__c          = true
+));
+
 // ── LOGISTICS (2) ─────────────────────────────────────────────────────────
 desired.add(new NM_Mentor__c(
     Name               = 'Alex R.',
@@ -189,25 +255,7 @@ desired.add(new NM_Mentor__c(
     Active__c          = true
 ));
 
-// ─────────────────────────────────────────────────────────────────────────
-// 9TH CLUSTER — LAW ENFORCEMENT / SECURITY
-// When NM_Specialty_Cluster__mdt gains a LawEnforcement_Security record,
-// un-comment the block below, add the Name to targetNames above, and re-run.
-// ─────────────────────────────────────────────────────────────────────────
-//
-// desired.add(new NM_Mentor__c(
-//     Name               = 'Finley O.',
-//     Branch__c          = 'Marine Corps',
-//     Specialty_Cluster__c = 'LawEnforcement_Security',
-//     Civilian_Role__c   = 'Federal Police Officer',
-//     Employer__c        = 'Department of Homeland Security',
-//     Years_Since_Transition__c = 3,
-//     Bio__c             = 'I was a Military Police officer. The federal law enforcement hiring process is ...',
-//     Contact_Email__c   = 'finley.o.demo@example.com',
-//     Active__c          = true
-// ));
-// ─────────────────────────────────────────────────────────────────────────
-
+// ── Idempotent insert ──────────────────────────────────────────────────────
 for (NM_Mentor__c m : desired) {
     if (!existing.containsKey(m.Name)) {
         toInsert.add(m);
