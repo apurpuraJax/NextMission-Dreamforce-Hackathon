@@ -5,6 +5,10 @@
 
     <!-- Apex class access — agents must reach every Apex action they invoke -->
     <classAccesses>
+        <apexClass>NM_GetJobMatchesAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>NM_LogConversationAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
