@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>NM Agent Data Access</label>
-    <description>Defines the Next Mission agent's access boundary. Grants access to NM_ custom objects and fields the agent is permitted to read or write. Contact_Email__c on NM_Mentor__c is intentionally excluded — agents must never surface mentor email. Admin users who need fields outside the agent boundary use a separate admin-facing permission set. Assign this permission set to the agent user once the agent exists; without the assignment the agent silently skips actions. Apex class and Flow access is added story by story in S04-S08.</description>
+    <description>Agent access boundary for NM_ objects. Contact_Email__c excluded by design — agents must never surface it. Admins needing that field use a separate permset. Assign to the agent user before activation; unassigned = silent no-ops.</description>
 
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
