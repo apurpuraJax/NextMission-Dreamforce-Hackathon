@@ -3,4 +3,5 @@
     <description>Look up a military occupational code to find its civilian mapping. Call when the visitor provides their branch and specialty code (MOS, AFSC, Rating, etc.). Inputs: branch — the military branch as the visitor stated it, code — the specialty code exactly as stated. On found=false, surface notFoundMessage verbatim and ask the visitor to describe their role instead. Never invent or guess a code.</description>
     <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
     <invocationTargetType>apex</invocationTargetType>
+    <masterLabel>NM_LookupMilitaryCode</masterLabel>
 </GenAiFunction>
