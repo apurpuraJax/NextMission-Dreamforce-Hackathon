@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Look up a military occupational code to find its civilian mapping. Call when the visitor provides their branch and specialty code (MOS, AFSC, Rating, etc.). Inputs: branch — the military branch as the visitor stated it, code — the specialty code exactly as stated. On found=false, surface notFoundMessage verbatim and ask the visitor to describe their role instead. Never invent or guess a code.</description>
-    <functionName>NM_LookupMilitaryCode</functionName>
     <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
     <invocationTargetType>apex</invocationTargetType>
 </GenAiFunction>
