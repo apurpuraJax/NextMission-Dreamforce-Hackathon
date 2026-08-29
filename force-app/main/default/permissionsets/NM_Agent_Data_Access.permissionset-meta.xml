@@ -3,6 +3,12 @@
     <label>NM Agent Data Access</label>
     <description>Agent access boundary for NM_ objects. Contact_Email__c excluded by design — agents must never surface it. Admins needing that field use a separate permset. Assign to the agent user before activation; unassigned = silent no-ops.</description>
 
+    <!-- Apex class access — agents must reach every Apex action they invoke -->
+    <apexClassAccesses>
+        <apexClass>NM_LookupMilitaryCodeAction</apexClass>
+        <enabled>true</enabled>
+    </apexClassAccesses>
+
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
         <enabled>true</enabled>
