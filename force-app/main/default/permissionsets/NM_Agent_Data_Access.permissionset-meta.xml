@@ -5,11 +5,19 @@
 
     <!-- Apex class access — agents must reach every Apex action they invoke -->
     <classAccesses>
+        <apexClass>NM_LogConversationAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>NM_LookupMilitaryCodeAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>NM_LogConversationAction</apexClass>
+        <apexClass>NM_QAEvaluator</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>NM_QAScheduler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
 
@@ -56,7 +64,7 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
 
-    <!-- NM_Conversation__c field permissions -->
+    <!-- NM_Conversation__c field permissions — operational fields -->
     <fieldPermissions>
         <editable>true</editable>
         <field>NM_Conversation__c.External_Session_Key__c</field>
@@ -110,6 +118,43 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>NM_Conversation__c.Transcript__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- NM_Conversation__c field permissions — QA fields (NMDH-19) -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.QA_Issue_Categories__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.QA_Issues__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.QA_Reviewed__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.QA_Reviewed_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.QA_Score__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Sentiment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Summary__c</field>
         <readable>true</readable>
     </fieldPermissions>
 

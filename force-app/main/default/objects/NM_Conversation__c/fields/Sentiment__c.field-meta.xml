@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sentiment__c</fullName>
+    <description>Visitor sentiment assessed by the NM_QAEvaluator grader based on the conversation transcript. Values: Positive, Neutral, Confused, Frustrated. Null until graded. Created by NMDH-19.</description>
+    <label>Sentiment</label>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Positive</fullName>
+                <default>false</default>
+                <label>Positive</label>
+            </value>
+            <value>
+                <fullName>Neutral</fullName>
+                <default>false</default>
+                <label>Neutral</label>
+            </value>
+            <value>
+                <fullName>Confused</fullName>
+                <default>false</default>
+                <label>Confused</label>
+            </value>
+            <value>
+                <fullName>Frustrated</fullName>
+                <default>false</default>
+                <label>Frustrated</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

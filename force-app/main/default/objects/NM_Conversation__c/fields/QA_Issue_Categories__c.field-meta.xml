@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>QA_Issue_Categories__c</fullName>
+    <description>Semi-colon-delimited issue category tags from the NM_QAEvaluator grader. Empty when no issues found. Values: MadeUpContent, OffLimitsWords, WrongTone, RepeatedQuestion, ScoringOrRanking, NoHelpDelivered, TechnicalFailure. Created by NMDH-19.</description>
+    <label>QA Issue Categories</label>
+    <type>MultiselectPicklist</type>
+    <visibleLines>4</visibleLines>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>MadeUpContent</fullName>
+                <default>false</default>
+                <label>MadeUpContent</label>
+            </value>
+            <value>
+                <fullName>OffLimitsWords</fullName>
+                <default>false</default>
+                <label>OffLimitsWords</label>
+            </value>
+            <value>
+                <fullName>WrongTone</fullName>
+                <default>false</default>
+                <label>WrongTone</label>
+            </value>
+            <value>
+                <fullName>RepeatedQuestion</fullName>
+                <default>false</default>
+                <label>RepeatedQuestion</label>
+            </value>
+            <value>
+                <fullName>ScoringOrRanking</fullName>
+                <default>false</default>
+                <label>ScoringOrRanking</label>
+            </value>
+            <value>
+                <fullName>NoHelpDelivered</fullName>
+                <default>false</default>
+                <label>NoHelpDelivered</label>
+            </value>
+            <value>
+                <fullName>TechnicalFailure</fullName>
+                <default>false</default>
+                <label>TechnicalFailure</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
