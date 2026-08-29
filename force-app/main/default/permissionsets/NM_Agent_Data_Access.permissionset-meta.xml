@@ -8,6 +8,10 @@
         <apexClass>NM_LookupMilitaryCodeAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>NM_LogConversationAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
 
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
