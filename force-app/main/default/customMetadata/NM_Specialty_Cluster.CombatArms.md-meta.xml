@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Combat Arms</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">CombatArms</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You planned and executed operations under pressure, often with incomplete information and real stakes. You led people in high-stress environments and made fast decisions that your team depended on. You know how to read a situation, adapt the plan, and keep people moving when things go sideways. Those skills translate directly into roles where execution, leadership, and composure under pressure are what gets the job done.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Police Officer", "description": "You respond to calls, manage unpredictable situations, and make judgment calls under pressure. Most of your day is patrols, reports, and building relationships with the community you serve."}, {"title": "Security Operations Manager", "description": "You protect people, assets, and facilities by identifying risks and putting procedures in place before problems happen. You coordinate teams, run drills, and make sure everyone knows what to do when something goes wrong."}, {"title": "Emergency Management Specialist", "description": "You plan for disasters, coordinate response across multiple agencies, and help communities recover after an incident. The job is mostly planning and coordination until an activation, when you run the room."}, {"title": "Operations Manager", "description": "You oversee daily operations for a team or facility, solve problems as they come up, and make sure the work gets done on time. This maps closely to garrison ops or tactical operations center experience."}, {"title": "Corrections Officer", "description": "You maintain safety and order in a correctional facility, manage a caseload of individuals, and respond to incidents according to established procedures. The environment is controlled and structured, similar to barracks or detention work."}]</value>
+    </values>
+</CustomMetadata>

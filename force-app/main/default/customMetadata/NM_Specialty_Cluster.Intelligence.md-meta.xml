@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Intelligence</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Intelligence</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You collected, evaluated, and synthesized large amounts of information to help decision-makers act with confidence. You know how to find what matters in a flood of data, assess how reliable a source is, and present conclusions clearly to people who need to act on them. You have experience working with sensitive information under strict access controls and tight deadlines.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Intelligence Analyst", "description": "You research threats, trends, or adversary activity, write assessments, and brief findings to decision-makers. This role exists in government agencies, defense contractors, and private sector firms focused on security or risk."}, {"title": "Business Intelligence Analyst", "description": "You pull data from company systems, build reports and dashboards, and explain what the numbers mean so leadership can make better decisions. The tools are different from military intelligence platforms but the analytical process is the same."}, {"title": "Risk Analyst", "description": "You identify potential threats to a company or project, assess the likelihood and impact, and recommend ways to reduce exposure. You write reports and present findings to management on a regular basis."}, {"title": "Competitive Intelligence Specialist", "description": "You track competitors, monitor market changes, and synthesize what you find into briefings that help the company stay ahead. The work is research-heavy and requires the same source evaluation skills you used in uniform."}, {"title": "Cybersecurity Analyst", "description": "You monitor networks and systems for suspicious activity, investigate alerts, and help the organization understand and respond to threats. OSINT and counterintelligence experience maps well into threat intelligence roles within this field."}]</value>
+    </values>
+</CustomMetadata>

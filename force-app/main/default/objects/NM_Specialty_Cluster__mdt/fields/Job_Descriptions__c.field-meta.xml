@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Job_Descriptions__c</fullName>
+    <description>JSON array of civilian job objects for this cluster. Format: [{"title": "Job Title", "description": "1-2 sentences describing what you do day-to-day, no recruiter language."}]. Contains 3-5 jobs per cluster.</description>
+    <externalId>false</externalId>
+    <label>Job Descriptions</label>
+    <length>4096</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>10</visibleLines>
+</CustomField>

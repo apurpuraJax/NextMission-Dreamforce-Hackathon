@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Custom Metadata Type mapping specialty cluster keys to civilian skill summaries and job category descriptions. Used by the Next Mission Agentforce agent to translate military experience into civilian career context.</description>
+    <label>NM Specialty Cluster</label>
+    <pluralLabel>NM Specialty Clusters</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

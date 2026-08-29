@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Healthcare</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Healthcare</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You provided medical care in environments where equipment was limited and the margin for error was zero. You assessed patients fast, made treatment decisions independently, and worked under pressure without a full support team behind you. You have hands-on clinical experience that translates directly into patient care roles, and you understand what it means to operate in a high-stakes medical team.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Emergency Medical Technician (EMT) or Paramedic", "description": "You respond to medical emergencies, assess patients in the field, provide treatment, and transport people to the hospital. Combat medic and corpsman experience is a strong foundation; most states require a certification exam to practice."}, {"title": "Surgical Technologist", "description": "You prepare operating rooms, assist surgeons during procedures, and handle instruments and equipment during surgery. The precision and sterile-field discipline required maps well to medic and corpsman training."}, {"title": "Medical Assistant", "description": "You take patient histories, record vitals, assist with procedures, and handle clinical and administrative tasks in a doctor's office or clinic. This is often an entry point into civilian healthcare for those building toward additional credentials."}, {"title": "Healthcare Administrator", "description": "You manage the operations of a clinic, hospital department, or healthcare facility, handling staffing, budgets, compliance, and scheduling. Military medical unit administrative experience is a direct match."}, {"title": "Registered Nurse (RN)", "description": "You provide direct patient care, administer medications, monitor conditions, and coordinate with the care team. Military medics and corpsmen often pursue RN licensure through bridge programs designed for their background."}]</value>
+    </values>
+</CustomMetadata>

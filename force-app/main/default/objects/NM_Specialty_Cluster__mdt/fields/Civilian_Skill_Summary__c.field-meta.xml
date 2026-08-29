@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Civilian_Skill_Summary__c</fullName>
+    <description>Two to four plain sentences describing transferable civilian skills for this cluster. Written in second person, from a peer perspective, with no recruiter language. Used by the agent to explain what a veteran from this cluster can do in civilian terms.</description>
+    <externalId>false</externalId>
+    <label>Civilian Skill Summary</label>
+    <length>1000</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

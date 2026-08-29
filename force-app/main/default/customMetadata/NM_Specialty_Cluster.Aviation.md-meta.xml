@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Aviation</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Aviation</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You operated, maintained, or managed aircraft in demanding conditions where errors have serious consequences. Your experience covers flight operations, maintenance procedures, and the discipline that keeps both people and machines safe. You understand preflight planning, crew coordination, and the regulatory environment around aviation — skills that civilian aviation employers look for and cannot easily train from scratch.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Commercial Airline Pilot", "description": "You fly passengers or cargo on scheduled routes, manage the aircraft systems, and make safety decisions throughout the flight. Military fixed-wing and rotary-wing pilots typically qualify for an FAA ATP certificate and are actively recruited by commercial carriers."}, {"title": "Aircraft Mechanic (A&amp;P)", "description": "You inspect, repair, and maintain aircraft airframes and powerplants, sign off on maintenance records, and ensure the aircraft is airworthy. Military aviation maintenance experience is directly applicable and counts toward FAA certification requirements."}, {"title": "Aviation Maintenance Technician", "description": "You perform scheduled and unscheduled maintenance on aircraft systems, troubleshoot issues, and document all work. This covers avionics, hydraulics, landing gear, and engines depending on your specialty."}, {"title": "Air Traffic Controller", "description": "You direct aircraft in and around airports and airspace using radar and radio communications, keeping separation and sequence. Military ATC experience is directly transferable with FAA licensing."}, {"title": "Flight Operations Coordinator", "description": "You plan and schedule flight operations, file flight plans, brief crews on weather and route information, and track aircraft movements. This is a ground-based role that uses your aviation knowledge in a planning and coordination capacity."}]</value>
+    </values>
+</CustomMetadata>

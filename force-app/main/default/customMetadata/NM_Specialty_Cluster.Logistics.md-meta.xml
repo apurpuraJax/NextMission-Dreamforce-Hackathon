@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Logistics</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Logistics</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You kept people, equipment, and supplies moving in complex environments where failure meant mission failure. You tracked inventory, managed contracts, coordinated transportation, and solved supply problems before they became someone else&apos;s crisis. You know how to work at scale, deal with vendors and contractors, and keep a supply chain running when the straightforward option is not available.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Supply Chain Analyst", "description": "You track the flow of goods and materials through a company, identify bottlenecks, and recommend fixes. Most of the work is in spreadsheets and systems, analyzing data to improve how things move."}, {"title": "Warehouse Operations Manager", "description": "You oversee receiving, storage, and shipping at a warehouse facility, manage a team of workers, and keep inventory records accurate. The pace is steady and the job is very similar to running a supply point or forward logistics element."}, {"title": "Transportation Coordinator", "description": "You arrange freight shipments, track deliveries, and resolve issues when cargo gets delayed or lost. You work with carriers, drivers, and customers to make sure the right thing gets to the right place on time."}, {"title": "Procurement Specialist", "description": "You source materials and services, negotiate with vendors, write contracts, and manage purchasing within a budget. Government contracting experience maps well to this role."}, {"title": "Inventory Control Manager", "description": "You maintain accurate counts of stock across a facility or distribution network, investigate discrepancies, and set reorder levels to prevent shortages. Property book and supply sergeant experience is a direct match."}]</value>
+    </values>
+</CustomMetadata>

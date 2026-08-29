@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Communications / IT</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Communications_IT</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You installed, operated, and maintained communications networks and IT systems that could not go down. You troubleshot hardware and software problems under time pressure, secured systems against intrusion, and trained others to use complex equipment. You have hands-on experience with networks, systems administration, and the basics of cybersecurity that civilian IT teams spend years building.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{"title": "Network Administrator", "description": "You configure and maintain routers, switches, firewalls, and other network equipment to keep an organization's systems connected and secure. Military signals and communications experience maps directly into this role."}, {"title": "Systems Administrator", "description": "You manage servers, user accounts, and IT infrastructure, handle backups, apply patches, and respond when systems have problems. Day-to-day work is a mix of maintenance and troubleshooting."}, {"title": "IT Support Specialist", "description": "You help employees resolve computer, software, and network issues, set up equipment, and document solutions. This is often the entry point into civilian IT work, and many veterans move quickly into more advanced roles."}, {"title": "Cybersecurity Analyst", "description": "You monitor networks and systems for threats, investigate alerts, and help the organization understand its exposure. Signals intelligence and information assurance backgrounds are well suited to this work."}, {"title": "Telecommunications Specialist", "description": "You install, maintain, and troubleshoot telephone, radio, and data communication systems. The equipment differs from military comms gear but the underlying concepts and discipline carry over directly."}]</value>
+    </values>
+</CustomMetadata>
