@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>NM Agent Data Access</label>
+    <description>Grants the Next Mission agent and integration user access to NM_ custom objects and fields. CMDT access (NM_Military_Code__mdt, NM_Specialty_Cluster__mdt) will be added once NMDH-3 and NMDH-4 land. Apex class access is added story by story in S04-S08.</description>
+
+    <!-- NM_Conversation__c: Create, Read, Edit (agents write sessions, read for context) -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Conversation__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+
+    <!-- NM_Mentor__c: Read only (agents surface mentor info; never write to the roster) -->
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Mentor__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+
+    <!-- NM_Mentor_Introduction__c: Create, Read, Edit -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Mentor_Introduction__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+
+    <!-- NM_Conversation__c field permissions -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.External_Session_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Started_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Source_URL__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Branch__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Specialty_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Cluster_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Lead_Captured__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Mentor_Requested__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Mentor_Matched__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Message_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Transcript__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- NM_Mentor__c field permissions — Contact_Email__c intentionally excluded -->
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Branch__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Specialty_Cluster__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Civilian_Role__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Employer__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Years_Since_Transition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Bio__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Active__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <!-- NM_Mentor__c.Contact_Email__c: NOT listed — agents must never surface mentor email -->
+
+    <!-- NM_Mentor_Introduction__c field permissions -->
+    <!-- Conversation__c and Mentor__c are required lookups — Salesforce does not allow  -->
+    <!-- explicit fieldPermissions on required fields; they are always accessible.        -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Mentor_Introduction__c.Requester_Email__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Mentor_Introduction__c.Introduced_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Mentor_Introduction__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+</PermissionSet>

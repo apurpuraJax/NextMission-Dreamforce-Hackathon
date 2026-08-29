@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>NM Mentor Introduction</label>
+    <pluralLabel>NM Mentor Introductions</pluralLabel>
+    <nameField>
+        <label>Introduction Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>INTRO-{0000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>ReadWrite</sharingModel>
+    <description>Audit log of mentor introduction requests. One record per veteran-to-mentor introduction attempt, linked to the session conversation.</description>
+</CustomObject>
