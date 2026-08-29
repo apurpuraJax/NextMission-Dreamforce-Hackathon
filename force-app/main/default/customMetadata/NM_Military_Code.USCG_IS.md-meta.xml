@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <label>Air Force 3D0X2</label>
+    <label>Coast Guard IS</label>
     <protected>false</protected>
     <values>
         <field>Branch__c</field>
-        <value xsi:type="xsd:string">Air Force</value>
-    </values>
-    <values>
-        <field>Cluster_Key__c</field>
-        <value xsi:type="xsd:string">Communications_IT</value>
+        <value xsi:type="xsd:string">Coast Guard</value>
     </values>
     <values>
         <field>Code_Value__c</field>
-        <value xsi:type="xsd:string">3D0X2</value>
+        <value xsi:type="xsd:string">IS</value>
     </values>
     <values>
         <field>Role_Title__c</field>
-        <value xsi:type="xsd:string">Cyber Systems Operations</value>
+        <value xsi:type="xsd:string">Intelligence Specialist</value>
+    </values>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Intelligence</value>
     </values>
 </CustomMetadata>

@@ -7,15 +7,15 @@
         <value xsi:type="xsd:string">Coast Guard</value>
     </values>
     <values>
-        <field>Cluster_Key__c</field>
-        <value xsi:type="xsd:string">Communications_IT</value>
-    </values>
-    <values>
         <field>Code_Value__c</field>
         <value xsi:type="xsd:string">IT</value>
     </values>
     <values>
         <field>Role_Title__c</field>
         <value xsi:type="xsd:string">Information Systems Technician</value>
+    </values>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Communications_IT</value>
     </values>
 </CustomMetadata>
