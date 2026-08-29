@@ -146,7 +146,6 @@
     </fieldPermissions>
 
     <!-- NM_Mentor_Introduction__c field permissions -->
-    <!-- Conversation__c and Mentor__c are required lookups — no explicit fieldPermissions needed -->
     <fieldPermissions>
         <editable>true</editable>
         <field>NM_Mentor_Introduction__c.Introduced_At__c</field>
@@ -162,4 +161,18 @@
         <field>NM_Mentor_Introduction__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
+
+    <!-- Tab visibility: DefaultOn so all three tabs appear in navigation immediately -->
+    <tabVisibilities>
+        <tab>NM_Conversation__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>NM_Mentor__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+    <tabVisibilities>
+        <tab>NM_Mentor_Introduction__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
 </PermissionSet>
