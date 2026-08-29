@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Log conversation progress to the session sink record. Call at the end of each major topic turn to maintain a running record. sessionKey comes from the sessionKey conversation variable declared on the BotVersion. All fields except sessionKey are optional — pass only what is known at the time of the call.</description>
+    <functionName>NM_LogConversation</functionName>
+    <invocationTarget>NM_LogConversationAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+</GenAiFunction>
