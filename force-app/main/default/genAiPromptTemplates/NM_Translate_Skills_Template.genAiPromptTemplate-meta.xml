@@ -22,7 +22,6 @@ Civilian Skill Summary:
 
 Related Job Options:
 {!$Input.Job_List}</content>
-        <versionNumber>1</versionNumber>
     </templateVersions>
     <type>einstein_gpt__flex</type>
 </GenAiPromptTemplate>
