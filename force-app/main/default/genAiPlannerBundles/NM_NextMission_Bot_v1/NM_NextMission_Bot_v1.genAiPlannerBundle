@@ -4,6 +4,18 @@
     <localActionLinks>
         <genAiFunctionName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</genAiFunctionName>
     </localActionLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Greeting_And_Background</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Skills_Translation</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Job_Matching</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Mentor_Connection</genAiPluginName>
+    </localTopicLinks>
     <masterLabel>NM Next Mission Bot</masterLabel>
     <plannerActions>
         <fullName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</fullName>
