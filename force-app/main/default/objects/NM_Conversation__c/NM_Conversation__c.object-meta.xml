@@ -3,6 +3,7 @@
     <label>NM Conversation</label>
     <pluralLabel>NM Conversations</pluralLabel>
     <nameField>
+        <fullName>Name</fullName>
         <label>Conversation Name</label>
         <type>AutoNumber</type>
         <displayFormat>CONV-{0000}</displayFormat>

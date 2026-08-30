@@ -156,6 +156,7 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>NM Mentor</label>
     <nameField>
+        <fullName>Name</fullName>
         <label>Mentor Name</label>
         <type>Text</type>
     </nameField>

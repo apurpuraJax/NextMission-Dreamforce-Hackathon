@@ -3,6 +3,7 @@
     <label>NM Mentor Introduction</label>
     <pluralLabel>NM Mentor Introductions</pluralLabel>
     <nameField>
+        <fullName>Name</fullName>
         <label>Introduction Name</label>
         <type>AutoNumber</type>
         <displayFormat>INTRO-{0000}</displayFormat>
