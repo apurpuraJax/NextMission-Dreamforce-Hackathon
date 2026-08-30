@@ -16,14 +16,6 @@
         <apexClass>NM_LookupMilitaryCodeAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>NM_QAEvaluator</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>NM_QAScheduler</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
 
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
@@ -68,30 +60,10 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
 
-    <!-- NM_Conversation__c field permissions — operational fields -->
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.External_Session_Key__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.Started_At__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.Source_URL__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
+    <!-- NM_Conversation__c field permissions — operational fields only (QA fields not yet deployed) -->
     <fieldPermissions>
         <editable>true</editable>
         <field>NM_Conversation__c.Branch__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.Specialty_Code__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -101,12 +73,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>NM_Conversation__c.Lead_Captured__c</field>
+        <field>NM_Conversation__c.External_Session_Key__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>NM_Conversation__c.Mentor_Requested__c</field>
+        <field>NM_Conversation__c.Lead_Captured__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -116,7 +88,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>NM_Conversation__c.Mentor_Requested__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Message_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Source_URL__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Specialty_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Started_At__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -125,52 +117,20 @@
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- NM_Conversation__c field permissions — QA fields (NMDH-19) -->
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.QA_Issue_Categories__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.QA_Issues__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.QA_Reviewed__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.QA_Reviewed_At__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.QA_Score__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.Sentiment__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>NM_Conversation__c.Summary__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-
     <!-- NM_Mentor__c field permissions — Contact_Email__c intentionally excluded -->
     <fieldPermissions>
         <editable>false</editable>
-        <field>NM_Mentor__c.Branch__c</field>
+        <field>NM_Mentor__c.Active__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>NM_Mentor__c.Specialty_Cluster__c</field>
+        <field>NM_Mentor__c.Bio__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Mentor__c.Branch__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -185,17 +145,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>NM_Mentor__c.Specialty_Cluster__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>NM_Mentor__c.Years_Since_Transition__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>NM_Mentor__c.Bio__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>NM_Mentor__c.Active__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <!-- NM_Mentor__c.Contact_Email__c: NOT listed — agents must never surface mentor email -->
@@ -205,12 +160,12 @@
     <!-- explicit fieldPermissions on required fields; they are always accessible.        -->
     <fieldPermissions>
         <editable>true</editable>
-        <field>NM_Mentor_Introduction__c.Requester_Email__c</field>
+        <field>NM_Mentor_Introduction__c.Introduced_At__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>NM_Mentor_Introduction__c.Introduced_At__c</field>
+        <field>NM_Mentor_Introduction__c.Requester_Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
