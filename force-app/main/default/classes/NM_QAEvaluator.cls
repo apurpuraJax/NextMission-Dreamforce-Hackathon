@@ -34,7 +34,6 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
             SELECT Id, Transcript__c
             FROM NM_Conversation__c
             WHERE QA_Reviewed__c = false
-            AND Transcript__c != null
             ORDER BY CreatedDate ASC
             LIMIT 10
         ];
@@ -43,6 +42,15 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
 
         for (NM_Conversation__c record : records) {
             NM_Conversation__c upd = new NM_Conversation__c(Id = record.Id);
+            if (record.Transcript__c == null) {
+                // No transcript — skip this record; mark reviewed so it isn't re-queried
+                upd.QA_Reviewed__c    = true;
+                upd.QA_Reviewed_At__c = DateTime.now();
+                upd.QA_Score__c       = 0;
+                upd.QA_Issues__c      = 'Skipped: no transcript available';
+                toUpdate.add(upd);
+                continue;
+            }
             try {
                 String responseJson = invokeTemplate(record.Transcript__c);
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(responseJson);
@@ -88,7 +96,6 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
             SELECT COUNT()
             FROM NM_Conversation__c
             WHERE QA_Reviewed__c = false
-            AND Transcript__c != null
         ];
         if (remaining > 0) {
             System.enqueueJob(new NM_QAEvaluator());
@@ -116,12 +123,12 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         ConnectApi.EinsteinPromptTemplateGenerationsInput promptInput =
             new ConnectApi.EinsteinPromptTemplateGenerationsInput();
         promptInput.isPreview = false;
-        promptInput.additionalContext = new ConnectApi.EinsteinLLMAdditionalContext();
-        promptInput.additionalContext.inputMap = new Map<String, ConnectApi.WrappedValue>();
 
+        Map<String, ConnectApi.WrappedValue> valueMap = new Map<String, ConnectApi.WrappedValue>();
         ConnectApi.WrappedValue transcriptValue = new ConnectApi.WrappedValue();
         transcriptValue.value = transcript;
-        promptInput.additionalContext.inputMap.put('Input:Transcript', transcriptValue);
+        valueMap.put('Input:Transcript', transcriptValue);
+        promptInput.inputParams = valueMap;
 
         ConnectApi.EinsteinPromptTemplateGenerationsRepresentation response =
             ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate(
@@ -132,10 +139,8 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         String responseText;
         if (response.generations != null && !response.generations.isEmpty()) {
             responseText = response.generations[0].text;
-        } else if (response.selectedGeneration != null) {
-            responseText = response.selectedGeneration.text;
         } else {
-            throw new IllegalStateException('Empty response from NM_QA_Evaluator_Template');
+            throw new CalloutException('Empty response from NM_QA_Evaluator_Template');
         }
 
         System.debug('Exiting NM_QAEvaluator.invokeTemplate: responseLength=' + responseText.length());

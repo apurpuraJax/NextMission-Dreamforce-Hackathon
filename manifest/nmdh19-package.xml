@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>NM_QAEvaluator</members>
+        <members>NM_QAEvaluatorTest</members>
+        <members>NM_QAScheduler</members>
+        <members>NM_QASchedulerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>NM_Conversation__c.QA_Issue_Categories__c</members>
+        <members>NM_Conversation__c.QA_Issues__c</members>
+        <members>NM_Conversation__c.QA_Reviewed_At__c</members>
+        <members>NM_Conversation__c.QA_Reviewed__c</members>
+        <members>NM_Conversation__c.QA_Score__c</members>
+        <members>NM_Conversation__c.Sentiment__c</members>
+        <members>NM_Conversation__c.Summary__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>NM_Agent_Data_Access</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>62.0</version>
+</Package>
