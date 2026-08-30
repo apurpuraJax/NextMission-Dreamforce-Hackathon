@@ -41,13 +41,9 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         List<NM_Conversation__c> toUpdate = new List<NM_Conversation__c>();
 
         for (NM_Conversation__c record : records) {
-            // LongTextArea fields cannot be filtered in SOQL — skip blanks here
-            if (String.isBlank(record.Transcript__c)) {
-                continue;
-            }
             NM_Conversation__c upd = new NM_Conversation__c(Id = record.Id);
-            if (record.Transcript__c == null) {
-                // No transcript — skip this record; mark reviewed so it isn't re-queried
+            if (String.isBlank(record.Transcript__c)) {
+                // No/blank transcript — mark reviewed so it is not re-queried on every batch
                 upd.QA_Reviewed__c    = true;
                 upd.QA_Reviewed_At__c = DateTime.now();
                 upd.QA_Score__c       = 0;

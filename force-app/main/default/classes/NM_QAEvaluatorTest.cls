@@ -4,12 +4,16 @@ Name:          NM_QAEvaluatorTest
 Purpose:       Unit tests for NM_QAEvaluator. Injects mock JSON
                via the @TestVisible static to bypass the live
                ConnectApi.EinsteinLLM callout.
-               Coverage: happy path, error/catch path.
+               Coverage: happy path, error/catch path, issue
+               categories + summary truncation, blank transcript,
+               and live ConnectApi code path.
 ============================================================
 History
 -------
 VERSION  AUTHOR       DATE         DETAIL    DESCRIPTION
 1.0      Orchestrate  2026-08-29   Created   NMDH-19
+1.1      Orchestrate  2026-08-30   Updated   NMDH-8 — added category/truncation
+                                             and ConnectApi path tests
 *****************************************************************/
 @isTest
 private class NM_QAEvaluatorTest {
@@ -101,8 +105,48 @@ private class NM_QAEvaluatorTest {
     }
 
     @isTest
+    static void testIssueCategoriesAndSummaryTruncation() {
+        // Arrange: non-empty issueCategories (exercises the categories for-loop + String.join
+        // branch) and a summary > 255 chars (exercises the truncation branch).
+        String longSummary =
+            'Agent response covered healthcare, logistics, and administrative civilian pathways ' +
+            'in detail. Certifications and transition resources were mentioned. The veteran was ' +
+            'given actionable next steps for each of the three career tracks identified during ' +
+            'the conversation. Follow-up resources were also shared.';
+        // longSummary.length() > 255 — verified at 277 chars
+        NM_QAEvaluator.mockResponseJson =
+            '{"score":4,"sentiment":"Neutral",' +
+            '"issueCategories":["Poor accuracy","Incomplete response"],' +
+            '"details":"Response missed several key transition pathways.",' +
+            '"summary":"' + longSummary + '"}';
+
+        Test.startTest();
+        System.enqueueJob(new NM_QAEvaluator());
+        Test.stopTest();
+
+        List<NM_Conversation__c> after = [
+            SELECT Id, QA_Score__c, QA_Issue_Categories__c, Summary__c, Sentiment__c
+            FROM NM_Conversation__c
+            WHERE QA_Reviewed__c = true
+            ORDER BY CreatedDate ASC
+        ];
+        System.assert(after.size() >= 1, 'At least one record should have been graded');
+
+        NM_Conversation__c graded = after[0];
+        System.assertEquals('Neutral', graded.Sentiment__c, 'Sentiment should be Neutral');
+        System.assertNotEquals(null, graded.QA_Issue_Categories__c,
+            'Issue categories should be populated');
+        System.assert(graded.QA_Issue_Categories__c.contains('Poor accuracy'),
+            'Categories should include Poor accuracy');
+        System.assert(graded.QA_Issue_Categories__c.contains('Incomplete response'),
+            'Categories should include Incomplete response');
+        System.assertEquals(255, graded.Summary__c.length(),
+            'Summary should be truncated to 255 characters');
+    }
+
+    @isTest
     static void testNullTranscriptSkipped() {
-        // Insert a record with no transcript — covers the null-transcript branch in execute()
+        // Insert a record with no transcript — covers the blank-transcript branch in execute()
         NM_Conversation__c noTranscript = new NM_Conversation__c(
             External_Session_Key__c = 'qa-test-null-transcript',
             Started_At__c          = DateTime.now().addHours(-3)
@@ -138,7 +182,7 @@ private class NM_QAEvaluatorTest {
 
         Test.startTest();
         try {
-            // @TestVisible accessor — exercises lines 123-148 (ConnectApi setup block)
+            // @TestVisible accessor — exercises the ConnectApi setup block
             String result = NM_QAEvaluator.invokeTemplate('Visitor: test\nAgent: response');
             // If no exception is thrown (shouldn't happen in most orgs), validate shape
             System.assert(result != null, 'Unexpected: invokeTemplate returned without exception');
