@@ -72,11 +72,13 @@ No other action, topic instruction, or Apex class generates LLM output. Structur
 
 **Do not add a second Prompt Template.** Do not add a `GenAiFunction` with `invocationTargetType = generatePromptResponse` for any other purpose. If a new generation requirement arises, revise this file first and get approval before building.
 
-### The planner sees one action per topic
+### The planner sees one primary action per topic
 
-Each `GenAiPlugin` references exactly one `GenAiFunction`. The planner calls that function and synthesizes a response from the return value. Do not add a second action to an existing topic without revising this file.
+Each `GenAiPlugin` has one **primary** `GenAiFunction` — the action that answers the veteran's question. The planner calls that function and synthesizes a response from the return value. Do not add a second primary action to an existing topic without revising this file.
 
-This is intentional: a single action per topic keeps planner behavior predictable and eliminates the risk of the planner calling actions in the wrong order or calling both when only one is needed.
+This is intentional: one primary action per topic keeps planner behavior predictable and eliminates the risk of the planner calling actions in the wrong order or calling both when only one is needed.
+
+`NM_LogConversation` is not a primary action — it is a side-effect action that records what the veteran entered. It does not answer any question and cannot compete with the primary action for planner selection. Every topic that collects veteran input should reference both its primary action and `NM_LogConversation`. This pattern applies to all four topics (Greeting & Background, Skills Translation, Job Matching, Mentor Connection).
 
 ### GenAiFunction format — use masterLabel, not functionName
 
@@ -103,6 +105,16 @@ Every `GenAiFunction` metadata file must follow this shape:
    A flat file at `force-app/main/default/genAiFunctions/FunctionApiName.genAiFunction-meta.xml` will not deploy correctly.
 
 Both `NM_LogConversation` and `NM_GetJobMatches` were initially built with `<functionName>` and had to be corrected (NMDH-9). Do not repeat this.
+
+### GenAiPlugin schema — v67 rules
+
+**Canonical reference: `NM_Greeting_And_Background`** — this is the deployed working example for topic plugins. Match its structure when building new topics.
+
+Two schema rules that are not obvious from Salesforce documentation and will produce confusing failures if missed:
+
+1. **Every `<genAiPluginInstructions>` block requires its own `<developerName>` child.** Each element in the plugin's instruction list must include a `<developerName>` that is unique within the plugin. A flat instruction block without `<developerName>` will fail validation. The pattern mirrors what `NM_Job_Matching` uses — inspect that file if unsure.
+
+2. **`<scopeContraIndication>` does not exist in API v67.** Do not add it as a sibling of `<scope>`. If a topic instruction needs to exclude certain inputs or conditions, express the exclusion inside the `<scope>` element's text — for example: *"Do not handle requests about salary negotiation."* The element `<scopeContraIndication>` will cause a deploy error on the current API version.
 
 ### Permission set: NM_Agent_Data_Access
 
