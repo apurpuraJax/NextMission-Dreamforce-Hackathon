@@ -1,58 +1,259 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <description>Next Mission Agentforce agent — helps transitioning veterans map military experience to civilian careers and connect with mentors. Anonymous by default; email collected only for mentor introductions.</description>
     <localActionLinks>
         <genAiFunctionName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</genAiFunctionName>
     </localActionLinks>
     <localTopicLinks>
-        <genAiPluginName>NM_Greeting_And_Background</genAiPluginName>
+        <genAiPluginName>NM_Greeting_And_Background_16jaj0000035gRV</genAiPluginName>
     </localTopicLinks>
     <localTopicLinks>
-        <genAiPluginName>NM_Skills_Translation</genAiPluginName>
+        <genAiPluginName>NM_Job_Matching_16jaj0000035gRV</genAiPluginName>
     </localTopicLinks>
     <localTopicLinks>
-        <genAiPluginName>NM_Job_Matching</genAiPluginName>
+        <genAiPluginName>NM_Mentor_Connection_16jaj0000035gRV</genAiPluginName>
     </localTopicLinks>
     <localTopicLinks>
-        <genAiPluginName>NM_Mentor_Connection</genAiPluginName>
+        <genAiPluginName>NM_Skills_Translation_16jaj0000035gRV</genAiPluginName>
     </localTopicLinks>
+    <localTopics>
+        <fullName>NM_Greeting_And_Background_16jaj0000035gRV</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcomes the visitor and collects military branch and specialty information to establish a cluster key for downstream topics.</description>
+        <developerName>NM_Greeting_And_Background_16jaj0000035gRV</developerName>
+        <genAiPluginInstructions>
+            <description>Ask the visitor for their military branch and specialty code, or a plain description of what they did. If the visitor provides a specialty code, call NM_LookupMilitaryCode with branch and code. If the result returns found=false, surface the notFoundMessage verbatim and ask what the role involved — never guess or invent a code interpretation.</description>
+            <developerName>Collect_Branch_And_Code</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Collect Branch And Code</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
+            <developerName>First_Person_Singular_Voice</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>First Person Singular Voice</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>After the clusterKey is confirmed through a successful NM_LookupMilitaryCode call or description-based identification, call NM_LogConversation with sessionKey, branch, specialtyCode, and clusterKey.</description>
+            <developerName>Log_After_Cluster_Confirmed</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Log After Cluster Confirmed</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>NEVER ask about or repeat back discharge status, disability rating, VA status, or any other sensitive service detail. If the visitor volunteers such information, acknowledge briefly only if necessary and move on without repeating it.</description>
+            <developerName>No_Sensitive_Details</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Sensitive Details</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>ALWAYS open with a warm, plain welcome. NEVER use the words Hero, thank you for your service, sacrifice, warrior, or battle in any response.</description>
+            <developerName>Warm_Welcome</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Warm Welcome</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>NM_Greeting_And_Background</localDeveloperName>
+        <masterLabel>NM Greeting And Background</masterLabel>
+        <pluginType>Topic</pluginType>
+        <scope>Use this topic when the visitor arrives or describes their military background — branch, specialty code, or a description of what they did. Do not use this topic once a cluster key has been established — hand off to Skills Translation.</scope>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Skills_Translation_16jaj0000035gRV</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Translates the visitor&apos;s military background into civilian skills and explains why their experience is relevant. Called when a cluster key is established and the visitor wants to understand how their background connects to civilian careers.</description>
+        <developerName>NM_Skills_Translation_16jaj0000035gRV</developerName>
+        <genAiPluginInstructions>
+            <description>Call NM_GetClusterData with the established clusterKey and the visitor&apos;s userPrompt (their description of their role or experience). Present the returned translatedSkills verbatim — do not paraphrase, condense, or add to it.</description>
+            <developerName>Translate_And_Present_Verbatim</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Translate And Present Verbatim</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>If found=false, surface the returned message verbatim and ask the visitor to describe what their day-to-day work involved in plain terms. Do not guess or invent a translation.</description>
+            <developerName>Handle_Not_Found</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Handle Not Found</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Do not tell the visitor they are qualified, a good fit, or well-suited for any role. Present the skill mapping as information only.</description>
+            <developerName>No_Evaluation</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Evaluation</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Do not state or imply any salary, compensation range, or pay scale for any role or skill.</description>
+            <developerName>No_Salary_Claims</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Salary Claims</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
+            <developerName>First_Person_Singular_Voice</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>First Person Singular Voice</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>NEVER use the words Hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, or unlock in any response.</description>
+            <developerName>No_Off_Limits_Words</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Off Limits Words</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>After presenting the skills translation, call NM_LogConversation to record the interaction.</description>
+            <developerName>Log_After_Translation</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Log After Translation</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>NM_Skills_Translation</localDeveloperName>
+        <masterLabel>NM Skills Translation</masterLabel>
+        <pluginType>Topic</pluginType>
+        <scope>Use this topic when the visitor wants to understand how their military background translates to civilian skills. Do not use this topic for job matching, mentor connection, or initial background collection. Do not use this topic before a clusterKey is established.</scope>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Job_Matching_16jaj0000035gRV</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Surfaces civilian job options tied to the visitor&apos;s specialty cluster. Called when the visitor asks to see job roles that match their military background.</description>
+        <developerName>NM_Job_Matching_16jaj0000035gRV</developerName>
+        <genAiPluginInstructions>
+            <description>Call NM_GetJobMatches with the established clusterKey. Present the returned job titles and descriptions verbatim — do not add, remove, or rephrase them.</description>
+            <developerName>Present_Jobs_From_Data</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Present Jobs From Data</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Do not rank jobs in any way. Do not describe any job as the top, most suitable, most recommended, or most relevant option. Present them as a set of options only.</description>
+            <developerName>No_Ranking</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Ranking</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Do not state or imply any salary, compensation range, hourly rate, or pay scale for any role.</description>
+            <developerName>No_Salary_Claims</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Salary Claims</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>After presenting the jobs, ask the visitor once, in plain language, whether they would like to connect with a mentor who moved into one of these fields. Do not ask again if they decline.</description>
+            <developerName>Mentor_Follow_Up</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Mentor Follow Up</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
+            <developerName>First_Person_Singular_Voice</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>First Person Singular Voice</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>NEVER use the words Hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, or unlock in any response.</description>
+            <developerName>No_Off_Limits_Words</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Off Limits Words</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Call NM_LogConversation after presenting the jobs to log the interaction.</description>
+            <developerName>Log_After_Jobs_Presented</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Log After Jobs Presented</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>NM_Job_Matching</localDeveloperName>
+        <masterLabel>NM Job Matching</masterLabel>
+        <pluginType>Topic</pluginType>
+        <scope>Use this topic when the visitor wants to see specific civilian job options based on their background. Do not use this topic for skills explanation or mentor connection. Do not use this topic before a clusterKey is established.</scope>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Mentor_Connection_16jaj0000035gRV</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Connects visitors with mentors who made a similar military-to-civilian transition. Active only when the visitor explicitly requests it. Handles mentor lookup, email-gated introduction requests, and conversation logging.</description>
+        <developerName>NM_Mentor_Connection_16jaj0000035gRV</developerName>
+        <genAiPluginInstructions>
+            <description>Call NM_FindMentor with the established clusterKey and branch (if known from session context). Present the returned mentor&apos;s name, civilian role, employer, and bio verbatim. Do not add, omit, rephrase, or editorialize. NEVER surface, hint at, or reference a mentor&apos;s email address — it is for internal use only and must not reach the visitor.</description>
+            <developerName>Find_And_Present_Mentor</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Find And Present Mentor</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>After presenting the mentor, ask the visitor once whether they would like a personal introduction. Do NOT ask for their email address at this point — wait for an explicit yes. Do not assume the answer is yes. If they decline, acknowledge briefly and offer to answer other questions. Do not ask again in this session.</description>
+            <developerName>Email_Gate_Confirmation</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Email Gate Confirmation</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Ask for the visitor&apos;s email address ONLY after they have said yes to an introduction. Once they provide it, call NM_RequestMentorIntro with mentorId, requesterEmail, and sessionKey. If the call returns success=false because the email is invalid, ask once for a corrected email. Do not ask a third time under any circumstances.</description>
+            <developerName>Collect_Email_And_Request_Intro</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Collect Email And Request Intro</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>After a successful NM_RequestMentorIntro call in this session, do NOT offer or ask about introductions again. Confirm once that the request was submitted, then offer to answer other questions. Do not loop back to the introduction prompt.</description>
+            <developerName>Post_Intro_Suppression</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Post Intro Suppression</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>Call NM_LogConversation after any mentor interaction in this topic. Pass mentorRequested=true.</description>
+            <developerName>Log_Mentor_Interaction</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>Log Mentor Interaction</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
+            <developerName>First_Person_Singular_Voice</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>First Person Singular Voice</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <genAiPluginInstructions>
+            <description>NEVER use the words Hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, or unlock in any response.</description>
+            <developerName>No_Off_Limits_Words</developerName>
+            <language xsi:nil="true"/>
+            <masterLabel>No Off Limits Words</masterLabel>
+            <sortOrder>0</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>NM_Mentor_Connection</localDeveloperName>
+        <masterLabel>NM Mentor Connection</masterLabel>
+        <pluginType>Topic</pluginType>
+        <scope>Use this topic when the visitor explicitly expresses interest in connecting with a mentor. Do not use this topic proactively — only after the visitor asks. Do not redirect from job browsing to mentor connection without the visitor initiating it.</scope>
+    </localTopics>
     <masterLabel>NM Next Mission Bot</masterLabel>
     <plannerActions>
-        <fullName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</fullName>
-        <description>Answers questions about company policies and procedures, troubleshooting steps, or product information. For example: &quot;What is your return policy?&quot; &quot;How do I fix an issue?&quot; or &quot;What features does a product have?&quot;</description>
-        <developerName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</developerName>
-        <invocationTarget>streamKnowledgeSearch</invocationTarget>
-        <invocationTargetType>standardInvocableAction</invocationTargetType>
-        <isConfirmationRequired>false</isConfirmationRequired>
-        <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
-        <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
-        <masterLabel>Answer Questions with Knowledge</masterLabel>
-        <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
-        <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
-    </plannerActions>
-    <plannerActions>
-        <fullName>NM_LookupMilitaryCode_179aj000004wuVl</fullName>
-        <description>Look up a military occupational code to find its civilian mapping. Call when the visitor provides their branch and specialty code.</description>
-        <developerName>NM_LookupMilitaryCode_179aj000004wuVl</developerName>
-        <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
+        <fullName>NM_GetJobMatches_179aj000004wuVn</fullName>
+        <description>Retrieve the list of civilian job options for the visitor&apos;s cluster. Returns job titles and descriptions from stored data only.</description>
+        <developerName>NM_GetJobMatches_179aj000004wuVn</developerName>
+        <invocationTarget>NM_GetJobMatchesAction</invocationTarget>
         <invocationTargetType>apex</invocationTargetType>
         <isConfirmationRequired>false</isConfirmationRequired>
         <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_LookupMilitaryCode</localDeveloperName>
-        <masterLabel>NM LookupMilitaryCode</masterLabel>
-        <source>NM_LookupMilitaryCode</source>
-    </plannerActions>
-    <plannerActions>
-        <fullName>NM_LogConversation_179aj000004wuVl</fullName>
-        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
-        <developerName>NM_LogConversation_179aj000004wuVl</developerName>
-        <invocationTarget>NM_LogConversationAction</invocationTarget>
-        <invocationTargetType>apex</invocationTargetType>
-        <isConfirmationRequired>false</isConfirmationRequired>
-        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_LogConversation</localDeveloperName>
-        <masterLabel>NM LogConversation</masterLabel>
-        <source>NM_LogConversation</source>
+        <localDeveloperName>NM_GetJobMatches</localDeveloperName>
+        <masterLabel>NM GetJobMatches</masterLabel>
+        <source>NM_GetJobMatches</source>
     </plannerActions>
     <plannerActions>
         <fullName>NM_GetClusterData_179aj000004wuVm</fullName>
@@ -67,9 +268,9 @@
         <source>NM_GetClusterData</source>
     </plannerActions>
     <plannerActions>
-        <fullName>NM_LogConversation_179aj000004wuVm</fullName>
+        <fullName>NM_LogConversation_179aj000004wuVl</fullName>
         <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
-        <developerName>NM_LogConversation_179aj000004wuVm</developerName>
+        <developerName>NM_LogConversation_179aj000004wuVl</developerName>
         <invocationTarget>NM_LogConversationAction</invocationTarget>
         <invocationTargetType>apex</invocationTargetType>
         <isConfirmationRequired>false</isConfirmationRequired>
@@ -79,40 +280,16 @@
         <source>NM_LogConversation</source>
     </plannerActions>
     <plannerActions>
-        <fullName>NM_GetJobMatches_179aj000004wuVn</fullName>
-        <description>Retrieve the list of civilian job options for the visitor&apos;s cluster. Returns job titles and descriptions from stored data only.</description>
-        <developerName>NM_GetJobMatches_179aj000004wuVn</developerName>
-        <invocationTarget>NM_GetJobMatchesAction</invocationTarget>
+        <fullName>NM_LookupMilitaryCode_179aj000004wuVl</fullName>
+        <description>Look up a military occupational code to find its civilian mapping. Call when the visitor provides their branch and specialty code.</description>
+        <developerName>NM_LookupMilitaryCode_179aj000004wuVl</developerName>
+        <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
         <invocationTargetType>apex</invocationTargetType>
         <isConfirmationRequired>false</isConfirmationRequired>
         <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_GetJobMatches</localDeveloperName>
-        <masterLabel>NM GetJobMatches</masterLabel>
-        <source>NM_GetJobMatches</source>
-    </plannerActions>
-    <plannerActions>
-        <fullName>NM_LogConversation_179aj000004wuVn</fullName>
-        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
-        <developerName>NM_LogConversation_179aj000004wuVn</developerName>
-        <invocationTarget>NM_LogConversationAction</invocationTarget>
-        <invocationTargetType>apex</invocationTargetType>
-        <isConfirmationRequired>false</isConfirmationRequired>
-        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_LogConversation</localDeveloperName>
-        <masterLabel>NM LogConversation</masterLabel>
-        <source>NM_LogConversation</source>
-    </plannerActions>
-    <plannerActions>
-        <fullName>NM_FindMentor_179aj000004wuVo</fullName>
-        <description>Find a mentor matching the visitor&apos;s cluster key. Returns mentor name, role, employer, and bio. Never returns email address.</description>
-        <developerName>NM_FindMentor_179aj000004wuVo</developerName>
-        <invocationTarget>NM_FindMentorAction</invocationTarget>
-        <invocationTargetType>apex</invocationTargetType>
-        <isConfirmationRequired>false</isConfirmationRequired>
-        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_FindMentor</localDeveloperName>
-        <masterLabel>NM FindMentor</masterLabel>
-        <source>NM_FindMentor</source>
+        <localDeveloperName>NM_LookupMilitaryCode</localDeveloperName>
+        <masterLabel>NM LookupMilitaryCode</masterLabel>
+        <source>NM_LookupMilitaryCode</source>
     </plannerActions>
     <plannerActions>
         <fullName>NM_RequestMentorIntro_179aj000004wuVo</fullName>
@@ -127,16 +304,29 @@
         <source>NM_RequestMentorIntro</source>
     </plannerActions>
     <plannerActions>
-        <fullName>NM_LogConversation_179aj000004wuVo</fullName>
-        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
-        <developerName>NM_LogConversation_179aj000004wuVo</developerName>
-        <invocationTarget>NM_LogConversationAction</invocationTarget>
+        <fullName>NM_FindMentor_179aj000004wuVo</fullName>
+        <description>Find a mentor matching the visitor&apos;s cluster key. Returns mentor name, role, employer, and bio. Never returns email address.</description>
+        <developerName>NM_FindMentor_179aj000004wuVo</developerName>
+        <invocationTarget>NM_FindMentorAction</invocationTarget>
         <invocationTargetType>apex</invocationTargetType>
         <isConfirmationRequired>false</isConfirmationRequired>
         <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
-        <localDeveloperName>NM_LogConversation</localDeveloperName>
-        <masterLabel>NM LogConversation</masterLabel>
-        <source>NM_LogConversation</source>
+        <localDeveloperName>NM_FindMentor</localDeveloperName>
+        <masterLabel>NM FindMentor</masterLabel>
+        <source>NM_FindMentor</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</fullName>
+        <description>Answers questions about company policies and procedures, troubleshooting steps, or product information. For example: &quot;What is your return policy?&quot; &quot;How do I fix an issue?&quot; or &quot;What features does a product have?&quot;</description>
+        <developerName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</developerName>
+        <invocationTarget>streamKnowledgeSearch</invocationTarget>
+        <invocationTargetType>standardInvocableAction</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+        <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
+        <masterLabel>Answer Questions with Knowledge</masterLabel>
+        <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
+        <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
     </plannerActions>
     <plannerSurfaces>
         <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
