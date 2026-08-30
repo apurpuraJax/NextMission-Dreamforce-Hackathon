@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <aiGenerateText>
+    <actionCalls>
         <name>Run_Translate_Skills_Template</name>
         <label>Run Translate Skills Template</label>
         <locationX>176</locationX>
         <locationY>386</locationY>
-        <aiPromptTemplate>NM_Translate_Skills_Template</aiPromptTemplate>
+        <actionName>NM_Translate_Skills_Template</actionName>
+        <actionType>generatePromptResponse</actionType>
         <connector>
             <targetReference>Set_Found_Outputs</targetReference>
         </connector>
@@ -14,28 +15,28 @@
             <targetReference>Set_Not_Found_Outputs</targetReference>
         </faultConnector>
         <inputParameters>
-            <name>User_Prompt</name>
+            <name>Input:User_Prompt</name>
             <value>
                 <elementReference>userPrompt</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>Cluster_Skills</name>
+            <name>Input:Cluster_Skills</name>
             <value>
                 <elementReference>varR_Cluster.Civilian_Skill_Summary__c</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
-            <name>Job_List</name>
+            <name>Input:Job_List</name>
             <value>
                 <elementReference>varR_Cluster.Job_Descriptions__c</elementReference>
             </value>
         </inputParameters>
         <outputParameters>
             <assignToReference>translatedSkills</assignToReference>
-            <name>Response</name>
+            <name>promptResponse</name>
         </outputParameters>
-    </aiGenerateText>
+    </actionCalls>
     <assignments>
         <name>Set_Found_Outputs</name>
         <label>Set Found Outputs</label>
