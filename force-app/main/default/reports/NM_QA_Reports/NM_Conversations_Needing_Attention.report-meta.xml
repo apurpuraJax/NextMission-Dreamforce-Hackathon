@@ -31,6 +31,10 @@
     <format>Tabular</format>
     <name>NM Conversations Needing Attention</name>
     <reportType>NM_Conversations__c</reportType>
+    <rowLimit>
+        <isPercent>false</isPercent>
+        <numberOfRows>2000</numberOfRows>
+    </rowLimit>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>true</showGrandTotal>
