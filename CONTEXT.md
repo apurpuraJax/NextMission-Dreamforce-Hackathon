@@ -78,6 +78,32 @@ Each `GenAiPlugin` references exactly one `GenAiFunction`. The planner calls tha
 
 This is intentional: a single action per topic keeps planner behavior predictable and eliminates the risk of the planner calling actions in the wrong order or calling both when only one is needed.
 
+### GenAiFunction format — use masterLabel, not functionName
+
+**Canonical reference: `NM_LookupMilitaryCode`** — this is the deployed working example. Match its structure exactly.
+
+Every `GenAiFunction` metadata file must follow this shape:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>...</description>
+    <invocationTarget>ApexClassName</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <masterLabel>FunctionApiName</masterLabel>
+</GenAiFunction>
+```
+
+**Two hard rules — both required for a successful deploy:**
+
+1. **`masterLabel`, not `functionName`.** Use `<masterLabel>` for the function's API name. The `<functionName>` element is not valid in this metadata schema. A file with `<functionName>` will fail with: *"Specify a valid invocationTarget and invocationTargetType."* This error looks like an invocationTarget problem but is actually caused by the wrong element name.
+
+2. **Each function in its own subfolder.** File path must be:
+   `force-app/main/default/genAiFunctions/FunctionApiName/FunctionApiName.genAiFunction-meta.xml`
+   A flat file at `force-app/main/default/genAiFunctions/FunctionApiName.genAiFunction-meta.xml` will not deploy correctly.
+
+Both `NM_LogConversation` and `NM_GetJobMatches` were initially built with `<functionName>` and had to be corrected (NMDH-9). Do not repeat this.
+
 ### Permission set: NM_Agent_Data_Access
 
 **`NM_Agent_Data_Access`** is the agent's access boundary — it defines what the Agentforce agent is permitted to read and write. Do not use a shortened name like `NM_Agent_Access`.
