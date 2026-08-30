@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
-    <activeVersionNumber>1</activeVersionNumber>
+    <activeVersionIdentifier>OytA5TXdsQi43TYWfjm1kZJ3quzH98vjBEzTi47v4JM=_1</activeVersionIdentifier>
     <description>Translates veteran military background into civilian skills. Uses only Cluster_Skills and Job_List — no invented skills or jobs. First-person voice, no jargon. NMDH-6 S05.</description>
     <developerName>NM_Translate_Skills_Template</developerName>
     <masterLabel>NM Translate Skills Template</masterLabel>
+    <overridable>false</overridable>
     <templateVersions>
         <content>You help veterans understand how their military background maps to civilian careers.
 
@@ -11,14 +12,40 @@ A veteran has described their experience. Explain, in warm and plain language, w
 
 Write in first person (I, me, my). Keep sentences short. Avoid jargon — no leverage, synergy, best-in-class, or unlock. Do not use the words warrior, battle, or sacrifice.
 
-Veteran's description:
-{!$Input.User_Prompt}
+Veteran&apos;s description:
+{!$Input:User_Prompt}
 
 Civilian skills for this background:
-{!$Input.Cluster_Skills}
+{!$Input:Cluster_Skills}
 
 Relevant civilian jobs:
-{!$Input.Job_List}</content>
+{!$Input:Job_List}</content>
+        <inputs>
+            <apiName>User_Prompt</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>User Prompt</masterLabel>
+            <referenceName>Input:User_Prompt</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Cluster_Skills</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Cluster Skills</masterLabel>
+            <referenceName>Input:Cluster_Skills</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Job_List</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Job List</masterLabel>
+            <referenceName>Input:Job_List</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>OytA5TXdsQi43TYWfjm1kZJ3quzH98vjBEzTi47v4JM=_1</versionIdentifier>
     </templateVersions>
     <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
 </GenAiPromptTemplate>

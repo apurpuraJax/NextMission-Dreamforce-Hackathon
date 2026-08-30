@@ -118,6 +118,55 @@ Two schema rules that are not obvious from Salesforce documentation and will pro
 
 2. **`<scopeContraIndication>` does not exist in API v67.** Do not add it as a sibling of `<scope>`. If a topic instruction needs to exclude certain inputs or conditions, express the exclusion inside the `<scope>` element's text — for example: *"Do not handle requests about salary negotiation."* The element `<scopeContraIndication>` will cause a deploy error on the current API version.
 
+### GenAiPromptTemplate schema — v67 rules
+
+**Canonical reference: `NM_Translate_Skills_Template`** — this is the deployed working example. Match its structure exactly when building new prompt templates (NMDH-19 and beyond).
+
+Four elements differ from what Salesforce documentation implies. Getting any of them wrong produces a schema rejection on deploy with no useful error message:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>MATCHING_VERSION_IDENTIFIER</activeVersionIdentifier>
+    <description>...</description>
+    <developerName>ApiName</developerName>
+    <masterLabel>Human Label</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content>Prompt text. Reference inputs as {!$Input:VariableName}</content>
+        <inputs>
+            <apiName>VariableName</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Variable Label</masterLabel>
+            <referenceName>Input:VariableName</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>MATCHING_VERSION_IDENTIFIER</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>
+```
+
+**Four hard rules:**
+
+1. **`<inputs>` blocks live inside `<templateVersions>`**, not at the top level. Top-level `<inputs>` elements cause a schema error.
+
+2. **`<versionIdentifier>` not `activeVersionNumber`.** The version field inside `<templateVersions>` is `<versionIdentifier>`. The top-level field is `<activeVersionIdentifier>` and must match the `<versionIdentifier>` value. The element `activeVersionNumber` does not exist in this metadata schema.
+
+3. **`<primaryModel>` is required inside `<templateVersions>`.** Without it the template saves but is not callable at runtime. Use `sfdc_ai__DefaultOpenAIGPT4OmniMini` unless a specific model is required.
+
+4. **`<status>Published</status>` inside `<templateVersions>`.** The template must be Published to be invokable from a Flow's `aiGenerateText` element. A `Draft` template saves successfully but returns no output when called.
+
+**Input reference syntax in `<content>`:** use `{!$Input:ApiName}` where `ApiName` matches the `<apiName>` inside the corresponding `<inputs>` block. The `<referenceName>` element in each input block should be `Input:ApiName` (no `{!$...}` wrapper — that wrapper is for content references only).
+
+**Getting the correct `versionIdentifier` value:** Salesforce generates this hash when the template is first created. The safest workflow is: create the template in Prompt Builder UI first (which assigns the hash), then `sf project retrieve start --metadata "GenAiPromptTemplate:ApiName"` to pull the canonical XML into the repo. Subsequent deploys of that XML will be treated as an UPDATE and succeed. Do not fabricate the hash — use the value retrieved from the org.
+
+---
+
 ### Permission set: NM_Agent_Data_Access
 
 **`NM_Agent_Data_Access`** is the agent's access boundary — it defines what the Agentforce agent is permitted to read and write. Do not use a shortened name like `NM_Agent_Access`.
