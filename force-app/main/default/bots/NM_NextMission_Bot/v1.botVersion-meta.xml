@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <botDialogs>
+        <developerName>Welcome</developerName>
+        <label>Welcome</label>
+    </botDialogs>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <developerName>sourceUrl</developerName>
+        <includeInPrompt>true</includeInPrompt>
+        <label>sourceUrl</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <developerName>sessionKey</developerName>
+        <includeInPrompt>true</includeInPrompt>
+        <label>sessionKey</label>
+        <visibility>External</visibility>
+    </conversationVariables>
+    <entryDialog>Welcome</entryDialog>
+    <fullName>v1</fullName>
+    <status>Active</status>
+</BotVersion>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentType>EinsteinServiceAgent</agentType>
+    <description>Next Mission Agentforce agent — helps transitioning veterans map military experience to civilian careers and connect with mentors. Anonymous by default; email collected only for mentor introductions.</description>
+    <label>NM Next Mission Bot</label>
+    <logPrivateConversationData>false</logPrivateConversationData>
+    <richContentEnabled>true</richContentEnabled>
+    <type>ExternalCopilot</type>
+</Bot>

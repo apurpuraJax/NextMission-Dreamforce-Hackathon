@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>NM_Bot_Definition_Id</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Bot Definition Id</shortDescription>
+        <value>0Xxaj000003yLz7CAE</value>
+    </labels>
+</CustomLabels>
