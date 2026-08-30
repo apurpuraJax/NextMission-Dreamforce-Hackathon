@@ -30,6 +30,114 @@
         <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
         <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
     </plannerActions>
+    <plannerActions>
+        <fullName>NM_LookupMilitaryCode_179aj000004wuVl</fullName>
+        <description>Look up a military occupational code to find its civilian mapping. Call when the visitor provides their branch and specialty code.</description>
+        <developerName>NM_LookupMilitaryCode_179aj000004wuVl</developerName>
+        <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_LookupMilitaryCode</localDeveloperName>
+        <masterLabel>NM LookupMilitaryCode</masterLabel>
+        <source>NM_LookupMilitaryCode</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_LogConversation_179aj000004wuVl</fullName>
+        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
+        <developerName>NM_LogConversation_179aj000004wuVl</developerName>
+        <invocationTarget>NM_LogConversationAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_LogConversation</localDeveloperName>
+        <masterLabel>NM LogConversation</masterLabel>
+        <source>NM_LogConversation</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_GetClusterData_179aj000004wuVm</fullName>
+        <description>Translate the visitor&apos;s military background into civilian skills using the cluster key established in the Greeting topic.</description>
+        <developerName>NM_GetClusterData_179aj000004wuVm</developerName>
+        <invocationTarget>NM_GetCluster_Flow</invocationTarget>
+        <invocationTargetType>flow</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_GetClusterData</localDeveloperName>
+        <masterLabel>NM GetClusterData</masterLabel>
+        <source>NM_GetClusterData</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_LogConversation_179aj000004wuVm</fullName>
+        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
+        <developerName>NM_LogConversation_179aj000004wuVm</developerName>
+        <invocationTarget>NM_LogConversationAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_LogConversation</localDeveloperName>
+        <masterLabel>NM LogConversation</masterLabel>
+        <source>NM_LogConversation</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_GetJobMatches_179aj000004wuVn</fullName>
+        <description>Retrieve the list of civilian job options for the visitor&apos;s cluster. Returns job titles and descriptions from stored data only.</description>
+        <developerName>NM_GetJobMatches_179aj000004wuVn</developerName>
+        <invocationTarget>NM_GetJobMatchesAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_GetJobMatches</localDeveloperName>
+        <masterLabel>NM GetJobMatches</masterLabel>
+        <source>NM_GetJobMatches</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_LogConversation_179aj000004wuVn</fullName>
+        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
+        <developerName>NM_LogConversation_179aj000004wuVn</developerName>
+        <invocationTarget>NM_LogConversationAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_LogConversation</localDeveloperName>
+        <masterLabel>NM LogConversation</masterLabel>
+        <source>NM_LogConversation</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_FindMentor_179aj000004wuVo</fullName>
+        <description>Find a mentor matching the visitor&apos;s cluster key. Returns mentor name, role, employer, and bio. Never returns email address.</description>
+        <developerName>NM_FindMentor_179aj000004wuVo</developerName>
+        <invocationTarget>NM_FindMentorAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_FindMentor</localDeveloperName>
+        <masterLabel>NM FindMentor</masterLabel>
+        <source>NM_FindMentor</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_RequestMentorIntro_179aj000004wuVo</fullName>
+        <description>Create an introduction record linking this session to the chosen mentor. Call only after visitor explicitly agrees and provides their email.</description>
+        <developerName>NM_RequestMentorIntro_179aj000004wuVo</developerName>
+        <invocationTarget>NM_RequestMentorIntroAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_RequestMentorIntro</localDeveloperName>
+        <masterLabel>NM RequestMentorIntro</masterLabel>
+        <source>NM_RequestMentorIntro</source>
+    </plannerActions>
+    <plannerActions>
+        <fullName>NM_LogConversation_179aj000004wuVo</fullName>
+        <description>Log conversation progress to the session sink record. Call at the end of each major topic turn.</description>
+        <developerName>NM_LogConversation_179aj000004wuVo</developerName>
+        <invocationTarget>NM_LogConversationAction</invocationTarget>
+        <invocationTargetType>apex</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+        <localDeveloperName>NM_LogConversation</localDeveloperName>
+        <masterLabel>NM LogConversation</masterLabel>
+        <source>NM_LogConversation</source>
+    </plannerActions>
     <plannerSurfaces>
         <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
         <callRecordingAllowed>false</callRecordingAllowed>

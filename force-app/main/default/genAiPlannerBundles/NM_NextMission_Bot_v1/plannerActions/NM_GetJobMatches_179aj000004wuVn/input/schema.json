@@ -1,0 +1,14 @@
+{
+  "required" : [ "clusterKey" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "clusterKey" : {
+      "title" : "Cluster Key",
+      "description" : "The Cluster_Key__c value from NM_Specialty_Cluster__mdt, as returned by NM_LookupMilitaryCode.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

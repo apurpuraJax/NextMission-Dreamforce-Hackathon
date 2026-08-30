@@ -1,0 +1,21 @@
+{
+  "required" : [ "clusterKey" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "clusterKey" : {
+      "title" : "Cluster Key",
+      "description" : "The cluster key established from the Greeting topic lookup — identifies the civilian skill cluster.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "userPrompt" : {
+      "title" : "User Prompt",
+      "description" : "The visitor's own description of their role or experience. Optional — used to personalize the skill translation.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

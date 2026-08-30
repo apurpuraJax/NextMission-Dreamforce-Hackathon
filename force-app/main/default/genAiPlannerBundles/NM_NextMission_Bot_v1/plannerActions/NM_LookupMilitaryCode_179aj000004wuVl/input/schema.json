@@ -1,0 +1,21 @@
+{
+  "required" : [ "branch", "code" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "branch" : {
+      "title" : "Military Branch",
+      "description" : "The military branch as stated by the veteran (Army, Navy, Air Force, Marine Corps, Coast Guard, Space Force).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "code" : {
+      "title" : "Specialty Code",
+      "description" : "The military specialty code exactly as stated (MOS, AFSC, Rating, NEC, etc.).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

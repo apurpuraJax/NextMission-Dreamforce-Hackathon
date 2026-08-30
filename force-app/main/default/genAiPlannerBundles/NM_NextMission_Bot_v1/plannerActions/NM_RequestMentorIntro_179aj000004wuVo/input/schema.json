@@ -1,0 +1,28 @@
+{
+  "required" : [ "mentorId", "requesterEmail", "conversationKey" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "mentorId" : {
+      "title" : "Mentor Id",
+      "description" : "Id of the NM_Mentor__c record — returned by NM_FindMentor.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "requesterEmail" : {
+      "title" : "Requester Email",
+      "description" : "Email address the veteran provided for the introduction.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : true
+    },
+    "conversationKey" : {
+      "title" : "Conversation Key",
+      "description" : "External_Session_Key__c of the current NM_Conversation__c session — used to link the intro record.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

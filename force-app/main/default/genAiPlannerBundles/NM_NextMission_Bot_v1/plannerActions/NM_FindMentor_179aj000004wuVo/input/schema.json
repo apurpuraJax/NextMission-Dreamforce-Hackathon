@@ -1,0 +1,21 @@
+{
+  "required" : [ "clusterKey" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "clusterKey" : {
+      "title" : "Cluster Key",
+      "description" : "NM_Specialty_Cluster__mdt key from session context — identifies the civilian skill cluster to match against.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "branch" : {
+      "title" : "Branch",
+      "description" : "Military branch of the veteran. Optional — used for preferred same-branch matching.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}
