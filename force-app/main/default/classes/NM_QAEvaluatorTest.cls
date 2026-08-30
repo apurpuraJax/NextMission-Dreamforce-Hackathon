@@ -146,6 +146,35 @@ private class NM_QAEvaluatorTest {
     }
 
     @isTest
+    static void testLivePathFallsToErrorWhenNoMock() {
+        // Arrange: do NOT set mockResponseJson. The invokeTemplate else-branch fires,
+        // callLiveEinsteinApi is invoked, and ConnectApi throws in test context.
+        // The execute() catch block must handle the exception and mark records reviewed.
+        // This covers the else-branch in invokeTemplate and the live API call statements.
+
+        // Act
+        Test.startTest();
+        System.enqueueJob(new NM_QAEvaluator());
+        Test.stopTest();
+
+        // Assert: both seed records from @TestSetup should be processed via error path
+        List<NM_Conversation__c> after = [
+            SELECT Id, QA_Reviewed__c, QA_Reviewed_At__c, QA_Issues__c
+            FROM NM_Conversation__c
+            WHERE QA_Reviewed__c = true
+        ];
+        System.assert(after.size() >= 1, 'At least one record should be processed when live path throws');
+
+        NM_Conversation__c errored = after[0];
+        System.assertEquals(true, errored.QA_Reviewed__c,       'QA_Reviewed__c must be true even on live error');
+        System.assertNotEquals(null, errored.QA_Reviewed_At__c, 'QA_Reviewed_At__c must be set on live error');
+        System.assert(
+            errored.QA_Issues__c != null && errored.QA_Issues__c.startsWith('Grader error:'),
+            'QA_Issues__c should start with "Grader error:" when the live path throws'
+        );
+    }
+
+    @isTest
     static void testNullTranscriptSkipped() {
         // Insert a record with no transcript — covers the blank-transcript branch in execute()
         NM_Conversation__c noTranscript = new NM_Conversation__c(
