@@ -10,15 +10,12 @@
         <field>NM_Conversation__c$Sentiment__c</field>
     </columns>
     <columns>
-        <field>NM_Conversation__c$Branch__c</field>
-    </columns>
-    <columns>
         <field>NM_Conversation__c$Cluster_Key__c</field>
     </columns>
     <columns>
         <field>NM_Conversation__c$QA_Reviewed_At__c</field>
     </columns>
-    <description>Conversations scoring below 6 that need human review — shows issue categories and AI analysis text.</description>
+    <description>Conversations scoring below 6 that need human review - shows issue categories and AI analysis text.</description>
     <filter>
         <booleanFilter>1</booleanFilter>
         <criteriaItems>
@@ -28,16 +25,18 @@
             <value>6</value>
         </criteriaItems>
     </filter>
-    <format>Tabular</format>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>None</dateGranularity>
+        <field>NM_Conversation__c$Branch__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
     <name>NM Conversations Needing Attention</name>
     <reportType>NM_Conversations__c</reportType>
-    <rowLimit>
-        <isPercent>false</isPercent>
-        <numberOfRows>2000</numberOfRows>
-    </rowLimit>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>NM_Conversation__c$QA_Score__c</sortColumn>
     <sortOrder>Asc</sortOrder>
 </Report>
