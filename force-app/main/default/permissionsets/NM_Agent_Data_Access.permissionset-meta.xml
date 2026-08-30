@@ -32,6 +32,10 @@
         <apexClass>NM_RequestMentorIntroAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>NM_TranslateSkillsAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
 
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
@@ -227,8 +231,7 @@
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- System permissions -->
-    <!-- RunFlow: agent running user must execute NM_GetCluster_Flow (NMDH-6) -->
+    <!-- System permissions — Run Flows required so the agent running user can invoke NM_GetCluster_Flow -->
     <userPermissions>
         <enabled>true</enabled>
         <name>RunFlow</name>

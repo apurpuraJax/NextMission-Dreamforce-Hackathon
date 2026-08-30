@@ -1,46 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- actionCalls: all together (alphabetically before assignments) -->
-    <actionCalls>
-        <name>Generate_Translated_Skills</name>
-        <label>Generate Translated Skills</label>
-        <locationX>308</locationX>
-        <locationY>374</locationY>
-        <actionName>NM_Translate_Skills_Template</actionName>
-        <actionType>generatePromptResponse</actionType>
-        <connector>
-            <targetReference>Set_Found</targetReference>
-        </connector>
-        <inputParameters>
-            <name>User_Prompt</name>
-            <value>
-                <elementReference>userPrompt</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>Cluster_Skills</name>
-            <value>
-                <elementReference>varR_SpecialtyCluster.Civilian_Skill_Summary__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>Job_List</name>
-            <value>
-                <elementReference>varR_SpecialtyCluster.Job_Descriptions__c</elementReference>
-            </value>
-        </inputParameters>
-        <outputParameters>
-            <assignToReference>translatedSkills</assignToReference>
-            <name>generatedText</name>
-        </outputParameters>
-    </actionCalls>
-
-    <!-- assignments: all together — not-found path and found path grouped -->
     <assignments>
-        <name>Set_Not_Found</name>
-        <label>Set Not Found</label>
-        <locationX>44</locationX>
-        <locationY>374</locationY>
+        <name>Set_Found_Outputs</name>
+        <label>Set Found Outputs</label>
+        <locationX>176</locationX>
+        <locationY>512</locationY>
+        <assignmentItems>
+            <assignToReference>found</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Not_Found_Outputs</name>
+        <label>Set Not Found Outputs</label>
+        <locationX>440</locationX>
+        <locationY>386</locationY>
         <assignmentItems>
             <assignToReference>found</assignToReference>
             <operator>Assign</operator>
@@ -52,65 +29,59 @@
             <assignToReference>message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>I don't have data on that specialty yet — can you describe what your role involved day to day?</stringValue>
+                <stringValue>I don&apos;t have data on that specialty yet — can you describe what your role involved day to day?</stringValue>
             </value>
         </assignmentItems>
     </assignments>
-    <assignments>
-        <name>Set_Found</name>
-        <label>Set Found</label>
-        <locationX>308</locationX>
-        <locationY>494</locationY>
-        <assignmentItems>
-            <assignToReference>found</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-    </assignments>
-
-    <!-- decisions -->
     <decisions>
-        <name>Cluster_Found</name>
-        <label>Cluster Found?</label>
+        <name>Cluster_Found_Or_Not</name>
+        <label>Cluster Found Or Not?</label>
         <locationX>176</locationX>
-        <locationY>254</locationY>
+        <locationY>260</locationY>
         <defaultConnector>
-            <targetReference>Set_Not_Found</targetReference>
+            <targetReference>Set_Not_Found_Outputs</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <defaultConnectorLabel>Cluster Not Found</defaultConnectorLabel>
         <rules>
-            <name>Found</name>
+            <name>Cluster_Found</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>varR_SpecialtyCluster.Id</leftValueReference>
+                <leftValueReference>varR_Cluster</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Generate_Translated_Skills</targetReference>
+                <targetReference>Run_Translate_Skills_Template</targetReference>
             </connector>
-            <label>Found</label>
+            <label>Cluster Found</label>
         </rules>
     </decisions>
-
-    <description>Looks up the visitor's specialty cluster from Custom Metadata and generates a plain-language skills translation via NM_Translate_Skills_Template. Inputs: clusterKey (Text), userPrompt (Text). Outputs: found (Boolean), translatedSkills (Text), message (Text).</description>
-    <interviewLabel>NM GetCluster Flow {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>NM GetCluster Flow</label>
+    <description>Translates a veteran&apos;s military background into civilian skills. Inputs: clusterKey, userPrompt. Returns found=true and translatedSkills on match; found=false and message when cluster is unrecognised. NMDH-6 S05.</description>
+    <interviewLabel>NM_GetCluster_Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SUB – NM GetCluster Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-
-    <!-- recordLookups -->
     <recordLookups>
         <name>Get_Specialty_Cluster</name>
         <label>Get Specialty Cluster</label>
         <locationX>176</locationX>
         <locationY>134</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Cluster_Found</targetReference>
+            <targetReference>Cluster_Found_Or_Not</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -122,22 +93,55 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>NM_Specialty_Cluster__mdt</object>
-        <outputReference>varR_SpecialtyCluster</outputReference>
+        <outputReference>varR_Cluster</outputReference>
         <queriedFields>Id</queriedFields>
         <queriedFields>Civilian_Skill_Summary__c</queriedFields>
         <queriedFields>Job_Descriptions__c</queriedFields>
     </recordLookups>
-
+    <aiGenerateText>
+        <name>Run_Translate_Skills_Template</name>
+        <label>Run Translate Skills Template</label>
+        <locationX>176</locationX>
+        <locationY>386</locationY>
+        <aiPromptTemplate>NM_Translate_Skills_Template</aiPromptTemplate>
+        <connector>
+            <targetReference>Set_Found_Outputs</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>false</isGoTo>
+            <targetReference>Set_Not_Found_Outputs</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>User_Prompt</name>
+            <value>
+                <elementReference>userPrompt</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>Cluster_Skills</name>
+            <value>
+                <elementReference>varR_Cluster.Civilian_Skill_Summary__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>Job_List</name>
+            <value>
+                <elementReference>varR_Cluster.Job_Descriptions__c</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>translatedSkills</assignToReference>
+            <name>Response</name>
+        </outputParameters>
+    </aiGenerateText>
     <start>
-        <locationX>56</locationX>
+        <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Specialty_Cluster</targetReference>
         </connector>
     </start>
     <status>Active</status>
-
-    <!-- variables: all together — inputs, outputs, internal -->
     <variables>
         <name>clusterKey</name>
         <dataType>String</dataType>
@@ -177,7 +181,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>varR_SpecialtyCluster</name>
+        <name>varR_Cluster</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
