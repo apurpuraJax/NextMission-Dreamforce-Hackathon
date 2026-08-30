@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Connects visitors with mentors who made a similar military-to-civilian transition. Active only when the visitor explicitly requests it. Handles mentor lookup, email-gated introduction requests, and conversation logging.</description>
+    <developerName>NM_Mentor_Connection</developerName>
+    <genAiFunctions>
+        <functionName>NM_FindMentor</functionName>
+    </genAiFunctions>
+    <genAiFunctions>
+        <functionName>NM_RequestMentorIntro</functionName>
+    </genAiFunctions>
+    <genAiFunctions>
+        <functionName>NM_LogConversation</functionName>
+    </genAiFunctions>
+    <genAiPluginInstructions>
+        <description>Call NM_FindMentor with the established clusterKey and branch (if known from session context). Present the returned mentor's name, civilian role, employer, and bio verbatim. Do not add, omit, rephrase, or editorialize. NEVER surface, hint at, or reference a mentor's email address — it is for internal use only and must not reach the visitor.</description>
+        <developerName>Find_And_Present_Mentor</developerName>
+        <masterLabel>Find And Present Mentor</masterLabel>
+        <sortOrder>1</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>After presenting the mentor, ask the visitor once whether they would like a personal introduction. Do NOT ask for their email address at this point — wait for an explicit yes. Do not assume the answer is yes. If they decline, acknowledge briefly and offer to answer other questions. Do not ask again in this session.</description>
+        <developerName>Email_Gate_Confirmation</developerName>
+        <masterLabel>Email Gate Confirmation</masterLabel>
+        <sortOrder>2</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>Ask for the visitor's email address ONLY after they have said yes to an introduction. Once they provide it, call NM_RequestMentorIntro with mentorId, requesterEmail, and sessionKey. If the call returns success=false because the email is invalid, ask once for a corrected email. Do not ask a third time under any circumstances.</description>
+        <developerName>Collect_Email_And_Request_Intro</developerName>
+        <masterLabel>Collect Email And Request Intro</masterLabel>
+        <sortOrder>3</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>After a successful NM_RequestMentorIntro call in this session, do NOT offer or ask about introductions again. Confirm once that the request was submitted, then offer to answer other questions. Do not loop back to the introduction prompt.</description>
+        <developerName>Post_Intro_Suppression</developerName>
+        <masterLabel>Post Intro Suppression</masterLabel>
+        <sortOrder>4</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>Call NM_LogConversation after any mentor interaction in this topic. Pass mentorRequested=true.</description>
+        <developerName>Log_Mentor_Interaction</developerName>
+        <masterLabel>Log Mentor Interaction</masterLabel>
+        <sortOrder>5</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
+        <developerName>First_Person_Singular_Voice</developerName>
+        <masterLabel>First Person Singular Voice</masterLabel>
+        <sortOrder>6</sortOrder>
+    </genAiPluginInstructions>
+    <genAiPluginInstructions>
+        <description>NEVER use the words Hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, or unlock in any response.</description>
+        <developerName>No_Off_Limits_Words</developerName>
+        <masterLabel>No Off Limits Words</masterLabel>
+        <sortOrder>7</sortOrder>
+    </genAiPluginInstructions>
+    <language>en_US</language>
+    <masterLabel>NM Mentor Connection</masterLabel>
+    <pluginType>topic</pluginType>
+    <scope>Use this topic when the visitor explicitly expresses interest in connecting with a mentor. Do not use this topic proactively — only after the visitor asks. Do not redirect from job browsing to mentor connection without the visitor initiating it.</scope>
+</GenAiPlugin>
