@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Retrieve the list of civilian job options for the visitor's cluster. Returns job titles and plain descriptions from Custom Metadata — present them as-is. Never rank jobs (no best, top, most suitable). Never claim salaries. Never add job titles not in the returned list. After presenting jobs, ask if the visitor would like to connect with a mentor.</description>
-    <functionName>NM_GetJobMatches</functionName>
-    <invocationTarget>NM_GetJobMatchesAction</invocationTarget>
-    <invocationTargetType>apex</invocationTargetType>
-</GenAiFunction>
