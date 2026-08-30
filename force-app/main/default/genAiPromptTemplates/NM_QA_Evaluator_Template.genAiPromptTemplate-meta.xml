@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
-    <activeVersionIdentifier>lH0eJ+3CyZNKDyBAHiFqMG16WRBkAkupsvbjufIEaC0=_3</activeVersionIdentifier>
+    <activeVersionIdentifier>lH0eJ+3CyZNKDyBAHiFqMG16WRBkAkupsvbjufIEaC0=_4</activeVersionIdentifier>
     <description>QA grader for NM_Conversation__c transcripts. Returns a JSON object with score, sentiment, issueCategories, details, and summary.</description>
     <developerName>NM_QA_Evaluator_Template</developerName>
     <masterLabel>NM QA Evaluator Template</masterLabel>
@@ -21,6 +21,25 @@ Transcript:
         <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
         <status>Published</status>
         <versionIdentifier>lH0eJ+3CyZNKDyBAHiFqMG16WRBkAkupsvbjufIEaC0=_3</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content>Grade this conversation. The agent is NextMission, an AI that helps veterans explore civilian career options. Respond ONLY with a valid JSON object in this exact shape — no prose, no explanation, just the object: {&quot;score&quot;: &lt;1-10&gt;, &quot;sentiment&quot;: &quot;&lt;Positive|Neutral|Confused|Frustrated&gt;&quot;, &quot;issueCategories&quot;: [&quot;&lt;tag&gt;&quot;, ...], &quot;details&quot;: &quot;&lt;one or two sentences&gt;&quot;, &quot;summary&quot;: &quot;&lt;one sentence&gt;&quot;}. Scoring guide: 9-10 = warm, accurate, concrete, no invented content; 7-8 = solid with one small miss; 5-6 = notable issue (repeated question, flat tone, off-topic); 1-4 = serious problem (invented jobs or salaries, off-limits words, no help delivered, agent scored or ranked the visitor). Issue category tags: MadeUpContent / OffLimitsWords / WrongTone / RepeatedQuestion / ScoringOrRanking / NoHelpDelivered / TechnicalFailure. If none apply return an empty array.
+
+Transcript:
+{!$Input:Transcript}</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>Transcript</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Transcript</masterLabel>
+            <referenceName>Input:Transcript</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultGPT5Mini</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>lH0eJ+3CyZNKDyBAHiFqMG16WRBkAkupsvbjufIEaC0=_4</versionIdentifier>
     </templateVersions>
     <type>einstein_gpt__flex</type>
     <visibility>Global</visibility>
