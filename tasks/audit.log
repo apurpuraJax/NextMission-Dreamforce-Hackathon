@@ -8,3 +8,11 @@
 2026-08-30T18:01:00Z | a4a78bd0 | COMMIT | 56d6868 pushed to main — agentDSLEnabled fix + botVersion sync + planner bundle baseline restore
 2026-08-30T18:01:00Z | a4a78bd0 | JIRA | NMDH-14 transitioned to Done, comment added
 2026-08-30T18:01:00Z | a4a78bd0 | BLOCKED | localTopics approach in GenAiPlannerBundle rejected by Salesforce server error 1999319052 for surface-deployed planners — not usable
+2026-08-30T19:xx | a4a78bd0 | CLEANUP | Deleted 4 GenAiPlannerFunctionDef records linking orphaned planner 16jaj0000035NrtAAE to 4 topics
+2026-08-30T19:xx | a4a78bd0 | CLEANUP | Deleted 2 GenAiPluginFunctionDef records (children of stale NM_Greeting_And_Background_16jaj0000035gRV)
+2026-08-30T19:xx | a4a78bd0 | CLEANUP | Deleted stale GenAiPluginDefinition NM_Greeting_And_Background_16jaj0000035gRV (179aj000004wA9ZAAU)
+2026-08-30T19:xx | a4a78bd0 | CLEANUP | Deleted orphaned GenAiPlannerDefinition NM_NextMission_Planner (16jaj0000035NrtAAE)
+2026-08-30T19:xx | a4a78bd0 | DEPLOY | NM_NextMission_Bot_v1 bundle + 4 plugins + 6 functions - Succeeded, 11 components, 0 errors
+2026-08-30T19:xx | a4a78bd0 | VERIFY | 5 GenAiPlannerFunctionDef records for active planner 16jaj0000035gRVAAY confirmed
+2026-08-30T19:xx | a4a78bd0 | COMMIT | 702f042 pushed to origin/main - localTopicLinks + orphaned planner removal
+2026-08-30T19:xx | a4a78bd0 | JIRA | NMDH-14 transitioned to Done, comment added

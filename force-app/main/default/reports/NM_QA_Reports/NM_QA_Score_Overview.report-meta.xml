@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <aggregateTypes>Average</aggregateTypes>
+        <field>NM_Conversation__c$QA_Score__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Minimum</aggregateTypes>
+        <field>NM_Conversation__c$QA_Score__c</field>
+    </columns>
+    <columns>
+        <field>NM_Conversation__c$Sentiment__c</field>
+    </columns>
+    <description>QA Score summary grouped by military branch — shows conversation volume and average score per branch.</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>NM_Conversation__c$Branch__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>NM QA Score Overview</name>
+    <reportType>NM_Conversations__c</reportType>
+    <scope>organization</scope>
+    <showDetails>false</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

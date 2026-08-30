@@ -3,5 +3,7 @@
     <fullName>QA_Reviewed_At__c</fullName>
     <description>Date and time the NM_QAEvaluator grader wrote its evaluation score to this record. Null until graded. Created by NMDH-19.</description>
     <label>QA Reviewed At</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>DateTime</type>
 </CustomField>

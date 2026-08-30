@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Mentor_Matched__c</fullName>
-    <label>Mentor Matched</label>
-    <type>Checkbox</type>
     <defaultValue>false</defaultValue>
     <description>True when at least one mentor was matched and an NM_Mentor_Introduction__c record was created for this session.</description>
+    <label>Mentor Matched</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
 </CustomField>

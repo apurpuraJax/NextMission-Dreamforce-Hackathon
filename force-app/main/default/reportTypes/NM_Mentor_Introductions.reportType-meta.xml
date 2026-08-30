@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>NM_Mentor_Introduction__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <description>Reports on NM Mentor Introductions — tracks mentor referrals over time.</description>
+    <label>NM Mentor Introductions</label>
+    <sections>
+        <columns>
+            <field>Status__c</field>
+            <table>NM_Mentor_Introduction__c</table>
+        </columns>
+        <columns>
+            <field>Introduced_At__c</field>
+            <table>NM_Mentor_Introduction__c</table>
+        </columns>
+        <masterLabel>NM Mentor Introduction Fields</masterLabel>
+    </sections>
+</CustomReportType>

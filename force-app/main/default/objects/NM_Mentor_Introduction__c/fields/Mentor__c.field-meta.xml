@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Mentor__c</fullName>
-    <label>Mentor</label>
-    <type>Lookup</type>
-    <referenceTo>NM_Mentor__c</referenceTo>
-    <relationshipName>Introductions</relationshipName>
-    <relationshipLabel>Introductions</relationshipLabel>
-    <required>true</required>
     <deleteConstraint>Restrict</deleteConstraint>
     <description>The mentor being introduced to the veteran.</description>
+    <label>Mentor</label>
+    <referenceTo>NM_Mentor__c</referenceTo>
+    <relationshipLabel>Introductions</relationshipLabel>
+    <relationshipName>Introductions</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
 </CustomField>

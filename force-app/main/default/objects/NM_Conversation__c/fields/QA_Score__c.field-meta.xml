@@ -2,8 +2,12 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>QA_Score__c</fullName>
     <description>QA evaluation score 1-10 assigned by NM_QAEvaluator. 9-10 = excellent; 7-8 = solid; 5-6 = notable issue; 1-4 = serious problem. Null until graded. Created by NMDH-19.</description>
+    <externalId>false</externalId>
     <label>QA Score</label>
     <precision>2</precision>
+    <required>false</required>
     <scale>0</scale>
+    <trackTrending>false</trackTrending>
     <type>Number</type>
+    <unique>false</unique>
 </CustomField>

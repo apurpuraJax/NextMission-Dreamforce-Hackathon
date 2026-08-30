@@ -3,8 +3,9 @@
     <fullName>QA_Issue_Categories__c</fullName>
     <description>Semi-colon-delimited issue category tags from the NM_QAEvaluator grader. Empty when no issues found. Values: MadeUpContent, OffLimitsWords, WrongTone, RepeatedQuestion, ScoringOrRanking, NoHelpDelivered, TechnicalFailure. Created by NMDH-19.</description>
     <label>QA Issue Categories</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>MultiselectPicklist</type>
-    <visibleLines>4</visibleLines>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
@@ -46,4 +47,5 @@
             </value>
         </valueSetDefinition>
     </valueSet>
+    <visibleLines>4</visibleLines>
 </CustomField>

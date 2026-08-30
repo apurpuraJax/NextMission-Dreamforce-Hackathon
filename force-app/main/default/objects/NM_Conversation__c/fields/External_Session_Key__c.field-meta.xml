@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>External_Session_Key__c</fullName>
-    <label>External Session Key</label>
-    <type>Text</type>
-    <length>255</length>
-    <externalId>true</externalId>
-    <unique>true</unique>
     <caseSensitive>false</caseSensitive>
-    <required>false</required>
     <description>UUID or opaque key identifying the anonymous session from the LWR site. External ID for upsert from the site integration.</description>
+    <externalId>true</externalId>
+    <label>External Session Key</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
 </CustomField>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <aggregateTypes>Average</aggregateTypes>
+        <field>NM_Conversation__c$QA_Score__c</field>
+    </columns>
+    <description>Frequency of each QA issue category across all graded conversations — identifies the most common failure modes.</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>NM_Conversation__c$QA_Issue_Categories__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>NM QA Issue Breakdown</name>
+    <reportType>NM_Conversations__c</reportType>
+    <scope>organization</scope>
+    <showDetails>false</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

@@ -4,5 +4,6 @@
     <defaultValue>false</defaultValue>
     <description>True when this conversation has been processed by NM_QAEvaluator. Used as the WHERE filter for the daily grader queue. Set to true even on grader error. Created by NMDH-19.</description>
     <label>QA Reviewed</label>
+    <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

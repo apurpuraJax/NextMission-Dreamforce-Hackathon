@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Specialty_Code__c</fullName>
+    <description>MOS / AFSC / rate code the veteran entered. Used to look up NM_Military_Code__mdt.</description>
+    <externalId>false</externalId>
     <label>Specialty Code</label>
-    <type>Text</type>
     <length>50</length>
     <required>false</required>
-    <description>MOS / AFSC / rate code the veteran entered. Used to look up NM_Military_Code__mdt.</description>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
 </CustomField>

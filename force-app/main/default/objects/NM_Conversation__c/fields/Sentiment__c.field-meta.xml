@@ -3,6 +3,8 @@
     <fullName>Sentiment__c</fullName>
     <description>Visitor sentiment assessed by the NM_QAEvaluator grader based on the conversation transcript. Values: Positive, Neutral, Confused, Frustrated. Null until graded. Created by NMDH-19.</description>
     <label>Sentiment</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
