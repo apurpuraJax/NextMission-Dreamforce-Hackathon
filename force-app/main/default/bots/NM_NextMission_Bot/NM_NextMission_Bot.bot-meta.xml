@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentDSLEnabled>false</agentDSLEnabled>
     <agentType>EinsteinServiceAgent</agentType>
+    <botMlDomain>
+        <label>NM Next Mission Bot</label>
+        <name>NM_NextMission_Bot</name>
+    </botMlDomain>
+    <botSource>None</botSource>
+    <botUser>nm.agent@nextmission.dreamforce2026.com</botUser>
     <description>Next Mission Agentforce agent — helps transitioning veterans map military experience to civilian careers and connect with mentors. Anonymous by default; email collected only for mentor introductions.</description>
     <label>NM Next Mission Bot</label>
     <logPrivateConversationData>false</logPrivateConversationData>
     <richContentEnabled>true</richContentEnabled>
+    <sessionTimeout>0</sessionTimeout>
     <type>ExternalCopilot</type>
 </Bot>
