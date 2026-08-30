@@ -106,18 +106,19 @@ private class NM_QAEvaluatorTest {
 
     @isTest
     static void testIssueCategoriesAndSummaryTruncation() {
-        // Arrange: non-empty issueCategories (exercises the categories for-loop + String.join
-        // branch) and a summary > 255 chars (exercises the truncation branch).
+        // Arrange: non-empty issueCategories using valid MSP picklist values
+        // (exercises the categories for-loop + String.join branch) and a summary
+        // > 255 chars (exercises the substring truncation branch).
         String longSummary =
             'Agent response covered healthcare, logistics, and administrative civilian pathways ' +
             'in detail. Certifications and transition resources were mentioned. The veteran was ' +
             'given actionable next steps for each of the three career tracks identified during ' +
-            'the conversation. Follow-up resources were also shared.';
-        // longSummary.length() > 255 — verified at 277 chars
+            'the conversation. Follow-up resources were also shared appropriately.';
+        // longSummary.length() > 255
         NM_QAEvaluator.mockResponseJson =
             '{"score":4,"sentiment":"Neutral",' +
-            '"issueCategories":["Poor accuracy","Incomplete response"],' +
-            '"details":"Response missed several key transition pathways.",' +
+            '"issueCategories":["MadeUpContent","WrongTone"],' +
+            '"details":"Response contained fabricated information and incorrect tone.",' +
             '"summary":"' + longSummary + '"}';
 
         Test.startTest();
@@ -136,10 +137,10 @@ private class NM_QAEvaluatorTest {
         System.assertEquals('Neutral', graded.Sentiment__c, 'Sentiment should be Neutral');
         System.assertNotEquals(null, graded.QA_Issue_Categories__c,
             'Issue categories should be populated');
-        System.assert(graded.QA_Issue_Categories__c.contains('Poor accuracy'),
-            'Categories should include Poor accuracy');
-        System.assert(graded.QA_Issue_Categories__c.contains('Incomplete response'),
-            'Categories should include Incomplete response');
+        System.assert(graded.QA_Issue_Categories__c.contains('MadeUpContent'),
+            'Categories should include MadeUpContent');
+        System.assert(graded.QA_Issue_Categories__c.contains('WrongTone'),
+            'Categories should include WrongTone');
         System.assertEquals(255, graded.Summary__c.length(),
             'Summary should be truncated to 255 characters');
     }
