@@ -9,9 +9,21 @@
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Pending</fullName><default>true</default></value>
-            <value><fullName>Sent</fullName><default>false</default></value>
-            <value><fullName>Declined</fullName><default>false</default></value>
+            <value>
+                <fullName>Pending</fullName>
+                <default>true</default>
+                <label>Pending</label>
+            </value>
+            <value>
+                <fullName>Sent</fullName>
+                <default>false</default>
+                <label>Sent</label>
+            </value>
+            <value>
+                <fullName>Declined</fullName>
+                <default>false</default>
+                <label>Declined</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

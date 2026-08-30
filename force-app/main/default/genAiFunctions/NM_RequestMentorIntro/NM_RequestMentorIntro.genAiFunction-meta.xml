@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Call ONLY after visitor explicitly says yes to an introduction and provides their email; validate email before calling; after success do not re-prompt for another intro this session.</description>
+    <invocationTarget>NM_RequestMentorIntroAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <masterLabel>NM_RequestMentorIntro</masterLabel>
+</GenAiFunction>

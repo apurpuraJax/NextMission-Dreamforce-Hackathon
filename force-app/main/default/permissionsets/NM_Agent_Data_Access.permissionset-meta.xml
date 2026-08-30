@@ -5,6 +5,10 @@
 
     <!-- Apex class access — agents must reach every Apex action they invoke -->
     <classAccesses>
+        <apexClass>NM_FindMentorAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>NM_GetJobMatchesAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -22,6 +26,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>NM_QAScheduler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>NM_RequestMentorIntroAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
 

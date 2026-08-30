@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Call when visitor wants to connect with a mentor; pass clusterKey from session context and branch if available; present name, role, employer, and bio; NEVER surface email.</description>
+    <invocationTarget>NM_FindMentorAction</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <masterLabel>NM_FindMentor</masterLabel>
+</GenAiFunction>
