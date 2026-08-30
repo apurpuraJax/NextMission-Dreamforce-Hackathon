@@ -66,17 +66,19 @@ There is no Data Cloud. There is no SOQL against user-generated records at trans
 
 ### The Prompt Template is the only place generation happens
 
-The only `GenAiPromptTemplate` in this project is `NM_Translate_Skills_Template`. It lives **inside** the autolaunched Flow `NM_GetCluster_Flow`. The Flow calls the template; the template generates the civilian-language restatement of the veteran's skills.
+The only `GenAiPromptTemplate` used by the Agentforce agent itself is `NM_Translate_Skills_Template`. It lives **inside** the autolaunched Flow `NM_GetCluster_Flow`. The Flow calls the template; the template generates the civilian-language restatement of the veteran's skills.
 
-No other action, topic instruction, or Apex class generates LLM output. Structured data output — job matches, mentor suggestions, conversation logs — comes from Apex, not generation.
+No other action, topic instruction, or Apex class generates LLM output for the agent's conversational surface. Structured data output — job matches, mentor suggestions, conversation logs — comes from Apex, not generation.
 
-**Do not add a second Prompt Template.** Do not add a `GenAiFunction` with `invocationTargetType = generatePromptResponse` for any other purpose. If a new generation requirement arises, revise this file first and get approval before building.
+**Do not add a second Prompt Template to the agent flow.** Do not add a `GenAiFunction` with `invocationTargetType = generatePromptResponse` for any other purpose. If a new generation requirement arises, revise this file first and get approval before building.
 
-### The planner sees one primary action per topic
+(`NM_QA_Evaluator_Template` is a separate, back-office evaluation template used by the `NM_QAEvaluator` Queueable for quality assurance. It is not part of the agent's conversational flow.)
 
-Each `GenAiPlugin` has one **primary** `GenAiFunction` — the action that answers the veteran's question. The planner calls that function and synthesizes a response from the return value. Do not add a second primary action to an existing topic without revising this file.
+### Planner action design — avoid ambiguous choices
 
-This is intentional: one primary action per topic keeps planner behavior predictable and eliminates the risk of the planner calling actions in the wrong order or calling both when only one is needed.
+A topic can have more than one `GenAiFunction`, and some topics genuinely need it. Mentor Connection requires two sequential actions: find a mentor, then request the introduction. Logging (`NM_LogConversation`) is a side-effect action shared across topics.
+
+The design principle is: **the planner must not face two actions that could both plausibly answer the same question.** When two functions could both match the same veteran input (e.g. both "search mentors" and "find mentors" respond to "find me a mentor"), the planner picks unpredictably. Design actions so each one owns a distinct question type — if the planner could reasonably call either one for the same input, redesign the action descriptions or split them into separate topics.
 
 `NM_LogConversation` is not a primary action — it is a side-effect action that records what the veteran entered. It does not answer any question and cannot compete with the primary action for planner selection. Every topic that collects veteran input should reference both its primary action and `NM_LogConversation`. This pattern applies to all four topics (Greeting & Background, Skills Translation, Job Matching, Mentor Connection).
 
@@ -162,3 +164,9 @@ All `sf` CLI commands must include `--target-org dreamforce-hackathon`. Do not o
 3. Confirm permission set updates ship in the same commit as any new Apex class or Flow.
 4. For UI stories: run through the accessibility checklist above.
 5. Validate before deploying: `sf project deploy validate --source-dir force-app --target-org dreamforce-hackathon --test-level RunLocalTests --json`
+6. **Deployed does not mean active.** A successful deploy does not mean the thing is switched on. Confirm the activation state separately before closing the story:
+   - **Flows** deploy as Draft — activate each Flow explicitly in Setup → Flows → Activate.
+   - **Prompt Templates** deploy in whatever status the XML declares, but must be Published to be callable at runtime — query the org or open Prompt Builder to verify the Published status, not just that the deploy command succeeded.
+   - **The Agentforce agent** must be activated in Setup → Agents after its metadata is deployed. A deployed-but-inactive agent answers nothing.
+   - **Scheduled Apex** must be explicitly scheduled via `System.schedule()` after the class is deployed — query `CronTrigger` to confirm the job is WAITING, not just that the class compiled.
+   Mark a story done only after you have confirmed the active/published/scheduled state in the org directly.
