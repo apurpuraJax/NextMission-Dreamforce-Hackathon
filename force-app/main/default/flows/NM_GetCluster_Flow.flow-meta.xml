@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <description>Looks up the visitor's specialty cluster from Custom Metadata and generates a plain-language skills translation via NM_Translate_Skills_Template. Inputs: clusterKey (Text), userPrompt (Text). Outputs: found (Boolean), translatedSkills (Text), message (Text).</description>
+    <interviewLabel>NM GetCluster Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>NM GetCluster Flow</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Specialty_Cluster</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+
+    <!-- Input: clusterKey established during Greeting topic -->
+    <variables>
+        <name>clusterKey</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Input: the visitor's own description of their role or experience -->
+    <variables>
+        <name>userPrompt</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Output: true when a cluster record was found and translation succeeded -->
+    <variables>
+        <name>found</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+
+    <!-- Output: the LLM-generated civilian skills translation — present verbatim -->
+    <variables>
+        <name>translatedSkills</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- Output: fallback message when found=false — surface verbatim to the visitor -->
+    <variables>
+        <name>message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- Internal: holds the CMDT record retrieved by Get_Specialty_Cluster -->
+    <variables>
+        <name>varR_SpecialtyCluster</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>NM_Specialty_Cluster__mdt</objectType>
+    </variables>
+
+    <!-- Step 1: Look up the specialty cluster CMDT record by clusterKey -->
+    <recordLookups>
+        <name>Get_Specialty_Cluster</name>
+        <label>Get Specialty Cluster</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Cluster_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Cluster_Key__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>clusterKey</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>NM_Specialty_Cluster__mdt</object>
+        <outputReference>varR_SpecialtyCluster</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Civilian_Skill_Summary__c</queriedFields>
+        <queriedFields>Job_Descriptions__c</queriedFields>
+    </recordLookups>
+
+    <!-- Step 2: Branch on whether a cluster record was found -->
+    <decisions>
+        <name>Cluster_Found</name>
+        <label>Cluster Found?</label>
+        <locationX>176</locationX>
+        <locationY>254</locationY>
+        <defaultConnector>
+            <targetReference>Set_Not_Found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varR_SpecialtyCluster.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Generate_Translated_Skills</targetReference>
+            </connector>
+            <label>Found</label>
+        </rules>
+    </decisions>
+
+    <!-- Not-found path: return found=false with a plain fallback message -->
+    <assignments>
+        <name>Set_Not_Found</name>
+        <label>Set Not Found</label>
+        <locationX>44</locationX>
+        <locationY>374</locationY>
+        <assignmentItems>
+            <assignToReference>found</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>I don't have data on that specialty yet — can you describe what your role involved day to day?</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Found path: run the Translate Skills prompt template -->
+    <actionCalls>
+        <name>Generate_Translated_Skills</name>
+        <label>Generate Translated Skills</label>
+        <locationX>308</locationX>
+        <locationY>374</locationY>
+        <actionName>NM_Translate_Skills_Template</actionName>
+        <actionType>generatePromptResponse</actionType>
+        <connector>
+            <targetReference>Set_Found</targetReference>
+        </connector>
+        <inputParameters>
+            <name>User_Prompt</name>
+            <value>
+                <elementReference>userPrompt</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>Cluster_Skills</name>
+            <value>
+                <elementReference>varR_SpecialtyCluster.Civilian_Skill_Summary__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>Job_List</name>
+            <value>
+                <elementReference>varR_SpecialtyCluster.Job_Descriptions__c</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>translatedSkills</assignToReference>
+            <name>generatedText</name>
+        </outputParameters>
+    </actionCalls>
+
+    <!-- Set found=true after the template runs (translatedSkills already set via outputParameters) -->
+    <assignments>
+        <name>Set_Found</name>
+        <label>Set Found</label>
+        <locationX>308</locationX>
+        <locationY>494</locationY>
+        <assignmentItems>
+            <assignToReference>found</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+</Flow>
