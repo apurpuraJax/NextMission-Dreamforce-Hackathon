@@ -3,12 +3,23 @@
     <description>QA grader for NM_Conversation__c transcripts. Returns a JSON object with score, sentiment, issueCategories, details, and summary.</description>
     <developerName>NM_QA_Evaluator_Template</developerName>
     <masterLabel>NM QA Evaluator Template</masterLabel>
+    <overridable>false</overridable>
     <templateVersions>
         <content>Grade this conversation. The agent is NextMission, an AI that helps veterans explore civilian career options. Respond ONLY with a valid JSON object in this exact shape — no prose, no explanation, just the object: {"score": &lt;1-10&gt;, "sentiment": "&lt;Positive|Neutral|Confused|Frustrated&gt;", "issueCategories": ["&lt;tag&gt;", ...], "details": "&lt;one or two sentences&gt;", "summary": "&lt;one sentence&gt;"}. Scoring guide: 9-10 = warm, accurate, concrete, no invented content; 7-8 = solid with one small miss; 5-6 = notable issue (repeated question, flat tone, off-topic); 1-4 = serious problem (invented jobs or salaries, off-limits words, no help delivered, agent scored or ranked the visitor). Issue category tags: MadeUpContent / OffLimitsWords / WrongTone / RepeatedQuestion / ScoringOrRanking / NoHelpDelivered / TechnicalFailure. If none apply return an empty array.
 
 Transcript:
-{!$Input.Transcript}</content>
-        <versionNumber>1</versionNumber>
+{!$Input:Transcript}</content>
+        <inputs>
+            <apiName>Transcript</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Transcript</masterLabel>
+            <referenceName>Input:Transcript</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <status>Published</status>
     </templateVersions>
     <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
 </GenAiPromptTemplate>

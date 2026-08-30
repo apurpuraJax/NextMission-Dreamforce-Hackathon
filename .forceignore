@@ -1,6 +1,0 @@
-# NM_QA_Evaluator_Template — GenAiPromptTemplate metadata is managed via the
-# Einstein Prompt Builder UI in this org. The template was authored as source
-# but the GenAiPromptTemplate schema at API v67 does not allow the versions/
-# content elements to be deployed via the Metadata API. Create or update the
-# template content directly in Setup > Einstein > Prompt Builder.
-force-app/main/default/genAiPromptTemplates/NM_QA_Evaluator_Template.genAiPromptTemplate-meta.xml
