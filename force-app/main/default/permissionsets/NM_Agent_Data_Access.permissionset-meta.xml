@@ -236,4 +236,9 @@
         <enabled>true</enabled>
         <name>RunFlow</name>
     </userPermissions>
+    <!-- ExecutePromptTemplates required for NM_QAEvaluator to call ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate (NMDH-19) -->
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ExecutePromptTemplates</name>
+    </userPermissions>
 </PermissionSet>

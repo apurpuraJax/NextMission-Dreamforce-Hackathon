@@ -155,7 +155,7 @@ Four elements differ from what Salesforce documentation implies. Getting any of 
 
 1. **`<inputs>` blocks live inside `<templateVersions>`**, not at the top level. Top-level `<inputs>` elements cause a schema error.
 
-2. **`<versionIdentifier>` not `activeVersionNumber`.** The version field inside `<templateVersions>` is `<versionIdentifier>`. The top-level field is `<activeVersionIdentifier>` and must match the `<versionIdentifier>` value. The element `activeVersionNumber` does not exist in this metadata schema.
+2. **Both `<activeVersionIdentifier>` (root) and `<versionIdentifier>` (inside `<templateVersions>`) are required — and they must be identical.** A template that has `<versionIdentifier>` inside `<templateVersions>` but is missing `<activeVersionIdentifier>` at root will deploy cleanly (status Succeeded), show as Published, and still fail at runtime with "Failed to generate Einstein LLM generations response" — the org cannot determine which version to invoke. The inner field alone is not sufficient; the outer pointer is what the runtime follows. The element name `activeVersionNumber` does not exist in this schema. **Safest workflow:** build the template in Prompt Builder first (which generates and stores the version hash), then retrieve: `sf project retrieve start --metadata "GenAiPromptTemplate:ApiName" --target-org <alias>`. Copy the retrieved XML into the repo. It will contain both fields with the correct org-generated hash. Do not fabricate the hash.
 
 3. **`<primaryModel>` is required inside `<templateVersions>`.** Without it the template saves but is not callable at runtime. Use `sfdc_ai__DefaultOpenAIGPT4OmniMini` unless a specific model is required.
 
