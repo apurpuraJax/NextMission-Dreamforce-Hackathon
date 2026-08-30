@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Next Mission Agentforce agent — helps transitioning veterans map military experience to civilian careers and connect with mentors. Anonymous by default; email collected only for mentor introductions.</description>
+    <localActionLinks>
+        <genAiFunctionName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</genAiFunctionName>
+    </localActionLinks>
+    <masterLabel>NM Next Mission Bot</masterLabel>
+    <plannerActions>
+        <fullName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</fullName>
+        <description>Answers questions about company policies and procedures, troubleshooting steps, or product information. For example: &quot;What is your return policy?&quot; &quot;How do I fix an issue?&quot; or &quot;What features does a product have?&quot;</description>
+        <developerName>AnswerQuestionsWithKnowledge_16jaj0000035gRV</developerName>
+        <invocationTarget>streamKnowledgeSearch</invocationTarget>
+        <invocationTargetType>standardInvocableAction</invocationTargetType>
+        <isConfirmationRequired>false</isConfirmationRequired>
+        <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+        <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
+        <masterLabel>Answer Questions with Knowledge</masterLabel>
+        <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
+        <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
+    </plannerActions>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <surface>SurfaceAction__CustomerWebClient</surface>
+        <surfaceType>CustomerWebClient</surfaceType>
+    </plannerSurfaces>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <surface>SurfaceAction__Messaging</surface>
+        <surfaceType>Messaging</surfaceType>
+    </plannerSurfaces>
+    <plannerType>AiCopilot__ReAct</plannerType>
+</GenAiPlannerBundle>

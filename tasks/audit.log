@@ -1,0 +1,5 @@
+2026-08-30T05:25:00Z | a4a78bd0 | deploy | GenAiPlannerBundle NM_NextMission_Planner (id=16jaj0000035NrtAAE) - Succeeded
+2026-08-30T05:25:00Z | a4a78bd0 | deploy | CustomLabel NM_Bot_Definition_Id (id=101aj00003n25vWAAQ) - Created
+2026-08-30T05:25:40Z | a4a78bd0 | git-commit | dd0b269 [NMDH-S13] Bot definition, BotVersion, GenAiPlannerBundle, CustomLabel
+2026-08-30T05:25:42Z | a4a78bd0 | git-push | main -> origin/main
+2026-08-30T05:25:50Z | a4a78bd0 | jira | NMDH-14 transitioned to Done

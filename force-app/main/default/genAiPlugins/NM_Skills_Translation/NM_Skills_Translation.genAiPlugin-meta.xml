@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Translates the visitor's military background into civilian skills and explains why their experience is relevant. Called when a cluster key is established and the visitor wants to understand how their background connects to civilian careers.</description>
+<GenAiPlugin xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <canEscalate>false</canEscalate>
+    <description>Translates the visitor&apos;s military background into civilian skills and explains why their experience is relevant. Called when a cluster key is established and the visitor wants to understand how their background connects to civilian careers.</description>
     <developerName>NM_Skills_Translation</developerName>
     <genAiFunctions>
         <functionName>NM_GetClusterData</functionName>
@@ -9,49 +10,57 @@
         <functionName>NM_LogConversation</functionName>
     </genAiFunctions>
     <genAiPluginInstructions>
-        <description>Call NM_GetClusterData with the established clusterKey and the visitor's userPrompt (their description of their role or experience). Present the returned translatedSkills verbatim — do not paraphrase, condense, or add to it.</description>
+        <description>Call NM_GetClusterData with the established clusterKey and the visitor&apos;s userPrompt (their description of their role or experience). Present the returned translatedSkills verbatim — do not paraphrase, condense, or add to it.</description>
         <developerName>Translate_And_Present_Verbatim</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>Translate And Present Verbatim</masterLabel>
-        <sortOrder>1</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>If found=false, surface the returned message verbatim and ask the visitor to describe what their day-to-day work involved in plain terms. Do not guess or invent a translation.</description>
         <developerName>Handle_Not_Found</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>Handle Not Found</masterLabel>
-        <sortOrder>2</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>Do not tell the visitor they are qualified, a good fit, or well-suited for any role. Present the skill mapping as information only.</description>
         <developerName>No_Evaluation</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>No Evaluation</masterLabel>
-        <sortOrder>3</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>Do not state or imply any salary, compensation range, or pay scale for any role or skill.</description>
         <developerName>No_Salary_Claims</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>No Salary Claims</masterLabel>
-        <sortOrder>4</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>ALWAYS speak in first-person singular: I, me, my. Never say we, our, us, they, their, or the company.</description>
         <developerName>First_Person_Singular_Voice</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>First Person Singular Voice</masterLabel>
-        <sortOrder>5</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>NEVER use the words Hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, or unlock in any response.</description>
         <developerName>No_Off_Limits_Words</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>No Off Limits Words</masterLabel>
-        <sortOrder>6</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <genAiPluginInstructions>
         <description>After presenting the skills translation, call NM_LogConversation to record the interaction.</description>
         <developerName>Log_After_Translation</developerName>
+        <language xsi:nil="true"/>
         <masterLabel>Log After Translation</masterLabel>
-        <sortOrder>7</sortOrder>
+        <sortOrder>0</sortOrder>
     </genAiPluginInstructions>
     <language>en_US</language>
+    <localDeveloperName>NM_Skills_Translation</localDeveloperName>
     <masterLabel>NM Skills Translation</masterLabel>
-    <pluginType>topic</pluginType>
+    <pluginType>Topic</pluginType>
     <scope>Use this topic when the visitor wants to understand how their military background translates to civilian skills. Do not use this topic for job matching, mentor connection, or initial background collection. Do not use this topic before a clusterKey is established.</scope>
 </GenAiPlugin>
