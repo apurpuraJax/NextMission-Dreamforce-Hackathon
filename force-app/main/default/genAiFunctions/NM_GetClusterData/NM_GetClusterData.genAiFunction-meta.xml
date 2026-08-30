@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Translate the visitor's military background into civilian skills. Pass clusterKey (established during the Greeting topic) and userPrompt (the visitor's own description of their role or experience). Returns translatedSkills — present verbatim, do not paraphrase. If found=false, surface message and ask the visitor to describe their role in plain terms.</description>
+    <invocationTarget>NM_GetCluster_Flow</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <masterLabel>NM_GetClusterData</masterLabel>
+</GenAiFunction>
