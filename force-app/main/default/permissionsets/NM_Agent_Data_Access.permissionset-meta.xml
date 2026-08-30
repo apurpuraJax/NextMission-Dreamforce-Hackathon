@@ -226,4 +226,11 @@
         <field>NM_Mentor_Introduction__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
+
+    <!-- System permissions -->
+    <!-- RunFlow: agent running user must execute NM_GetCluster_Flow (NMDH-6) -->
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>RunFlow</name>
+    </userPermissions>
 </PermissionSet>
