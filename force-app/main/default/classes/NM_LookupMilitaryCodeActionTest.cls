@@ -8,28 +8,36 @@ Purpose:       Unit tests for NM_LookupMilitaryCodeAction.
 
                Coverage target: 90%+
                Test scenarios:
-                 1. Happy path — exact match (Army 11B)
-                 2. Case-insensitive input (lowercase branch and code)
+                 1. Happy path — exact match (live CMDT seed record)
+                 2. Case-insensitive input (lowercase Branch/Code from CMDT seed)
                  3. Unrecognized code — not-found path
-                 4. Bulk-safe — 22 inputs, mix of valid and invalid
+                 4. Bulk-safe — 22 inputs, 11 CMDT-seeded valid pairs + 11 invalid
                  5. Null branch and code — must not throw
 ============================================================
 History
 -------
 VERSION  AUTHOR              DATE         DETAIL    DESCRIPTION
 1.0      Revecast Orch.      2026-08-29   Created   NMDH-5
+1.1      Revecast Orch.      2026-08-30   Updated   NMDH-5 — CMDT-driven assertions;
+                                                     removed hardcoded Army/Navy pairs
 *****************************************************************/
 @isTest
 public class NM_LookupMilitaryCodeActionTest {
 
-    // ----- 1. Happy path: exact match, Army MOS 11B -------------------------
+    // ----- 1. Happy path: exact match driven by live CMDT seed -------------
 
     @isTest
-    static void testHappyPath_Army11B() {
-        // Army MOS 11B (Infantry, CombatArms) is seeded in NM_Military_Code__mdt.
+    static void testHappyPath_ExactMatch() {
+        // Query one real CMDT record so assertions never depend on hardcoded values.
+        NM_Military_Code__mdt seed = [
+            SELECT Branch__c, Code_Value__c, Role_Title__c, Cluster_Key__c
+            FROM   NM_Military_Code__mdt
+            LIMIT  1
+        ];
+
         NM_LookupMilitaryCodeAction.Input inp = new NM_LookupMilitaryCodeAction.Input();
-        inp.branch = 'Army';
-        inp.code   = '11B';
+        inp.branch = seed.Branch__c;
+        inp.code   = seed.Code_Value__c;
 
         Test.startTest();
         List<NM_LookupMilitaryCodeAction.Response> results =
@@ -39,22 +47,33 @@ public class NM_LookupMilitaryCodeActionTest {
 
         System.assertEquals(1, results.size(), 'One response expected for one input');
         NM_LookupMilitaryCodeAction.Response r = results[0];
-        System.assertEquals(true,         r.found,        'Expected found=true for Army 11B');
-        System.assertEquals('Infantry',   r.roleTitle,    'Expected roleTitle=Infantry for Army 11B');
-        System.assertEquals('CombatArms', r.clusterKey,   'Expected clusterKey=CombatArms for Army 11B');
-        System.assertNotEquals(null,       r.clusterLabel, 'clusterLabel must be populated on found=true');
-        System.assertEquals(null,          r.notFoundMessage,
+        System.assertEquals(true,                r.found,
+            'Expected found=true for seeded CMDT record');
+        System.assertEquals(seed.Role_Title__c,  r.roleTitle,
+            'Expected roleTitle to match CMDT seed');
+        System.assertEquals(seed.Cluster_Key__c, r.clusterKey,
+            'Expected clusterKey to match CMDT seed');
+        System.assertNotEquals(null,             r.clusterLabel,
+            'clusterLabel must be populated on found=true');
+        System.assertEquals(null,                r.notFoundMessage,
             'notFoundMessage must be null when found=true');
     }
 
-    // ----- 2. Case-insensitive: lowercase branch and code -------------------
+    // ----- 2. Case-insensitive: lowercase branch and code from CMDT seed ---
 
     @isTest
     static void testCaseInsensitive_LowercaseInput() {
-        // Veteran types 'army' / '11b'; normalization must still find the record.
+        // Same CMDT seed; pass branch and code fully lowercased to confirm
+        // the normalization (branch.toLowerCase() + '|' + code.toUpperCase()) works.
+        NM_Military_Code__mdt seed = [
+            SELECT Branch__c, Code_Value__c, Role_Title__c
+            FROM   NM_Military_Code__mdt
+            LIMIT  1
+        ];
+
         NM_LookupMilitaryCodeAction.Input inp = new NM_LookupMilitaryCodeAction.Input();
-        inp.branch = 'army';
-        inp.code   = '11b';
+        inp.branch = seed.Branch__c.toLowerCase();
+        inp.code   = seed.Code_Value__c.toLowerCase();
 
         Test.startTest();
         List<NM_LookupMilitaryCodeAction.Response> results =
@@ -62,9 +81,12 @@ public class NM_LookupMilitaryCodeActionTest {
                 new List<NM_LookupMilitaryCodeAction.Input>{ inp });
         Test.stopTest();
 
-        System.assertEquals(true,       results[0].found,      'Lowercase input should still match');
-        System.assertEquals('Infantry', results[0].roleTitle,   'roleTitle should match regardless of case');
-        System.assertNotEquals(null,    results[0].clusterLabel,'clusterLabel must be populated');
+        System.assertEquals(true,              results[0].found,
+            'Lowercase input should still match');
+        System.assertEquals(seed.Role_Title__c, results[0].roleTitle,
+            'roleTitle should match regardless of case');
+        System.assertNotEquals(null,            results[0].clusterLabel,
+            'clusterLabel must be populated');
     }
 
     // ----- 3. Not-found path: unrecognized code -----------------------------
@@ -82,44 +104,43 @@ public class NM_LookupMilitaryCodeActionTest {
         Test.stopTest();
 
         NM_LookupMilitaryCodeAction.Response r = results[0];
-        System.assertEquals(false,  r.found,           'Expected found=false for unknown code');
-        System.assertNotEquals(null, r.notFoundMessage,  'notFoundMessage must be populated when not found');
+        System.assertEquals(false,  r.found,
+            'Expected found=false for unknown code');
+        System.assertNotEquals(null, r.notFoundMessage,
+            'notFoundMessage must be populated when not found');
         System.assert(
             r.notFoundMessage.startsWith('I don\'t recognize'),
             'notFoundMessage must match the standard not-found text');
-        System.assertEquals(null, r.roleTitle,    'roleTitle must be null when not found');
-        System.assertEquals(null, r.clusterKey,   'clusterKey must be null when not found');
-        System.assertEquals(null, r.clusterLabel, 'clusterLabel must be null when not found');
+        System.assertEquals(null, r.roleTitle,
+            'roleTitle must be null when not found');
+        System.assertEquals(null, r.clusterKey,
+            'clusterKey must be null when not found');
+        System.assertEquals(null, r.clusterLabel,
+            'clusterLabel must be null when not found');
     }
 
-    // ----- 4. Bulk-safe: 22 inputs, mix of valid and invalid ----------------
+    // ----- 4. Bulk-safe: 22 inputs — 11 CMDT-seeded valid + 11 invalid -----
 
     @isTest
     static void testBulkSafe_22Inputs() {
-        // Known valid pairs from seeded CMDT data
-        List<String[]> validPairs = new List<String[]>{
-            new String[]{ 'Army', '11B' },
-            new String[]{ 'Army', '25U' },
-            new String[]{ 'Army', '36B' },
-            new String[]{ 'Army', '68W' },
-            new String[]{ 'Army', '92A' },
-            new String[]{ 'Navy', 'BM'  },
-            new String[]{ 'Navy', 'CE'  },
-            new String[]{ 'Navy', 'HM'  },
-            new String[]{ 'Navy', 'IS'  },
-            new String[]{ 'Navy', 'IT'  },
-            new String[]{ 'Army', '11C' }
-        };
+        // Pull up to 11 real CMDT records; no hardcoded MOS codes.
+        List<NM_Military_Code__mdt> seedRecs = [
+            SELECT Branch__c, Code_Value__c
+            FROM   NM_Military_Code__mdt
+            LIMIT  11
+        ];
 
         List<NM_LookupMilitaryCodeAction.Input> inputs =
             new List<NM_LookupMilitaryCodeAction.Input>();
 
+        // Even index i → valid pair from seedRecs[i/2];
+        // Odd index i  → deliberately invalid BULK_UNKNOWN_<i>.
         for (Integer i = 0; i < 22; i++) {
             NM_LookupMilitaryCodeAction.Input inp = new NM_LookupMilitaryCodeAction.Input();
             Integer pairIdx = i / 2;
-            if (Math.mod(i, 2) == 0 && pairIdx < validPairs.size()) {
-                inp.branch = validPairs[pairIdx][0];
-                inp.code   = validPairs[pairIdx][1];
+            if (Math.mod(i, 2) == 0 && pairIdx < seedRecs.size()) {
+                inp.branch = seedRecs[pairIdx].Branch__c;
+                inp.code   = seedRecs[pairIdx].Code_Value__c;
             } else {
                 inp.branch = 'Army';
                 inp.code   = 'BULK_UNKNOWN_' + String.valueOf(i);
