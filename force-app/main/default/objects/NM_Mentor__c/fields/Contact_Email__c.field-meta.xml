@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact_Email__c</fullName>
     <label>Contact Email</label>
     <description>Mentor's contact email address. RESTRICTED — this field is excluded from NM_Agent_Data_Access field permissions. The agent must never surface a mentor's email directly to a veteran; introductions are routed through the NM_Mentor_Introduction__c workflow. Origin story: NMDH-2.</description>
     <required>false</required>
