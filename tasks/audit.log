@@ -3,3 +3,8 @@
 2026-08-30T05:25:40Z | a4a78bd0 | git-commit | dd0b269 [NMDH-S13] Bot definition, BotVersion, GenAiPlannerBundle, CustomLabel
 2026-08-30T05:25:42Z | a4a78bd0 | git-push | main -> origin/main
 2026-08-30T05:25:50Z | a4a78bd0 | jira | NMDH-14 transitioned to Done
+2026-08-30T18:01:00Z | a4a78bd0 | DEPLOY | agentDSLEnabled: true — Bot + BotVersion deployed to dreamforce-hackathon (56d6868), 52/52 tests pass
+2026-08-30T18:01:00Z | a4a78bd0 | VERIFY | PlannerId=16jaj0000035gRVAAY on all 4 GenAiPluginDefinition records confirmed post-deploy
+2026-08-30T18:01:00Z | a4a78bd0 | COMMIT | 56d6868 pushed to main — agentDSLEnabled fix + botVersion sync + planner bundle baseline restore
+2026-08-30T18:01:00Z | a4a78bd0 | JIRA | NMDH-14 transitioned to Done, comment added
+2026-08-30T18:01:00Z | a4a78bd0 | BLOCKED | localTopics approach in GenAiPlannerBundle rejected by Salesforce server error 1999319052 for surface-deployed planners — not usable
