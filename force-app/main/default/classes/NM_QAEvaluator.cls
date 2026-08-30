@@ -105,9 +105,10 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
     }
 
     /*****************************************************************
-    Purpose:       Calls NM_QA_Evaluator_Template via ConnectApi and
-                   returns the raw JSON string response. Overridable
-                   in tests via the mockResponseJson static variable.
+    Purpose:       Returns the raw JSON string for a given transcript,
+                   either from the test mock or the live Einstein LLM.
+                   Structured so the closing debug + return execute in
+                   BOTH test and live paths, maximising unit-test coverage.
     Parameters:    transcript — full conversation text
     Returns:       JSON string from the prompt template response
     *****************************************************************/
@@ -115,11 +116,28 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
     private static String invokeTemplate(String transcript) {
         System.debug('Entering NM_QAEvaluator.invokeTemplate: transcriptLength=' + transcript.length());
 
+        String responseText;
         if (Test.isRunningTest() && mockResponseJson != null) {
             System.debug('NM_QAEvaluator.invokeTemplate: returning mock response');
-            return mockResponseJson;
+            responseText = mockResponseJson;
+        } else {
+            responseText = callLiveEinsteinApi(transcript);
         }
 
+        System.debug('Exiting NM_QAEvaluator.invokeTemplate: responseLength=' + responseText.length());
+        return responseText;
+    }
+
+    /*****************************************************************
+    Purpose:       Makes the live ConnectApi call to the Einstein LLM
+                   Prompt Template. Extracted from invokeTemplate so the
+                   test-mock early-exit path does not hide the closing
+                   debug and return statements from code coverage.
+    Parameters:    transcript — full conversation text
+    Returns:       raw text from the prompt template generation
+    Throws:        CalloutException when the response has no generations
+    *****************************************************************/
+    private static String callLiveEinsteinApi(String transcript) {
         ConnectApi.EinsteinPromptTemplateGenerationsInput promptInput =
             new ConnectApi.EinsteinPromptTemplateGenerationsInput();
         promptInput.isPreview = false;
@@ -136,14 +154,9 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
                 promptInput
             );
 
-        String responseText;
         if (response.generations != null && !response.generations.isEmpty()) {
-            responseText = response.generations[0].text;
-        } else {
-            throw new CalloutException('Empty response from NM_QA_Evaluator_Template');
+            return response.generations[0].text;
         }
-
-        System.debug('Exiting NM_QAEvaluator.invokeTemplate: responseLength=' + responseText.length());
-        return responseText;
+        throw new CalloutException('Empty response from NM_QA_Evaluator_Template');
     }
 }
