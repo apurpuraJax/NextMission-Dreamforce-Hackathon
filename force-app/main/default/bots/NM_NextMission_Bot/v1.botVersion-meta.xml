@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v1</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
     <botDialogs>
         <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
         <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
     </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationDefinitionPlanners>
+        <genAiPlannerName>NM_NextMission_Bot_v1</genAiPlannerName>
+    </conversationDefinitionPlanners>
     <conversationVariables>
         <dataType>Text</dataType>
         <developerName>sourceUrl</developerName>
@@ -18,7 +26,17 @@
         <label>sessionKey</label>
         <visibility>External</visibility>
     </conversationVariables>
+    <defaultStdObjForContactIdFltrEnabled>false</defaultStdObjForContactIdFltrEnabled>
     <entryDialog>Welcome</entryDialog>
-    <fullName>v1</fullName>
-    <status>Active</status>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <isScriptCompatibleAgent>false</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <stopRecPrompts>false</stopRecPrompts>
+    <stopWelcomePrompts>false</stopWelcomePrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
 </BotVersion>
