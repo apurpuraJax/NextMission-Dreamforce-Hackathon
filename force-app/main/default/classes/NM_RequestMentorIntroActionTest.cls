@@ -165,7 +165,10 @@ private class NM_RequestMentorIntroActionTest {
     }
 
     /*****************************************************************
-    Purpose:       Unknown session key — returns success=false.
+    Purpose:       Unknown session key (NMDH-8 v2.0) — the action now
+                   CREATES a new NM_Conversation__c on lookup miss and
+                   still queues the intro instead of failing. If the key
+                   is non-blank, the new conversation is stamped with it.
     *****************************************************************/
     @isTest
     static void testUnknownConversationKey() {
@@ -176,13 +179,140 @@ private class NM_RequestMentorIntroActionTest {
         req.requesterEmail  = 'vet3@example.com';
         req.conversationKey = 'nonexistent-session-key-xyz';
 
+        Integer convsBefore = [SELECT COUNT() FROM NM_Conversation__c];
+
         Test.startTest();
         List<NM_RequestMentorIntroAction.Response> results = NM_RequestMentorIntroAction.requestIntro(
             new List<NM_RequestMentorIntroAction.Request>{ req }
         );
         Test.stopTest();
 
-        System.assertEquals(false, results[0].success, 'Unknown session key should return false');
+        System.assertEquals(true, results[0].success,
+            'Unknown session key should now succeed by creating the conversation');
         System.assertNotEquals(null, results[0].message, 'message should be set');
+
+        // A brand-new conversation was created and stamped with the key.
+        Integer convsAfter = [SELECT COUNT() FROM NM_Conversation__c];
+        System.assertEquals(convsBefore + 1, convsAfter,
+            'A new NM_Conversation__c should be created on lookup miss');
+
+        NM_Conversation__c created = [
+            SELECT Id, External_Session_Key__c, Mentor_Requested__c,
+                   Lead_Captured__c, Mentor_Matched__c, QA_Reviewed__c
+            FROM NM_Conversation__c
+            WHERE External_Session_Key__c = 'nonexistent-session-key-xyz' LIMIT 1
+        ];
+        System.assertEquals(true, created.Mentor_Requested__c, 'Mentor_Requested__c should be set true');
+        System.assertEquals(false, created.Lead_Captured__c,   'Lead_Captured__c should default false');
+        System.assertEquals(false, created.Mentor_Matched__c,  'Mentor_Matched__c should default false');
+        System.assertEquals(false, created.QA_Reviewed__c,     'QA_Reviewed__c should default false');
+
+        // The intro record was queued against the new conversation.
+        List<NM_Mentor_Introduction__c> intros = [
+            SELECT Id, Conversation__c FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id
+        ];
+        System.assertEquals(1, intros.size(), 'Intro should be queued against the new conversation');
+        System.assertEquals(created.Id, intros[0].Conversation__c, 'Intro should link to the created conversation');
+    }
+
+    /*****************************************************************
+    Purpose:       Blank/absent conversation key — the action creates a
+                   fresh conversation (no key stamped) and queues the intro.
+    *****************************************************************/
+    @isTest
+    static void testBlankConversationKeyCreatesConversation() {
+        NM_Mentor__c mentor = [SELECT Id FROM NM_Mentor__c WHERE Name = 'Sam Torres' LIMIT 1];
+
+        NM_RequestMentorIntroAction.Request req = new NM_RequestMentorIntroAction.Request();
+        req.mentorId        = mentor.Id;
+        req.requesterEmail  = 'vet-blank@example.com';
+        req.conversationKey = null;
+
+        Integer convsBefore = [SELECT COUNT() FROM NM_Conversation__c];
+
+        Test.startTest();
+        List<NM_RequestMentorIntroAction.Response> results = NM_RequestMentorIntroAction.requestIntro(
+            new List<NM_RequestMentorIntroAction.Request>{ req }
+        );
+        Test.stopTest();
+
+        System.assertEquals(true, results[0].success, 'Blank key should succeed by creating a conversation');
+        Integer convsAfter = [SELECT COUNT() FROM NM_Conversation__c];
+        System.assertEquals(convsBefore + 1, convsAfter, 'Exactly one conversation created for blank key');
+
+        Integer introCount = [SELECT COUNT() FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id];
+        System.assertEquals(1, introCount, 'One intro queued for the blank-key request');
+    }
+
+    /*****************************************************************
+    Purpose:       Bulk safety — 200 requests with distinct unknown keys
+                   run within governor limits (single insert outside loop),
+                   creating 200 conversations and 200 intros.
+    *****************************************************************/
+    @isTest
+    static void testBulkCreateOnMiss() {
+        NM_Mentor__c mentor = [SELECT Id FROM NM_Mentor__c WHERE Name = 'Sam Torres' LIMIT 1];
+
+        List<NM_RequestMentorIntroAction.Request> reqs =
+            new List<NM_RequestMentorIntroAction.Request>();
+        for (Integer i = 0; i < 200; i++) {
+            NM_RequestMentorIntroAction.Request r = new NM_RequestMentorIntroAction.Request();
+            r.mentorId        = mentor.Id;
+            r.requesterEmail  = 'bulk' + i + '@example.com';
+            r.conversationKey = 'bulk-miss-key-' + i;
+            reqs.add(r);
+        }
+
+        Test.startTest();
+        List<NM_RequestMentorIntroAction.Response> results =
+            NM_RequestMentorIntroAction.requestIntro(reqs);
+        Test.stopTest();
+
+        System.assertEquals(200, results.size(), 'One response per request');
+        for (NM_RequestMentorIntroAction.Response res : results) {
+            System.assertEquals(true, res.success, 'Every bulk request should succeed');
+        }
+
+        Integer introCount = [SELECT COUNT() FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id];
+        System.assertEquals(200, introCount, '200 intros created for 200 distinct-key requests');
+    }
+
+    /*****************************************************************
+    Purpose:       Bulk in-batch dedupe — the SAME real key repeated
+                   across the batch resolves to ONE conversation and,
+                   for the same mentor, ONE intro.
+    *****************************************************************/
+    @isTest
+    static void testBulkSameKeyDedupes() {
+        NM_Mentor__c mentor = [SELECT Id FROM NM_Mentor__c WHERE Name = 'Sam Torres' LIMIT 1];
+
+        List<NM_RequestMentorIntroAction.Request> reqs =
+            new List<NM_RequestMentorIntroAction.Request>();
+        for (Integer i = 0; i < 5; i++) {
+            NM_RequestMentorIntroAction.Request r = new NM_RequestMentorIntroAction.Request();
+            r.mentorId        = mentor.Id;
+            r.requesterEmail  = 'same' + i + '@example.com';
+            r.conversationKey = 'shared-new-key-abc';
+            reqs.add(r);
+        }
+
+        Integer convsBefore = [SELECT COUNT() FROM NM_Conversation__c];
+
+        Test.startTest();
+        List<NM_RequestMentorIntroAction.Response> results =
+            NM_RequestMentorIntroAction.requestIntro(reqs);
+        Test.stopTest();
+
+        for (NM_RequestMentorIntroAction.Response res : results) {
+            System.assertEquals(true, res.success, 'All same-key requests should report success');
+        }
+
+        Integer convsAfter = [SELECT COUNT() FROM NM_Conversation__c];
+        System.assertEquals(convsBefore + 1, convsAfter,
+            'Repeated real key should create exactly one new conversation');
+
+        Integer introCount = [SELECT COUNT() FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id];
+        System.assertEquals(1, introCount,
+            'Same conversation + same mentor should yield exactly one intro');
     }
 }
