@@ -140,6 +140,8 @@ This is what destroyed the action wiring repeatedly during the NMDH-14 build day
 
 3. **After any forced GenAiPlugin redeploy** (e.g. adding a brand-new topic for the first time), query `GenAiPluginDefinition` for the NEW IDs, then recreate all `GenAiPluginFunctionDef` junctions. The old IDs are gone — use the IDs from the query, not hardcoded values.
 
+**These IDs belong to V1 (`NM_NextMission_Bot`) only.** V2's topics carry the suffix `_16jaj0000036lDp` and are managed by the Agent Script compiler — do not create junctions for them by hand. As of 2026-08-31 the org holds 8 topics (4 per bot) and 11 junctions (5 V1, 6 V2). Query `GenAiPluginDefinition` for current values rather than trusting this table.
+
 **Current live topic IDs** — update this table after any redeploy:
 
 | Topic | DeveloperName | Live ID |
@@ -234,6 +236,115 @@ Four elements differ from what Salesforce documentation implies. Getting any of 
 
 ---
 
+### Agent Script (V2) — this is the agent going forward
+
+**As of 2026-08-31 the project has two agents in the org.** `NM_NextMission_V2` is the one being developed. `NM_NextMission_Bot` (V1) stays published and active as a fallback and for side-by-side comparison — do not delete or modify it.
+
+| | V1 | V2 |
+|---|---|---|
+| Planner | `NM_NextMission_Bot_v1` | `NM_NextMission_V2_v1` |
+| Built from | hand-authored gen-1 metadata | Agent Script `.agent` file |
+| Topic suffix | `_16jaj0000035gRV` | `_16jaj0000036lDp` |
+| Junction wiring | manual Tooling API POSTs | created by the compiler on publish |
+
+**Source of truth:** `force-app/main/default/aiAuthoringBundles/NM_NextMission_V2/NM_NextMission_V2.agent`
+
+Edit that file. The GenAiPlugin/GenAiPlanner XML it produces is compiler output — never hand-edit it. The `CRITICAL: GenAiPlugin metadata deploys destroy topic IDs` section above still applies to **V1 only**. For V2 the compiler creates and maintains the junctions itself, which is the main reason the project moved to Agent Script.
+
+#### Publishing — only works from a local machine
+
+`.agent` files are not deployable metadata. Deploying the bundle puts the source in the org but does not create or update the agent. The only thing that compiles it is:
+
+```bash
+sf agent publish authoring-bundle --api-name NM_NextMission_V2 --target-org dreamforce-hackathon
+```
+
+**Orchestrate cannot run this.** Publish performs a server-side SFAP token exchange that requires the `chatbot_api`, `sfap_api`, and `web` OAuth scopes. The Orchestrate execution environment authenticates via JWT through its own connector app, whose token does not carry them, and it fails with:
+
+```
+ApiAccessError: Error obtaining API token: invalid or missing access token.
+```
+
+Orchestrate can author the `.agent` file, deploy the bundle, and build every supporting component. A human runs the publish. Two ways to do that:
+
+1. **CLI on a local machine** authenticated through `NM_NextMission_ECA`:
+   ```bash
+   sf org login web \
+     --client-id <NM_NextMission_ECA consumer key> \
+     --scopes "api chatbot_api sfap_api web" \
+     --instance-url https://orgfarm-3bfff135af.my.salesforce.com \
+     --alias dreamforce-hackathon
+   ```
+   All four scopes are required. Omitting `web` fails at the token exchange; requesting `refresh_token` fails with `invalid_scope` because the ECA does not grant it. The ECA's callback list must include `http://localhost:1717/OauthRedirect` (it does; that lives in `ExtlClntAppGlobalOauthSettings`, not `ExtlClntAppOauthSettings`). The CLI prompts for the consumer secret.
+
+2. **Commit Version button** in Setup → Agentforce Builder. The bundle appears there once deployed as metadata, and this button is the point-and-click equivalent of publish. Requires no CLI or scopes.
+
+#### Agent Script syntax rules learned the hard way
+
+Every one of these cost a failed publish cycle. The compiler reports **one error at a time** and stops.
+
+1. **`system.instructions` must be a plain quoted string.** The `-> |` template form works in `reasoning.instructions` but fails at the system level with *"Expected a string or a template, got identifier."*
+
+2. **Actions need two blocks, not one.** Each subagent declares its actions in an `actions:` block that is a **sibling of `reasoning:`**, then exposes them as tools inside `reasoning.actions`. Declaration:
+   ```
+   subagent NM_Mentor_Connection:
+       actions:
+           find_mentor:
+               description: "..."
+               inputs:
+                   clusterKey: string
+               outputs:
+                   found: boolean
+                   mentorName: string
+               target: "apex://NM_FindMentorAction"
+
+       reasoning:
+           actions:
+               find_mentor: @actions.find_mentor
+                   with clusterKey=@variables.clusterKey
+   ```
+   Targets are `apex://ClassName` or `flow://FlowApiName` — the Apex class or Flow, **not** the GenAiFunction name. Bare identifiers (`find_mentor: NM_FindMentor`) fail with *"Bare identifiers are not allowed here."* An `@actions.X` reference with no matching declaration fails with *"X is not defined in actions."*
+
+3. **Session variables need explicit `with` and `set` bindings.** Instructions telling the model to "store the returned clusterKey" do nothing — prose cannot write to a session variable. Use `set @variables.clusterKey=@outputs.clusterKey` to write and `with clusterKey=@variables.clusterKey` to read. Without these, variables stay empty and downstream actions silently receive null. The VS Code extension flags this as *"Variable X is declared but never used"* and *"Input X has no `with` clause and will be filled by the LLM at runtime"* — treat both as errors, not information.
+
+4. **Apex `Id` parameters are not strings.** Declare them as:
+   ```
+   mentorId: object
+       complex_data_type_name: "lightning__recordIdType"
+   ```
+   A `string` declaration fails validation with an explicit message naming the fix.
+
+5. **`default_agent_user` belongs in an `access:` block**, not `config:`. It is deprecated in `config:`.
+
+6. **The Builder Problems panel undercounts.** It reported 1 error while the subagent views showed several more. Click into every subagent individually before believing the count.
+
+#### Current action targets
+
+| Action | Target |
+|---|---|
+| `look_up_military_code` | `apex://NM_LookupMilitaryCodeAction` |
+| `classify_cluster` | `flow://NM_ClassifyCluster_Flow` |
+| `get_cluster_data` | `flow://NM_GetCluster_Flow` |
+| `get_job_matches` | `apex://NM_GetJobMatchesAction` |
+| `find_mentor` | `apex://NM_FindMentorAction` |
+| `request_mentor_intro` | `apex://NM_RequestMentorIntroAction` |
+
+`NM_LogConversation` is intentionally not wired. Conversation persistence is owned by the `nmChatWidget` LWC on the client side.
+
+#### Open defect — NM_GetCluster_Flow
+
+**See NMDH-6 for the full write-up.** `NM_GetCluster_Flow` returns `found=false` whenever `userPrompt` is null, empty, or omitted, even when `clusterKey` is a valid match. Reproduced five times via `Flow.Interview` in anonymous Apex. This breaks the primary path, because a military code lookup never produces a free-text description, so `userPrompt` is always empty there.
+
+Until it is fixed, `get_cluster_data` deliberately has **no** `with userPrompt=` binding and instead relies on an instruction telling the model to always supply a non-empty value. That is a workaround. Once the flow is fixed, restore the deterministic binding:
+
+```
+get_cluster_data: @actions.get_cluster_data
+    with clusterKey=@variables.clusterKey
+    with userPrompt=@variables.userDescription
+```
+
+---
+
 ### Permission set: NM_Agent_Data_Access
 
 **`NM_Agent_Data_Access`** is the agent's access boundary — it defines what the Agentforce agent is permitted to read and write. Do not use a shortened name like `NM_Agent_Access`.
@@ -275,6 +386,7 @@ All `sf` CLI commands must include `--target-org dreamforce-hackathon`. Do not o
 
 ## Before Marking Any Story Done
 
+0. **If the story touches the agent's behaviour, the change belongs in `NM_NextMission_V2.agent`** — not in GenAiPlugin XML, and not in the Builder UI. Publish it, then verify in Builder Preview by clicking into every subagent, not just reading the Problems count.
 1. Scan all `<instruction>` elements and Prompt Template `<content>` blocks for off-limits words.
 2. Confirm voice is first-person singular throughout — no "we", "our", "us".
 3. Confirm permission set updates ship in the same commit as any new Apex class or Flow.
@@ -284,5 +396,6 @@ All `sf` CLI commands must include `--target-org dreamforce-hackathon`. Do not o
    - **Flows** deploy as Draft — activate each Flow explicitly in Setup → Flows → Activate.
    - **Prompt Templates** deploy in whatever status the XML declares, but must be Published to be callable at runtime — query the org or open Prompt Builder to verify the Published status, not just that the deploy command succeeded.
    - **The Agentforce agent** must be activated in Setup → Agents after its metadata is deployed. A deployed-but-inactive agent answers nothing.
+   - **Agent Script bundles** must be published, not just deployed. Deploying the `AiAuthoringBundle` puts the source in the org and changes nothing about the running agent. Confirm a new `GenAiPlannerDefinition` version exists after publishing.
    - **Scheduled Apex** must be explicitly scheduled via `System.schedule()` after the class is deployed — query `CronTrigger` to confirm the job is WAITING, not just that the class compiled.
    Mark a story done only after you have confirmed the active/published/scheduled state in the org directly.
