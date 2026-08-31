@@ -76,11 +76,11 @@ No other action, topic instruction, or Apex class generates LLM output for the a
 
 ### Planner action design — avoid ambiguous choices
 
-A topic can have more than one `GenAiFunction`, and some topics genuinely need it. Mentor Connection requires two sequential actions: find a mentor, then request the introduction. Logging (`NM_LogConversation`) is a side-effect action shared across topics.
+A topic can have more than one `GenAiFunction`, and some topics genuinely need it. Mentor Connection requires two sequential actions: find a mentor, then request the introduction.
 
 The design principle is: **the planner must not face two actions that could both plausibly answer the same question.** When two functions could both match the same veteran input (e.g. both "search mentors" and "find mentors" respond to "find me a mentor"), the planner picks unpredictably. Design actions so each one owns a distinct question type — if the planner could reasonably call either one for the same input, redesign the action descriptions or split them into separate topics.
 
-`NM_LogConversation` is not a primary action — it is a side-effect action that records what the veteran entered. It does not answer any question and cannot compete with the primary action for planner selection. Every topic that collects veteran input should reference both its primary action and `NM_LogConversation`. This pattern applies to all four topics (Greeting & Background, Skills Translation, Job Matching, Mentor Connection).
+`NM_LogConversation` is intentionally unwired from all agent topics. LLM-based planners skip conditional side-effect actions exactly when a turn fails — the turns the QA grader needs most. Conversation persistence is owned by the LWC chat component (`NM_ChatWidget`) on the client side. The LWC upserts to `NM_Conversation__c` unconditionally on every turn, including failed turns, without relying on a planner action. Do not wire `NM_LogConversation` back into any topic.
 
 ### GenAiFunction format — use masterLabel, not functionName
 
