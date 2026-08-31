@@ -146,10 +146,22 @@ This is what destroyed the action wiring repeatedly during the NMDH-14 build day
 |---|---|---|
 | Greeting & Background | `NM_Greeting_And_Background` | `179aj000004wziNAAQ` |
 | Job Matching | `NM_Job_Matching` | `179aj000004wziLAAQ` |
-| Skills Translation | `NM_Skills_Translation` | `179aj000004wziMAAQ` |
-| Mentor Connection | `NM_Mentor_Connection` | `179aj000004wziOAAQ` |
+| Mentor Connection | `NM_Mentor_Connection` | `179aj000004wziMAAQ` |
+| Skills Translation | `NM_Skills_Translation` | `179aj000004wziOAAQ` |
 
 These IDs are the `PluginId` values in `GenAiPluginFunctionDef` junction records. Never hardcode stale IDs — always query before creating junctions.
+
+**Established junctions** — all 5 verified in org (2026-08-31):
+
+| Junction ID | Topic (PluginId) | Action (Function) |
+|---|---|---|
+| `17Eaj000004eG3lEAE` | Greeting (`179aj000004wziNAAQ`) | NM_LookupMilitaryCode (`172aj00000qsnVeAAI`) |
+| `17Eaj000004eGBpEAM` | Job Matching (`179aj000004wziLAAQ`) | NM_GetJobMatches (`172aj00000qsnVhAAI`) |
+| `17Eaj000004eGDREA2` | Mentor Connection (`179aj000004wziMAAQ`) | NM_FindMentor (`172aj00000qsnViAAI`) |
+| `17Eaj000004eGF3EAM` | Mentor Connection (`179aj000004wziMAAQ`) | NM_RequestMentorIntro (`172aj00000qsnVjAAI`) |
+| `17Eaj000004eGADEA2` | Skills Translation (`179aj000004wziOAAQ`) | NM_GetClusterData (`172aj00000qsnVgAAI`) |
+
+**CRITICAL: `sf data create record --use-tooling-api` is the only working path for junction creation.** Direct REST calls to the Tooling API 401 because `sf org display --json` returns a redacted token. Use the CLI. Field names: `PluginId` (topic ID) and `Function` (action copy ID).
 
 **How to query current IDs and recreate junctions after a forced redeploy:**
 
