@@ -17,7 +17,7 @@
         <inputParameters>
             <name>Input:User_Prompt</name>
             <value>
-                <elementReference>userPrompt</elementReference>
+                <elementReference>forT_EffectiveUserPrompt</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -95,7 +95,12 @@
             <label>Cluster Found</label>
         </rules>
     </decisions>
-    <description>Translates a veteran&apos;s military background into civilian skills. Inputs: clusterKey, userPrompt. Returns found=true and translatedSkills on match; found=false and message when cluster is unrecognised. NMDH-6 S05.</description>
+    <description>Translates a veteran&apos;s military background into civilian skills. Inputs: clusterKey, userPrompt. Returns found=true and translatedSkills on match; found=false and message when cluster is unrecognised. userPrompt is optional framing context only — the cluster lookup keys solely on clusterKey. NMDH-6 S05.</description>
+    <formulas>
+        <name>forT_EffectiveUserPrompt</name>
+        <dataType>String</dataType>
+        <expression>IF(LEN(TRIM(BLANKVALUE({!userPrompt}, &quot;&quot;))) = 0, &quot;A veteran with a &quot; &amp; {!clusterKey} &amp; &quot; specialty background is exploring how their military experience maps to civilian careers. Describe the transferable skills and why they fit the roles below.&quot;, {!userPrompt})</expression>
+    </formulas>
     <interviewLabel>NM_GetCluster_Flow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>SUB – NM GetCluster Flow</label>
     <processMetadataValues>
