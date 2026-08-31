@@ -118,6 +118,57 @@ Two schema rules that are not obvious from Salesforce documentation and will pro
 
 2. **`<scopeContraIndication>` does not exist in API v67.** Do not add it as a sibling of `<scope>`. If a topic instruction needs to exclude certain inputs or conditions, express the exclusion inside the `<scope>` element's text — for example: *"Do not handle requests about salary negotiation."* The element `<scopeContraIndication>` will cause a deploy error on the current API version.
 
+### CRITICAL: GenAiPlugin metadata deploys destroy topic IDs — read before touching topics
+
+Deploying a `GenAiPlugin` metadata file via `sf project deploy` **deletes the existing topic record and creates a brand-new one with a new Salesforce ID.** Every `GenAiPluginFunctionDef` junction record — the wire that connects a topic to its callable actions — is keyed on the topic's record ID. When the ID changes, all junctions cascade-delete silently. One `sf project deploy` with a `GenAiPlugin` file, after junctions exist, destroys all action wiring with no error or warning.
+
+This is what destroyed the action wiring repeatedly during the NMDH-14 build day. Do not repeat it.
+
+**The rules:**
+
+1. **Never redeploy a `GenAiPlugin` metadata file after its topic IDs are established.** The only safe time to deploy a `GenAiPlugin` file is the very first creation of the topic (when no junctions exist yet to lose). After that: prohibited.
+
+2. **Topic instruction changes go through Tooling API PATCH — not a metadata deploy.** To update `<scope>`, `<description>`, or `<genAiPluginInstructions>` content on an existing topic, patch `GenAiPluginDefinition.Metadata` directly. The record ID survives; junctions survive.
+
+   ```bash
+   # PATCH a topic's instructions (ID survives, junctions intact)
+   curl -s -X PATCH "https://<instance>.my.salesforce.com/services/data/v62.0/tooling/sobjects/GenAiPluginDefinition/<TopicId>" \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{"Metadata": {"scope": "Updated scope text...", "description": "Updated description..."}}'
+   ```
+
+3. **After any forced GenAiPlugin redeploy** (e.g. adding a brand-new topic for the first time), query `GenAiPluginDefinition` for the NEW IDs, then recreate all `GenAiPluginFunctionDef` junctions. The old IDs are gone — use the IDs from the query, not hardcoded values.
+
+**Current live topic IDs** — update this table after any redeploy:
+
+| Topic | DeveloperName | Live ID |
+|---|---|---|
+| Greeting & Background | `NM_Greeting_And_Background` | `179aj000004wziNAAQ` |
+| Job Matching | `NM_Job_Matching` | `179aj000004wziLAAQ` |
+| Skills Translation | `NM_Skills_Translation` | `179aj000004wziMAAQ` |
+| Mentor Connection | `NM_Mentor_Connection` | `179aj000004wziOAAQ` |
+
+These IDs are the `PluginId` values in `GenAiPluginFunctionDef` junction records. Never hardcode stale IDs — always query before creating junctions.
+
+**How to query current IDs and recreate junctions after a forced redeploy:**
+
+```bash
+# Query fresh topic IDs
+curl -s "https://<instance>/services/data/v62.0/tooling/query?q=SELECT+Id,DeveloperName+FROM+GenAiPluginDefinition" \
+  -H "Authorization: Bearer <token>" | jq '.records[] | {id:.Id, name:.DeveloperName}'
+
+# Query action copy IDs (IsLocal=true = topic-scoped copies)
+curl -s "https://<instance>/services/data/v62.0/tooling/query?q=SELECT+Id,DeveloperName+FROM+GenAiFunctionDefinition+WHERE+IsLocal__c=true" \
+  -H "Authorization: Bearer <token>" | jq '.records[] | {id:.Id, name:.DeveloperName}'
+
+# POST one junction per topic→action pair
+curl -s -X POST "https://<instance>/services/data/v62.0/tooling/sobjects/GenAiPluginFunctionDef" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"PluginId": "<new-topic-id>", "Function": "<action-copy-id>"}'
+```
+
 ### GenAiPromptTemplate schema — v67 rules
 
 **Canonical reference: `NM_Translate_Skills_Template`** — this is the deployed working example. Match its structure exactly when building new prompt templates (NMDH-19 and beyond).
