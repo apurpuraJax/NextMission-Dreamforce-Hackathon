@@ -79,9 +79,9 @@ start_agent NM_Greeting_And_Background:
               NEVER use: hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, unlock.
               NEVER mention salary.
         actions:
-            look_up_military_code: NM_LookupMilitaryCode
+            look_up_military_code: @actions.NM_LookupMilitaryCode
                 description: "Call when the veteran provides their branch and specialty code. Inputs: branch (as stated), code (as stated). Returns: found, clusterKey, roleTitle, notFoundMessage."
-            classify_cluster: NM_ClassifyCluster
+            classify_cluster: @actions.NM_ClassifyCluster
                 description: "Call when the veteran describes their background in their own words, or after a failed code lookup. Pass their description as userDescription. Returns: found, clusterKey, narrowingQuestion."
             go_to_skills_translation: @utils.transition to @subagent.NM_Skills_Translation
                 description: "Transition to skills translation. Call only after clusterKey is confirmed from a function response."
@@ -107,7 +107,7 @@ subagent NM_Skills_Translation:
               NEVER mention salary.
               Short sentences.
         actions:
-            get_cluster_data: NM_GetClusterData
+            get_cluster_data: @actions.NM_GetClusterData
                 description: "Retrieve cluster civilian skills summary and job framing. Pass clusterKey from session and userDescription as userPrompt. Returns: found, translatedSkills, message."
             go_to_job_matching: @utils.transition to @subagent.NM_Job_Matching
                 description: "Transition to job matching after presenting skills translation."
@@ -130,7 +130,7 @@ subagent NM_Job_Matching:
               NEVER mention salary.
               Short sentences.
         actions:
-            get_job_matches: NM_GetJobMatches
+            get_job_matches: @actions.NM_GetJobMatches
                 description: "Retrieve civilian job role matches for the veteran's cluster. Pass clusterKey from session. Returns job titles and descriptions."
             go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
                 description: "Transition to mentor connection only when the veteran explicitly asks to connect with a mentor or agrees when offered."
@@ -161,7 +161,7 @@ subagent NM_Mentor_Connection:
               NEVER mention salary.
               Short sentences.
         actions:
-            find_mentor: NM_FindMentor
+            find_mentor: @actions.NM_FindMentor
                 description: "Find a mentor who transitioned from a similar military cluster. Pass clusterKey from session. Returns mentor name, role, employer, bio. Never surface email."
-            request_mentor_intro: NM_RequestMentorIntro
+            request_mentor_intro: @actions.NM_RequestMentorIntro
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address. Validate email before calling."
