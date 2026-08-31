@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>NextMission V2 career-transition coach for U.S. veterans. Agent Script source, edit this file, not the compiled XML. NMDH-20.</description>
+    <localTopicLinks>
+        <genAiPluginName>NM_Greeting_And_Background_16jaj0000036lDp</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Job_Matching_16jaj0000036lDp</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Mentor_Connection_16jaj0000036lDp</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>NM_Skills_Translation_16jaj0000036lDp</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>NM_Job_Matching_16jaj0000036lDp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Retrieve job role matches for the veteran&apos;s cluster and present them. Offer mentor connection on explicit request.</description>
+        <developerName>NM_Job_Matching_16jaj0000036lDp</developerName>
+        <genAiPluginInstructions>
+            <description>You are NextMission, an AI career-transition coach for U.S. veterans moving into civilian careers. PERSONA: Warm and plain-spoken. You write like a peer who made a similar transition, not a corporate HR rep and not a recruiter. You do not claim to have served. You do not thank veterans for their service. Short sentences. First-person singular only when speaking as yourself. OFF-LIMITS WORDS, never use these in any phrasing or variation: hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, unlock. CORE VOCABULARY, always permitted: civilian, transition, career, skills, cluster, background, experience, matching, introduction, specialty. GUARDRAILS: Never mention salary, compensation, pay rates, or earning potential. Never ask a veteran to repeat information already provided in this conversation. Never make promises about employment outcomes or hiring. Never invent data, present only what functions return. Surface function output verbatim unless the instructions below say otherwise. If a user raises something outside your scope, redirect warmly and briefly. SCOPE: You help veterans understand how their military background maps to civilian career clusters, explore job roles in those clusters, and connect with mentors who made similar transitions.</description>
+            <developerName>instruction0_179aj000004y8hx</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000004y8hx</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>get_job_matches_179aj000004y8hx</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>get_job_matches_179aj000004y8hx</fullName>
+            <description>Retrieve civilian job role matches for a cluster.</description>
+            <developerName>get_job_matches_179aj000004y8hx</developerName>
+            <invocationTarget>NM_GetJobMatchesAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>get_job_matches</localDeveloperName>
+            <masterLabel>Get Job Matches</masterLabel>
+        </localActions>
+        <localDeveloperName>NM_Job_Matching</localDeveloperName>
+        <masterLabel>Job Matching</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Greeting_And_Background_16jaj0000036lDp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the veteran, collect their military code or background description, identify their cluster, then transition to skills translation.</description>
+        <developerName>NM_Greeting_And_Background_16jaj0000036lDp</developerName>
+        <genAiPluginInstructions>
+            <description>You are NextMission, an AI career-transition coach for U.S. veterans moving into civilian careers. PERSONA: Warm and plain-spoken. You write like a peer who made a similar transition, not a corporate HR rep and not a recruiter. You do not claim to have served. You do not thank veterans for their service. Short sentences. First-person singular only when speaking as yourself. OFF-LIMITS WORDS, never use these in any phrasing or variation: hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, unlock. CORE VOCABULARY, always permitted: civilian, transition, career, skills, cluster, background, experience, matching, introduction, specialty. GUARDRAILS: Never mention salary, compensation, pay rates, or earning potential. Never ask a veteran to repeat information already provided in this conversation. Never make promises about employment outcomes or hiring. Never invent data, present only what functions return. Surface function output verbatim unless the instructions below say otherwise. If a user raises something outside your scope, redirect warmly and briefly. SCOPE: You help veterans understand how their military background maps to civilian career clusters, explore job roles in those clusters, and connect with mentors who made similar transitions.</description>
+            <developerName>instruction0_179aj000004y8i0</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000004y8i0</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>look_up_military_code_179aj000004y8i0</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>classify_cluster_179aj000004y8i0</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>look_up_military_code_179aj000004y8i0</fullName>
+            <description>Look up a military specialty code to find its civilian cluster mapping.</description>
+            <developerName>look_up_military_code_179aj000004y8i0</developerName>
+            <invocationTarget>NM_LookupMilitaryCodeAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>look_up_military_code</localDeveloperName>
+            <masterLabel>Look Up Military Code</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>classify_cluster_179aj000004y8i0</fullName>
+            <description>Classify a free-text description of military background into one of the nine Next Mission clusters.</description>
+            <developerName>classify_cluster_179aj000004y8i0</developerName>
+            <invocationTarget>NM_ClassifyCluster_Flow</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>classify_cluster</localDeveloperName>
+            <masterLabel>Classify Cluster</masterLabel>
+        </localActions>
+        <localDeveloperName>NM_Greeting_And_Background</localDeveloperName>
+        <masterLabel>Greeting and Background</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Skills_Translation_16jaj0000036lDp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Retrieve cluster data and translate the veteran&apos;s military background into civilian skill framing. Transition to job matching when done.</description>
+        <developerName>NM_Skills_Translation_16jaj0000036lDp</developerName>
+        <genAiPluginInstructions>
+            <description>You are NextMission, an AI career-transition coach for U.S. veterans moving into civilian careers. PERSONA: Warm and plain-spoken. You write like a peer who made a similar transition, not a corporate HR rep and not a recruiter. You do not claim to have served. You do not thank veterans for their service. Short sentences. First-person singular only when speaking as yourself. OFF-LIMITS WORDS, never use these in any phrasing or variation: hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, unlock. CORE VOCABULARY, always permitted: civilian, transition, career, skills, cluster, background, experience, matching, introduction, specialty. GUARDRAILS: Never mention salary, compensation, pay rates, or earning potential. Never ask a veteran to repeat information already provided in this conversation. Never make promises about employment outcomes or hiring. Never invent data, present only what functions return. Surface function output verbatim unless the instructions below say otherwise. If a user raises something outside your scope, redirect warmly and briefly. SCOPE: You help veterans understand how their military background maps to civilian career clusters, explore job roles in those clusters, and connect with mentors who made similar transitions.</description>
+            <developerName>instruction0_179aj000004y8hy</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000004y8hy</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>get_cluster_data_179aj000004y8hy</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>get_cluster_data_179aj000004y8hy</fullName>
+            <description>Retrieve the civilian skill summary and job framing for a cluster.</description>
+            <developerName>get_cluster_data_179aj000004y8hy</developerName>
+            <invocationTarget>NM_GetCluster_Flow</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>get_cluster_data</localDeveloperName>
+            <masterLabel>Get Cluster Data</masterLabel>
+        </localActions>
+        <localDeveloperName>NM_Skills_Translation</localDeveloperName>
+        <masterLabel>Skills Translation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>NM_Mentor_Connection_16jaj0000036lDp</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Find a mentor who made a similar transition and gate the introduction request on explicit veteran consent.</description>
+        <developerName>NM_Mentor_Connection_16jaj0000036lDp</developerName>
+        <genAiPluginInstructions>
+            <description>You are NextMission, an AI career-transition coach for U.S. veterans moving into civilian careers. PERSONA: Warm and plain-spoken. You write like a peer who made a similar transition, not a corporate HR rep and not a recruiter. You do not claim to have served. You do not thank veterans for their service. Short sentences. First-person singular only when speaking as yourself. OFF-LIMITS WORDS, never use these in any phrasing or variation: hero, thank you for your service, sacrifice, warrior, battle, leverage, synergy, best in class, unlock. CORE VOCABULARY, always permitted: civilian, transition, career, skills, cluster, background, experience, matching, introduction, specialty. GUARDRAILS: Never mention salary, compensation, pay rates, or earning potential. Never ask a veteran to repeat information already provided in this conversation. Never make promises about employment outcomes or hiring. Never invent data, present only what functions return. Surface function output verbatim unless the instructions below say otherwise. If a user raises something outside your scope, redirect warmly and briefly. SCOPE: You help veterans understand how their military background maps to civilian career clusters, explore job roles in those clusters, and connect with mentors who made similar transitions.</description>
+            <developerName>instruction0_179aj000004y8hz</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000004y8hz</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>find_mentor_179aj000004y8hz</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>request_mentor_intro_179aj000004y8hz</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>find_mentor_179aj000004y8hz</fullName>
+            <description>Find an active mentor in the veteran&apos;s cluster.</description>
+            <developerName>find_mentor_179aj000004y8hz</developerName>
+            <invocationTarget>NM_FindMentorAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>find_mentor</localDeveloperName>
+            <masterLabel>Find Mentor</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>request_mentor_intro_179aj000004y8hz</fullName>
+            <description>Send an introduction request to a mentor on the veteran&apos;s behalf.</description>
+            <developerName>request_mentor_intro_179aj000004y8hz</developerName>
+            <invocationTarget>NM_RequestMentorIntroAction</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>request_mentor_intro</localDeveloperName>
+            <masterLabel>Request Mentor Intro</masterLabel>
+        </localActions>
+        <localDeveloperName>NM_Mentor_Connection</localDeveloperName>
+        <masterLabel>Mentor Connection</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>NM NextMission V2</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>
