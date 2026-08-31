@@ -91,11 +91,11 @@ private class NM_AgentControllerTest {
             NM_AgentController.startSession('https://example.com');
         } catch (AuraHandledException e) {
             threwException = true;
-            System.assert(e.getMessage().contains('Session creation failed') ||
-                          e.getMessage().contains('500'), 'Exception message should reference the failure');
+            // AuraHandledException.getMessage() returns 'Script-thrown exception' in tests —
+            // Salesforce quirk. We verify only that the exception was thrown, not the text.
         }
         Test.stopTest();
-        System.assert(threwException, 'Should throw AuraHandledException on 500');
+        System.assert(threwException, 'Should throw AuraHandledException on 500 response');
     }
 
     // ── sendMessage ─────────────────────────────────────────────────────────

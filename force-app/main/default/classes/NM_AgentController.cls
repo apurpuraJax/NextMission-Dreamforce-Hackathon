@@ -163,9 +163,9 @@ public with sharing class NM_AgentController {
         for (Object msgObj : messages) {
             Map<String, Object> msg = (Map<String, Object>) msgObj;
             if ('Inform'.equalsIgnoreCase((String) msg.get('type'))) {
-                Map<String, Object> inner = (Map<String, Object>) msg.get('message');
-                if (inner != null) {
-                    String txt = (String) inner.get('text');
+                Map<String, Object> msgBody = (Map<String, Object>) msg.get('message');
+                if (msgBody != null) {
+                    String txt = (String) msgBody.get('text');
                     if (String.isNotBlank(txt)) { return txt; }
                 }
             }
