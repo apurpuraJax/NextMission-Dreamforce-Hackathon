@@ -77,3 +77,34 @@
 **Deploy scope**: always deploy only specific bundle subdirectory (NOT the whole genAiPlannerBundles/ dir) to avoid deploying orphaned bundles that fail with "name previously used" errors.
 
 **Verification**: after deploy, confirm `GenAiPlannerFunctionDef` records exist with `PlannerId = <active planner id>` for all 4 topics — `localTopicLinks` creates these junction records (not `PlannerId` on the GenAiPluginDefinition).
+
+## NMDH-18 (2026-08-31) — External Client App (ECA)
+
+### ExternalClientApplication metadata — what deploys, what doesn't
+
+**DOES deploy via Metadata API (suffix .eca):**
+- `label`, `contactEmail`, `description`, `distributionState`, `isProtected`
+- Valid `distributionState` values: `Local` (for org-specific), `Packaged` (managed package)
+- `GlobalUnlisted` is NOT a valid value — use `Local`
+
+**Does NOT deploy (not in metadata schema — `oauthConfig` element invalid):**
+- OAuth scopes, callback URL, client credentials flow enable
+- These live in `ExtlClntAppOauthSettings` (auto-managed by platform)
+
+**ExtlClntAppOauthSettings behavior:**
+- All fields `createable: false`, `updateable: false` via SOQL and Tooling API
+- Records are NOT auto-created when ECA is deployed via metadata
+- Records are only created when OAuth is enabled through Setup UI
+- `ExtlClntAppOauthConsumer` (holds Consumer Key/Secret) is also platform-managed — cannot be created or read via API
+
+**Bot → ECA linking:**
+- No API path discovered. Only via Setup > Agents > agent > Activation tab > External Client Apps
+- `BotDefinition` and `BotVersion` have no ECA reference fields
+- `ExternalConversationBotDef` is unrelated (external conversation channels)
+
+**Verification technique:**
+```bash
+sf sobject describe --sobject ExtlClntAppOauthSettings --target-org <alias> --json | \
+  jq '.result.fields[] | select(.createable == true) | .name'
+# Returns empty — confirms no createable fields exist
+```

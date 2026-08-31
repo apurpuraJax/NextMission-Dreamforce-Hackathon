@@ -16,3 +16,11 @@
 2026-08-30T19:xx | a4a78bd0 | VERIFY | 5 GenAiPlannerFunctionDef records for active planner 16jaj0000035gRVAAY confirmed
 2026-08-30T19:xx | a4a78bd0 | COMMIT | 702f042 pushed to origin/main - localTopicLinks + orphaned planner removal
 2026-08-30T19:xx | a4a78bd0 | JIRA | NMDH-14 transitioned to Done, comment added
+2026-08-31T01:21:00Z | c33a90a1 | FETCH | NMDH-18 ticket fetched — UI prerequisite for ECA + agent linking
+2026-08-31T01:21:00Z | c33a90a1 | VERIFY | ExternalClientApplication metadata type IS deployable (suffix: eca, xmlName: ExternalClientApplication)
+2026-08-31T01:21:00Z | c33a90a1 | VERIFY | ExtlClntAppOauthSettings all fields createable=false — OAuth settings cannot be set via any API path
+2026-08-31T01:21:00Z | c33a90a1 | VERIFY | NM_NextMission_Bot exists (0Xxaj000003yLz7CAE) — NMDH-14 dep satisfied
+2026-08-31T01:21:00Z | c33a90a1 | DEPLOY | ExternalClientApplication NM_NextMission_ECA deployed to dreamforce-hackathon (0xIaj000000bBe1EAE) — 52/52 tests pass
+2026-08-31T01:21:00Z | c33a90a1 | COMMIT | c57aff8 pushed to main — ECA metadata NM_NextMission_ECA.eca-meta.xml
+2026-08-31T01:21:00Z | c33a90a1 | JIRA | NMDH-18 transitioned to In Progress, admin runbook comment added (id: 40066)
+2026-08-31T01:21:00Z | c33a90a1 | BLOCKED | OAuth settings + agent link are genuine UI-only steps — ExtlClntAppOauthSettings non-createable, no auto-creation on metadata deploy
