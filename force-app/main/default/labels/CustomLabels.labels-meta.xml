@@ -7,4 +7,88 @@
         <shortDescription>NM Bot Definition Id</shortDescription>
         <value>0Xxaj000003yLz7CAE</value>
     </labels>
+    <labels>
+        <fullName>NM_Chat_AgentLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Agent Label</shortDescription>
+        <value>Next Mission</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ErrorMessage</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Error Message</shortDescription>
+        <value>Something went wrong — please try again.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_InputAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Input Aria Label</shortDescription>
+        <value>Type your message to Next Mission</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_InputLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Input Label</shortDescription>
+        <value>Your message</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_InputPlaceholder</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Input Placeholder</shortDescription>
+        <value>Type your message...</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_LoadingAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Loading Aria Label</shortDescription>
+        <value>Next Mission is responding</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_LoadingText</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Loading Text</shortDescription>
+        <value>...</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_MessagesAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Messages Aria Label</shortDescription>
+        <value>Conversation messages</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_SendAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Send Aria Label</shortDescription>
+        <value>Send message</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_SendLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Send Label</shortDescription>
+        <value>Send</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_WidgetAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat Widget Aria Label</shortDescription>
+        <value>Next Mission career advisor chat</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_YouLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM Chat You Label</shortDescription>
+        <value>You</value>
+    </labels>
 </CustomLabels>

@@ -1,0 +1,62 @@
+<template>
+    <section class="nm-chat-widget" aria-label={i18n.widgetAriaLabel}>
+        <!-- Message list: role=log + aria-live for screen-reader announcements -->
+        <div
+            class="nm-messages"
+            role="log"
+            aria-live="polite"
+            aria-label={i18n.messagesAriaLabel}
+            lwc:ref="messageList"
+        >
+            <template for:each={messages} for:item="msg">
+                <div
+                    key={msg.id}
+                    class={msg.cssClass}
+                    aria-label={msg.senderLabel}
+                >
+                    <span class="nm-sender">{msg.senderLabel}</span>
+                    <p class="nm-text">{msg.text}</p>
+                </div>
+            </template>
+
+            <!-- Loading indicator while waiting for agent reply -->
+            <template lwc:if={isLoading}>
+                <div class="nm-loading" role="status" aria-live="polite" aria-label={i18n.loadingAriaLabel}>
+                    <span class="nm-loading-dots" aria-hidden="true">{i18n.loadingText}</span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Error banner -->
+        <template lwc:if={errorMessage}>
+            <div class="nm-error" role="alert">
+                <span>{errorMessage}</span>
+            </div>
+        </template>
+
+        <!-- Input row -->
+        <div class="nm-input-row">
+            <label for="nm-input" class="slds-assistive-text">{i18n.inputLabel}</label>
+            <input
+                id="nm-input"
+                type="text"
+                class="nm-input"
+                placeholder={i18n.inputPlaceholder}
+                aria-label={i18n.inputAriaLabel}
+                value={inputText}
+                onkeydown={handleKeydown}
+                oninput={handleInput}
+                disabled={isLoading}
+            />
+            <button
+                type="button"
+                class="nm-send-btn"
+                aria-label={i18n.sendAriaLabel}
+                onclick={handleSend}
+                disabled={isSendDisabled}
+            >
+                {i18n.sendLabel}
+            </button>
+        </div>
+    </section>
+</template>
