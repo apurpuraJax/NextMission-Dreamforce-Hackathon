@@ -10,6 +10,10 @@ History
 -------
 VERSION  AUTHOR       DATE         DETAIL    DESCRIPTION
 1.0      Orchestrate  2026-08-30   Created   NMDH-8
+3.0      Orchestrate  2026-08-31   Updated   NMDH-8 mentorId is now String on
+                                             the Request; happy path passes a
+                                             plain string, plus new coverage for
+                                             the blank/malformed mentorId guard.
 *****************************************************************/
 @isTest
 private class NM_RequestMentorIntroActionTest {
@@ -45,7 +49,9 @@ private class NM_RequestMentorIntroActionTest {
         NM_Mentor__c mentor = [SELECT Id FROM NM_Mentor__c WHERE Name = 'Sam Torres' LIMIT 1];
 
         NM_RequestMentorIntroAction.Request req = new NM_RequestMentorIntroAction.Request();
-        req.mentorId       = mentor.Id;
+        // NMDH-8 v3.0: pass the mentor Id as a PLAIN STRING to mirror what the
+        // Agentforce planner supplies now that Request.mentorId is String-typed.
+        req.mentorId       = String.valueOf(mentor.Id);
         req.requesterEmail = 'veteran@example.com';
         req.conversationKey = 'intro-test-session-001';
 
@@ -314,5 +320,71 @@ private class NM_RequestMentorIntroActionTest {
         Integer introCount = [SELECT COUNT() FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id];
         System.assertEquals(1, introCount,
             'Same conversation + same mentor should yield exactly one intro');
+    }
+
+    /*****************************************************************
+    Purpose:       NMDH-8 v3.0 — blank mentorId (String) is terminal for
+                   that request: success=false, guidance message, and NO
+                   intro record is created. The rest of the batch is
+                   unaffected (bulk-safety of the per-request guard).
+    *****************************************************************/
+    @isTest
+    static void testBlankMentorId() {
+        NM_RequestMentorIntroAction.Request req = new NM_RequestMentorIntroAction.Request();
+        req.mentorId        = '';
+        req.requesterEmail  = 'blank-mentor@example.com';
+        req.conversationKey = 'intro-test-session-001';
+
+        Integer introsBefore = [SELECT COUNT() FROM NM_Mentor_Introduction__c];
+
+        Test.startTest();
+        List<NM_RequestMentorIntroAction.Response> results = NM_RequestMentorIntroAction.requestIntro(
+            new List<NM_RequestMentorIntroAction.Request>{ req }
+        );
+        Test.stopTest();
+
+        System.assertEquals(false, results[0].success, 'Blank mentorId should return success=false');
+        System.assertNotEquals(null, results[0].message, 'A guidance message should be returned');
+
+        Integer introsAfter = [SELECT COUNT() FROM NM_Mentor_Introduction__c];
+        System.assertEquals(introsBefore, introsAfter, 'No intro should be created for a blank mentorId');
+    }
+
+    /*****************************************************************
+    Purpose:       NMDH-8 v3.0 — a malformed (non-Id) mentorId string is
+                   caught by Id.valueOf and fails ONLY that request; it
+                   must not throw and abort the batch. Asserts the valid
+                   sibling request in the same call still succeeds.
+    *****************************************************************/
+    @isTest
+    static void testMalformedMentorIdIsPerRequest() {
+        NM_Mentor__c mentor = [SELECT Id FROM NM_Mentor__c WHERE Name = 'Sam Torres' LIMIT 1];
+
+        // Bad request — garbage that Id.valueOf cannot parse.
+        NM_RequestMentorIntroAction.Request bad = new NM_RequestMentorIntroAction.Request();
+        bad.mentorId        = 'not-a-real-id';
+        bad.requesterEmail  = 'bad-id@example.com';
+        bad.conversationKey = 'intro-test-session-001';
+
+        // Good request — valid mentor Id as a string, in the SAME batch.
+        NM_RequestMentorIntroAction.Request good = new NM_RequestMentorIntroAction.Request();
+        good.mentorId        = String.valueOf(mentor.Id);
+        good.requesterEmail  = 'good-id@example.com';
+        good.conversationKey = 'intro-test-session-001';
+
+        Test.startTest();
+        List<NM_RequestMentorIntroAction.Response> results = NM_RequestMentorIntroAction.requestIntro(
+            new List<NM_RequestMentorIntroAction.Request>{ bad, good }
+        );
+        Test.stopTest();
+
+        // The malformed request fails on its own; the valid one still succeeds.
+        System.assertEquals(false, results[0].success, 'Malformed mentorId should fail its own request');
+        System.assertNotEquals(null, results[0].message, 'A guidance message should be returned for the bad request');
+        System.assertEquals(true, results[1].success, 'Valid sibling request must still succeed (batch not aborted)');
+
+        // Exactly one intro — from the good request only.
+        Integer introCount = [SELECT COUNT() FROM NM_Mentor_Introduction__c WHERE Mentor__c = :mentor.Id];
+        System.assertEquals(1, introCount, 'Only the valid request should create an intro');
     }
 }

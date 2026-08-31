@@ -23,6 +23,14 @@ VERSION  AUTHOR       DATE         DETAIL    DESCRIPTION
 1.0      Orchestrate  2026-08-30   Created   NMDH-8
 2.0      Orchestrate  2026-08-31   Updated   NMDH-8 create NM_Conversation__c
                                              on lookup miss; full bulkification
+3.0      Orchestrate  2026-08-31   Updated   NMDH-8 mentorId typed as String
+                                             (not Apex Id) so the Agentforce
+                                             planner can populate it by reasoning;
+                                             an Id-typed required input forced a
+                                             complex lightning__recordIdType the
+                                             planner cannot supply, making the
+                                             action uncallable. Cast internally
+                                             with Id.valueOf, per-request guard.
 *****************************************************************/
 public with sharing class NM_RequestMentorIntroAction {
 
@@ -36,6 +44,8 @@ public with sharing class NM_RequestMentorIntroAction {
         'I\'ve already sent that introduction request for this session.';
     private static final String MSG_SUCCESS =
         'Done. I\'ve queued the introduction and someone will reach out soon.';
+    private static final String MSG_BAD_MENTOR =
+        'I couldn\'t identify which mentor to introduce you to. Let me look that up again.';
 
     /*****************************************************************
     Purpose:       Input schema consumed by the Agentforce planner.
@@ -43,10 +53,10 @@ public with sharing class NM_RequestMentorIntroAction {
     public class Request {
         @InvocableVariable(
             label='Mentor Id'
-            description='Id of the NM_Mentor__c record — returned by NM_FindMentorAction.'
+            description='Id (as text) of the NM_Mentor__c record — returned by NM_FindMentorAction. Declared as String, not Id, so the planner can populate it from reasoning; it is parsed to an Id internally with Id.valueOf.'
             required=true
         )
-        public Id mentorId;
+        public String mentorId;
 
         @InvocableVariable(
             label='Requester Email'
@@ -97,27 +107,54 @@ public with sharing class NM_RequestMentorIntroAction {
             return results;
         }
 
-        // Pre-size the result list so we can write results by index.
-        List<Boolean> emailValid = new List<Boolean>();
+        // Pre-size the per-request tracking lists so we can write by index.
+        // reqValid[i]  — request passed BOTH email and mentorId validation.
+        // mentorIds[i] — the parsed Id for a valid request (null otherwise).
+        List<Boolean> reqValid = new List<Boolean>();
+        List<Id> mentorIds = new List<Id>();
         for (Integer i = 0; i < requests.size(); i++) {
             results.add(new Response());
-            emailValid.add(false);
+            reqValid.add(false);
+            mentorIds.add(null);
         }
 
         // -----------------------------------------------------------
-        // PASS 1 — validate emails and collect the non-blank keys to
-        // look up. Invalid emails are terminal for that request.
+        // PASS 1 — validate email + mentorId and collect the non-blank
+        // keys to look up. A bad email OR an unusable mentorId is
+        // terminal for that request only (never for the whole batch).
         // -----------------------------------------------------------
         Set<String> keysToFind = new Set<String>();
         for (Integer i = 0; i < requests.size(); i++) {
             Request req = requests[i];
+
+            // Email must be present and well-formed.
             if (String.isBlank(req.requesterEmail) ||
                 !Pattern.matches(EMAIL_REGEX, req.requesterEmail)) {
                 results[i].success = false;
                 results[i].message = MSG_BAD_EMAIL;
                 continue;
             }
-            emailValid[i] = true;
+
+            // mentorId arrives as text (see Request.mentorId). Parse it to a
+            // real Id here with Id.valueOf; a blank or malformed value is
+            // terminal for THIS request but must not throw for the batch.
+            if (String.isBlank(req.mentorId)) {
+                results[i].success = false;
+                results[i].message = MSG_BAD_MENTOR;
+                continue;
+            }
+            Id parsedMentorId;
+            try {
+                parsedMentorId = Id.valueOf(req.mentorId.trim());
+            } catch (System.StringException e) {
+                System.debug('Invalid mentorId on request ' + i + ': ' + e.getMessage());
+                results[i].success = false;
+                results[i].message = MSG_BAD_MENTOR;
+                continue;
+            }
+
+            mentorIds[i] = parsedMentorId;
+            reqValid[i] = true;
             if (String.isNotBlank(req.conversationKey)) {
                 keysToFind.add(req.conversationKey);
             }
@@ -152,7 +189,7 @@ public with sharing class NM_RequestMentorIntroAction {
         Map<String, Integer> tokenToCreateIdx = new Map<String, Integer>();
 
         for (Integer i = 0; i < requests.size(); i++) {
-            if (!emailValid[i]) {
+            if (!reqValid[i]) {
                 continue;
             }
             String key = requests[i].conversationKey;
@@ -196,7 +233,7 @@ public with sharing class NM_RequestMentorIntroAction {
         Set<Id> allConvIds = new Set<Id>();
         Set<Id> allMentorIds = new Set<Id>();
         for (Integer i = 0; i < requests.size(); i++) {
-            if (!emailValid[i]) {
+            if (!reqValid[i]) {
                 convIdPerReq.add(null);
                 continue;
             }
@@ -209,8 +246,9 @@ public with sharing class NM_RequestMentorIntroAction {
             }
             convIdPerReq.add(convId);
             allConvIds.add(convId);
-            if (requests[i].mentorId != null) {
-                allMentorIds.add(requests[i].mentorId);
+            // mentorIds[i] was parsed + validated in PASS 1 for every valid request.
+            if (mentorIds[i] != null) {
+                allMentorIds.add(mentorIds[i]);
             }
         }
 
@@ -240,11 +278,11 @@ public with sharing class NM_RequestMentorIntroAction {
         Set<String> seenPairsThisBatch = new Set<String>();
 
         for (Integer i = 0; i < requests.size(); i++) {
-            if (!emailValid[i]) {
+            if (!reqValid[i]) {
                 continue;
             }
             Id convId = convIdPerReq[i];
-            Id mentorId = requests[i].mentorId;
+            Id mentorId = mentorIds[i];   // parsed from String in PASS 1
             String pairKey = convId + '|' + mentorId;
 
             if (existingPairs.contains(pairKey) || seenPairsThisBatch.contains(pairKey)) {
