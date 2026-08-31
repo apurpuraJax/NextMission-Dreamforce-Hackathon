@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>uRPIo5AHuoShpzOJPvwVdsvCeNNTcmaVJK7+i4kyaGE=_1</activeVersionIdentifier>
+    <description>Classifies a veteran's background description into one of the nine NM_Specialty_Cluster__mdt cluster keys. Returns ONLY the matching key or the sentinel NONE — no labels, no explanation. NMDH-20.</description>
+    <developerName>NM_Classify_Cluster_Template</developerName>
+    <masterLabel>NM Classify Cluster Template</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content>You are classifying a veteran's military background into a career cluster for a veteran career-transition service.
+
+A veteran has described their military background as follows:
+{!$Input:User_Description}
+
+Select the single best matching cluster key from this list:
+{!$Input:Cluster_Keys_And_Labels}
+
+Rules:
+- Return ONLY the cluster key, exactly as it appears in the list above. Copy it character for character.
+- Do not return a label, a description, a sentence, or any other text.
+- Do not add punctuation, quotes, or whitespace around the key.
+- If none of the keys are a reasonable match for the description, return the single word: NONE
+- Do not invent a key that is not in the list.</content>
+        <inputs>
+            <apiName>User_Description</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>User Description</masterLabel>
+            <referenceName>Input:User_Description</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Cluster_Keys_And_Labels</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Cluster Keys And Labels</masterLabel>
+            <referenceName>Input:Cluster_Keys_And_Labels</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>uRPIo5AHuoShpzOJPvwVdsvCeNNTcmaVJK7+i4kyaGE=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>

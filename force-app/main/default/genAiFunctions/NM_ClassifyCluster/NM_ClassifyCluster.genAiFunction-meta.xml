@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Classify the veteran's background into one of the nine Next Mission career clusters, grounded in NM_Specialty_Cluster__mdt at runtime. Pass userDescription — the veteran's own description of their experience. Returns found=true and clusterKey if a valid cluster is identified. Returns found=false and narrowingQuestion if classification failed. When found=false: surface narrowingQuestion verbatim. Do not ask what a typical day looked like again — the veteran already answered. Call this action again with their clarification as userDescription.</description>
+    <invocationTarget>NM_ClassifyCluster_Flow</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <masterLabel>NM_ClassifyCluster</masterLabel>
+</GenAiFunction>
