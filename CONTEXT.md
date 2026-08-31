@@ -331,17 +331,13 @@ Every one of these cost a failed publish cycle. The compiler reports **one error
 
 `NM_LogConversation` is intentionally not wired. Conversation persistence is owned by the `nmChatWidget` LWC on the client side.
 
-#### Open defect — NM_GetCluster_Flow
+#### Resolved defect — NM_GetCluster_Flow (NMDH-6, fixed 2026-08-31)
 
-**See NMDH-6 for the full write-up.** `NM_GetCluster_Flow` returns `found=false` whenever `userPrompt` is null, empty, or omitted, even when `clusterKey` is a valid match. Reproduced five times via `Flow.Interview` in anonymous Apex. This breaks the primary path, because a military code lookup never produces a free-text description, so `userPrompt` is always empty there.
+`NM_GetCluster_Flow` used to return `found=false` whenever `userPrompt` was null, empty, or omitted, even when `clusterKey` was a valid match. That broke the primary path, because a military code lookup never produces a free-text description, so `userPrompt` is always empty there. A veteran entering `Army, 68W` was told "I don't have data on that specialty yet" for a cluster holding 1348 characters of content.
 
-Until it is fixed, `get_cluster_data` deliberately has **no** `with userPrompt=` binding and instead relies on an instruction telling the model to always supply a non-empty value. That is a workaround. Once the flow is fixed, restore the deterministic binding:
+Fixed in commit `ac9bc53`. Verified against the org: `userPrompt` null, empty, and omitted all now return `found=true` for a valid `clusterKey`. The deterministic binding has been restored in `NM_NextMission_V2.agent`.
 
-```
-get_cluster_data: @actions.get_cluster_data
-    with clusterKey=@variables.clusterKey
-    with userPrompt=@variables.userDescription
-```
+**Lesson for future flow work:** a Flow debug run with all inputs populated will pass and tell you nothing. Test optional inputs explicitly as null, empty, and omitted.
 
 ---
 
