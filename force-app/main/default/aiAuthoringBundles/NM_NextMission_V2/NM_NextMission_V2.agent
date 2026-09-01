@@ -69,6 +69,9 @@ start_agent NM_Greeting_And_Background:
 
     reasoning:
         instructions: ->
+            if @variables.mentorId is not None and @variables.introSent is None:
+                | A mentor introduction is already in progress for this veteran. Whatever they have just said, including an email address, a yes, a no, a question, or anything else, your ONLY valid move is to call go_to_mentor_connection immediately. Do not greet them, do not ask for their code, do not answer, do not confirm anything. Transition now.
+
             | Welcome the veteran. Ask for their military branch and specialty code, MOS, AFSC, Rating, or NEC.
               If they don't have a code or prefer to describe their role, ask them to describe what they did in plain terms: what they worked on, what environment, what skills they used most.
 
@@ -98,7 +101,7 @@ start_agent NM_Greeting_And_Background:
             go_to_skills_translation: @utils.transition to @subagent.NM_Skills_Translation
                 description: "Transition to skills translation. Call only after clusterKey is confirmed from a function response."
             go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
-                description: "Transition directly to mentor connection only when two consecutive classification attempts both return found=false."
+                description: "Transition to mentor connection whenever the veteran asks to talk to a mentor, asks to speak to someone who has been through it, or agrees to a mentor introduction. Also use it when two consecutive classification attempts both return found=false. Never answer a mentor request yourself, you have no mentor data in this subagent and any mentor you describe here is invented. Always transition."
 
 subagent NM_Skills_Translation:
     label: "Skills Translation"
@@ -231,4 +234,5 @@ subagent NM_Mentor_Connection:
                 set @variables.mentorId=@outputs.mentorId
                 description: "Find a mentor who transitioned from a similar military cluster. Returns mentor name, role, employer, bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
+                set @variables.introSent=@outputs.message
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."
