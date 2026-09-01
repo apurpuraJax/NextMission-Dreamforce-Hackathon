@@ -108,7 +108,7 @@ subagent NM_Greeting_And_Background:
 
               Once you have both, you MUST call look_up_occupations. It is the only thing here that knows what a code means. Do not answer from your own knowledge of military codes, and do not guess a career area.
 
-              Normalise before calling. Branch resolves to one of Army, Navy, Air Force, Marine Corps, Coast Guard or Space Force, so Marines becomes Marine Corps and USAF becomes Air Force. Strip any skill level suffix, so 68W10 becomes 68W.
+              Normalise the BRANCH only, to one of Army, Navy, Air Force, Marine Corps, Coast Guard or Space Force, so Marines becomes Marine Corps and USAF becomes Air Force. Pass the CODE through exactly as the veteran typed it. Never shorten, trim or reformat a code. Air Force AFSCs like 2A552E and Navy NECs are whole codes, and cutting characters off them lands on a different job. The action handles skill level suffixes itself.
 
               If found=true: acknowledge their role title in one sentence, then call go_to_skills_translation immediately.
               If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive. Say plainly that you do not have that code, then call go_to_describe so they can tell you what they did instead.

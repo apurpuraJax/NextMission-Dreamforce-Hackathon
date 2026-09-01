@@ -94,11 +94,18 @@ public with sharing class NM_LookupOccupationAction {
     public static List<Response> lookupOccupations(List<Request> requests) {
         System.debug('Entering NM_LookupOccupationAction.lookupOccupations: requests=' + requests.size());
 
-        // --- Build the external keys we need, normalised the same way as load ---
+        // --- Build the keys we need. For each request we may try two: the code
+        //     exactly as given, and for an Army MOS carrying a skill-level suffix
+        //     (68W10), the base MOS (68W). Both go into one query.
+        //     Deliberately NOT general prefix truncation: shortening an Air Force
+        //     AFSC or a Navy NEC can land on a different valid code in a different
+        //     cluster and return a confident wrong answer.
         Set<String> keys = new Set<String>();
         for (Request req : requests) {
             String k = buildKey(req.branch, req.code);
             if (k != null) keys.add(k);
+            String b = baseArmyKey(req.branch, req.code);
+            if (b != null) keys.add(b);
         }
 
         // --- Query 1: the military codes ------------------------------------
@@ -136,6 +143,11 @@ public with sharing class NM_LookupOccupationAction {
         for (Request req : requests) {
             Response res = new Response();
             String key = buildKey(req.branch, req.code);
+            if (key != null && !codeByKey.containsKey(key)) {
+                // exact miss: fall back to the base Army MOS if this looked like one
+                String fallback = baseArmyKey(req.branch, req.code);
+                if (fallback != null && codeByKey.containsKey(fallback)) key = fallback;
+            }
 
             if (key == null || !codeByKey.containsKey(key)) {
                 res.found = false;
@@ -182,5 +194,22 @@ public with sharing class NM_LookupOccupationAction {
     private static String buildKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
         return branch.trim().toUpperCase() + '|' + code.trim().toUpperCase();
+    }
+
+    /*
+     * Purpose:    Army MOS codes carry a two-digit skill level, so 68W10, 68W20 and
+     *             68W30 are all the MOS 68W. The crosswalk holds only the base code.
+     *             Returns the base key, or null when the pattern does not match.
+     * Note:       Army only, and only for the exact shape NNXNN. Other services
+     *             encode skill level inside the code itself (2A512E, 2A532E and
+     *             2A552E are three distinct crosswalk rows) and must never be
+     *             shortened.
+     */
+    private static String baseArmyKey(String branch, String code) {
+        if (String.isBlank(branch) || String.isBlank(code)) return null;
+        if (branch.trim().toUpperCase() != 'ARMY') return null;
+        String c = code.trim().toUpperCase();
+        if (!Pattern.matches('^[0-9]{2}[A-Z][0-9]{2}$', c)) return null;
+        return 'ARMY|' + c.substring(0, 3);
     }
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows NM_ONETReleaseMonitor to check the published O*NET database release version. Read only; the actual data reload is done outside the org because the files are multi-megabyte zips.</description>
+    <disableProtocolSecurity>false</disableProtocolSecurity>
+    <isActive>true</isActive>
+    <url>https://www.onetcenter.org</url>
+</RemoteSiteSetting>

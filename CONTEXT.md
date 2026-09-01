@@ -78,6 +78,12 @@ These decisions are locked. A cold build session is most likely to redo these wr
 
 Reload with `scripts/data/build_onet_load_files.py` against the published O\*NET release, then bulk upsert on the external ids. Do not hand edit these objects.
 
+**Code normalisation lives in Apex, not in instructions.** `NM_LookupOccupationAction` tries the code exactly as typed, and for an Army MOS matching `NNXNN` also tries the base MOS, so `68W10` resolves to `68W`. This is deliberately Army-only and deliberately not general prefix truncation: Air Force AFSCs encode skill level inside the code (`2A512E`, `2A532E`, `2A552E` are three distinct rows), so shortening one lands on a different job. An earlier version told the agent to "strip any skill level suffix" and the model applied that Army rule to an AFSC, turning `2A552E` into `2A55` and missing. The agent is now told to normalise the branch only and pass the code through untouched.
+
+**Staleness is monitored, not automated.** `NM_ONETReleaseMonitor` runs weekly (Sunday 03:00, scheduling user's timezone) and compares the release published on onetcenter.org against `NM_Data_Config__c.Loaded_ONET_Release__c`, setting `Refresh_Needed__c`. It does **not** reload: the database is a 12 MB zip and the crosswalk 4 MB, against a 6 MB Apex callout limit and no unzip in Apex. The reload is the script plus a bulk upsert. As of 2026-09-01 the org holds `db_29_1` while `db_31_0` is published, so the flag is set and correct.
+
+**Mapping integrity, verified 2026-09-01:** the crosswalk references 425 distinct O\*NET codes, all present in the loaded occupations, and all 8,179 military codes resolve to at least one real occupation. Re-run that check after any reload; a version mismatch between crosswalk and occupations would orphan mappings silently.
+
 **Still cluster-based, deliberately:** mentor matching uses `clusterKey` as a tie-breaker, and the description path (`NM_ClassifyCluster_Flow`) still classifies into the nine clusters when no code is available. `NM_Specialty_Cluster__mdt` and `NM_Military_Code__mdt` remain in the org as the fallback path and are still read by `get_cluster_data` and `get_job_matches`, which are now gated with `available when @variables.occupations is None`.
 
 ### Custom Metadata is the grounding layer (SUPERSEDED for codes, skills and jobs — see above)
