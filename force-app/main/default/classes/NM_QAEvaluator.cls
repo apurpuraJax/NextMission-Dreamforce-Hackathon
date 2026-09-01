@@ -152,25 +152,23 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
     Throws:        CalloutException when the response has no generations
     *****************************************************************/
     private static String callLiveEinsteinApi(String transcript) {
-        ConnectApi.EinsteinPromptTemplateGenerationsInput promptInput =
-            new ConnectApi.EinsteinPromptTemplateGenerationsInput();
-        promptInput.isPreview = false;
+        // Invoked through NM_QAGrade_Flow, NOT ConnectApi.
+        //
+        // ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate throws
+        // "Failed to generate Einstein LLM generations response" in this org for
+        // EVERY prompt template, including NM_Find_Mentor_Template, which works
+        // correctly when the agent calls it from a Flow. So the failure is the
+        // ConnectApi path itself, not the QA template. Proven by calling the
+        // known-good template through ConnectApi and watching it fail the same
+        // way. Do not "simplify" this back to a direct ConnectApi call.
+        Map<String, Object> inputs = new Map<String, Object>{ 'transcript' => transcript };
+        Flow.Interview flow = Flow.Interview.createInterview('NM_QAGrade_Flow', inputs);
+        flow.start();
 
-        Map<String, ConnectApi.WrappedValue> valueMap = new Map<String, ConnectApi.WrappedValue>();
-        ConnectApi.WrappedValue transcriptValue = new ConnectApi.WrappedValue();
-        transcriptValue.value = transcript;
-        valueMap.put('Input:Transcript', transcriptValue);
-        promptInput.inputParams = valueMap;
-
-        ConnectApi.EinsteinPromptTemplateGenerationsRepresentation response =
-            ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate(
-                'NM_QA_Evaluator_Template',
-                promptInput
-            );
-
-        if (response.generations != null && !response.generations.isEmpty()) {
-            return response.generations[0].text;
+        String responseText = (String) flow.getVariableValue('responseText');
+        if (String.isNotBlank(responseText)) {
+            return responseText;
         }
-        throw new CalloutException('Empty response from NM_QA_Evaluator_Template');
+        throw new CalloutException('Empty response from NM_QA_Evaluator_Template via NM_QAGrade_Flow');
     }
 }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Grades one conversation transcript with NM_QA_Evaluator_Template and returns the raw model text. Exists because ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate fails in this org for every template, including ones that work correctly from Flow. NMDH-19.</description>
+    <actionCalls>
+        <name>Run_QA_Template</name>
+        <label>Run QA Template</label>
+        <locationX>176</locationX>
+        <locationY>276</locationY>
+        <actionName>NM_QA_Evaluator_Template</actionName>
+        <actionType>generatePromptResponse</actionType>
+        <faultConnector>
+            <isGoTo>false</isGoTo>
+            <targetReference>Set_Failed</targetReference>
+        </faultConnector>
+        <inputParameters>
+            <name>Input:Transcript</name>
+            <value>
+                <elementReference>transcript</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>responseText</assignToReference>
+            <name>promptResponse</name>
+        </outputParameters>
+    </actionCalls>
+    <assignments>
+        <name>Set_Failed</name>
+        <label>Set Failed</label>
+        <locationX>440</locationX>
+        <locationY>276</locationY>
+        <assignmentItems>
+            <assignToReference>responseText</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <apiVersion>62.0</apiVersion>
+    <interviewLabel>NM QA Grade Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>NM QA Grade Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Run_QA_Template</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>transcript</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>responseText</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

@@ -673,6 +673,83 @@ transcript, which the QA grader then scores 0 and marks "Skipped: no transcript
 available". The V2 agent script has no logging action, so that writer is a
 leftover. Track it down before trusting QA numbers.
 
+### Prompt templates: invoke from Flow, never ConnectApi
+
+`ConnectApi.EinsteinLLM.generateMessagesForPromptTemplate` throws
+`Failed to generate Einstein LLM generations response` in this org for **every**
+prompt template. It is not a template problem.
+
+**Proven, not assumed:** the same ConnectApi call was pointed at
+`NM_Find_Mentor_Template`, which the agent uses successfully on every mentor
+match, and it failed identically. Two templates, same error, one of them
+known-good. That isolates the failure to the ConnectApi path itself.
+
+Working pattern, used by `NM_FindMentor_Flow` and now `NM_QAGrade_Flow`:
+
+```
+actionType: generatePromptResponse
+actionName: <TemplateApiName>
+inputParameters:  name = "Input:<ParamApiName>"
+outputParameters: name = "promptResponse"
+```
+
+then from Apex:
+
+```apex
+Flow.Interview f = Flow.Interview.createInterview('NM_QAGrade_Flow', inputs);
+f.start();
+String out = (String) f.getVariableValue('responseText');
+```
+
+The calling class must implement `Database.AllowsCallouts` if it is Queueable.
+Always give the action a `faultConnector` so a model failure returns blank
+rather than blowing up the interview.
+
+**Do not "simplify" a template call back to ConnectApi.** It will compile,
+deploy, and fail at runtime with a message that sounds like a model problem.
+
+### The QA grader chain, and how it was broken end to end
+
+Three independent silent failures stacked, each hiding the next:
+
+1. The widget could not call `logTurn` at all (custom Apex type parameter,
+   rejected by the webruntime endpoint for guest callers).
+2. Guest users cannot read or update records, so upsert-by-external-id failed
+   with `DUPLICATE_VALUE` from turn two onward, swallowed by
+   `allOrNone=false` and a `.catch(() => {})`.
+3. The grader's ConnectApi call failed for every record that did have a
+   transcript, and wrote `QA_Score__c = 0` on its own failure.
+
+The third one is the important lesson: **never write a score on your own
+failure.** A broken grader looked exactly like an agent performing terribly.
+Both the empty-transcript path and the grader-error path now leave
+`QA_Score__c` NULL and record why. A conversation with no transcript is
+unscored, not bad.
+
+After the fix: 21 conversations graded, average 7.57, min 3, with real issue
+categories (`MadeUpContent`, `WrongTone`, `NoHelpDelivered`). Those numbers
+mean something now; every number before this was an artefact.
+
+### Deploying Apex that a Schedulable depends on
+
+`sf project deploy start` fails with "This schedulable class has jobs pending
+or in progress" when the QA grader is scheduled. Abort, deploy, reschedule:
+
+```apex
+for (CronTrigger ct : [SELECT Id FROM CronTrigger
+                       WHERE CronJobDetail.Name = 'NM Daily QA Grader']) {
+    System.abortJob(ct.Id);
+}
+```
+then redeploy, then `System.schedule('NM Daily QA Grader', '0 0 * * * ?', new NM_QAScheduler());`
+
+**Capture the live cron expression before aborting and restore it exactly.**
+The live job runs hourly (`0 0 * * * ?`) while the class header documents daily
+(`0 0 6 * * ?`). That drift is deliberate for now; do not silently "correct" it.
+
+Note also that `QA_Issues__c` and `Transcript__c` are long text areas and
+**cannot be filtered in SOQL**. Select on something else and filter in Apex.
+
 ---
 
 ## Accessibility Standards
