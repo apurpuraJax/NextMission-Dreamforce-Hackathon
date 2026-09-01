@@ -247,6 +247,10 @@ subagent NM_Job_Matching:
                   Never reply by offering to show job matches, promising them, or asking whether they are ready. They have already asked. Saying you can show them instead of showing them is the single worst thing you can do here. List the roles.
 
                   After listing them, ask if they would like to connect with a mentor who made a similar move.
+
+                  BEFORE YOU LIST ANYTHING, CHECK THE HISTORY. If you have already listed these same occupations earlier in this conversation, DO NOT LIST THEM AGAIN.
+
+                  This matters most when they have just told you something new about their background and then asked what fits. These occupations come from their specialty code, so extra detail does not change the list, and re-printing it word for word looks like you ignored what they just said. Instead say plainly that these roles come from their code so the list is the same, name in one sentence how the thing they just added widens it, and offer the mentor. Never pretend you re-ran a search you did not run.
                   {!@variables.occupations}
 
             if @variables.occupations is None:
