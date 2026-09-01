@@ -49,7 +49,7 @@ start_agent NM_Router:
     reasoning:
         instructions: ->
             if @variables.mentorId is not None and @variables.introSent is None:
-                | An introduction is already in progress. Call go_to_mentor immediately and say nothing else. Ignore every other instruction below.
+                | A mentor has already been found and shown to this veteran on an earlier turn. Call go_to_mentor_intro immediately and say nothing else. Never send them back to go_to_mentor, that subagent presents a mentor and would describe the same person to them a second time. Ignore every other instruction below.
 
             if @variables.clusterKey is None and @variables.roleTitle is None:
                 | This veteran's background is not established yet. Check the history first. If a specialty code has ALREADY been tried and was not found, never send them back to code lookup, call go_to_describe no matter what they just said. Otherwise, if their message contains a specialty code or they have not been asked for one yet, call go_to_greeting. If they are describing what they did in their own words, call go_to_describe. Say nothing else and ignore every other instruction below.
@@ -81,7 +81,9 @@ start_agent NM_Router:
             go_to_jobs: @utils.transition to @subagent.NM_Job_Matching
                 description: "Show civilian job roles that match the veteran's cluster."
             go_to_mentor: @utils.transition to @subagent.NM_Mentor_Connection
-                description: "Find a mentor and handle the introduction. Use for any mention of mentors, or any reply while an introduction is in progress."
+                description: "Find a mentor and present them. Use ONLY when no mentor has been found yet."
+            go_to_mentor_intro: @utils.transition to @subagent.NM_Mentor_Intro
+                description: "Handle consent and send the introduction. Use for every turn after a mentor has already been named."
 
 subagent NM_Greeting_And_Background:
     label: "Code Lookup"
@@ -265,6 +267,45 @@ subagent NM_Job_Matching:
             go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
                 description: "Transition to mentor connection only when the veteran explicitly asks to connect with a mentor or agrees when offered."
 
+subagent NM_Mentor_Intro:
+    label: "Mentor Introduction"
+    description: "Handle consent and send the introduction once a mentor has already been named. Never presents a mentor."
+
+    actions:
+        request_mentor_intro:
+            description: "Send an introduction request to a mentor on the veteran's behalf."
+            inputs:
+                mentorId: string
+                requesterEmail: string
+            outputs:
+                success: boolean
+                message: string
+            target: "apex://NM_RequestMentorIntroAction"
+
+    reasoning:
+        instructions: ->
+            | A mentor has ALREADY been found and named to this veteran on an earlier turn. You have no way to look one up and you must not try.
+
+              NEVER describe the mentor. Do not repeat their name, role, employer or background. They have already read it. Repeating it is what a broken agent looks like, and it is the single worst thing you can do here. You may refer to them by first name only, as in "send it to Reese".
+
+              Read their latest message and do exactly one of these:
+
+              If it contains an email address: call request_mentor_intro immediately with that address. Do not confirm first, do not ask again, just send it. If success=true say the request has been sent. If success=false say plainly that it did not go through and surface the message.
+
+              If they agreed, saying yes, connect me, sure, please, or go ahead, and you do not have an email address yet: ask for their email address in one short sentence and STOP. Nothing else.
+
+              If they declined: acknowledge it in one sentence, leave the door open, and do not call anything.
+
+              If they asked a question about the mentor: answer it briefly from what was already said, then ask for their email if they still want the introduction.
+
+              THE INTRODUCTION DOES NOT EXIST UNTIL request_mentor_intro RUNS AND RETURNS SUCCESS. Never say it will be sent, is queued, or is on its way.
+              NEVER reveal a mentor's email address.
+              Short sentences.
+        actions:
+            request_mentor_intro: @actions.request_mentor_intro
+                set @variables.introSent=@outputs.message
+                description: "Send the introduction request. Call as soon as you have an email address from the veteran."
+
 subagent NM_Mentor_Connection:
     label: "Mentor Connection"
     description: "Find a mentor who made a similar transition and gate the introduction request on explicit veteran consent."
@@ -284,68 +325,24 @@ subagent NM_Mentor_Connection:
                 mentorId: string
                 message: string
             target: "flow://NM_FindMentor_Flow"
-        request_mentor_intro:
-            description: "Send an introduction request to a mentor on the veteran's behalf."
-            inputs:
-                mentorId: string
-                requesterEmail: string
-            outputs:
-                success: boolean
-                message: string
-            target: "apex://NM_RequestMentorIntroAction"
 
     reasoning:
         instructions: ->
+            | Find this veteran a mentor and introduce the idea. You do NOT handle consent or email here, another subagent does that on the next turn.
 
-            if @variables.mentorId is None:
-                | NO MENTOR HAS BEEN FOUND YET. Call find_mentor now, then NAME the mentor in your reply: their name, their civilian role, their employer, and one line on the move they made.
+              Call find_mentor. Never describe a mentor from your own knowledge and never talk about mentors in general terms, you have no mentor data until the action returns. Build the description from their role title, their occupations and anything they said about what they did.
 
-                  DO NOT ASK FOR AN EMAIL ADDRESS IN THIS TURN. Nobody can agree to an introduction to a person they have not been told about, so asking for an address before naming the mentor is not consent, it is collecting an address for an unnamed stranger. Show them who it is first, then ask whether they want the introduction.
-
-            if @variables.mentorId is not None and @variables.introSent is None:
-                | You have a mentor for this veteran. IMPORTANT: this instruction fires on the turn find_mentor runs as well as on later turns, so decide which situation you are in by reading the history.
-
-                  IF THIS IS THE FIRST TIME the veteran is seeing this mentor, meaning you have not named them in any earlier turn: name them now. Their name, their civilian role, their employer, and one line on the move they made. Then ask whether they would like you to send an introduction. Do NOT ask for an email address yet, they have not agreed to anything.
-
-                  IF YOU ALREADY NAMED THIS MENTOR in an earlier turn: never describe them again. They have read it. Repeating the mentor's name, role and background is what a broken agent looks like. Instead:
-                  If you have not yet asked for their email address, ask for it now in one short sentence and stop.
-                  If their latest message contains an email address, call request_mentor_intro immediately with it. Do not ask again, do not confirm first.
-                  If they agreed again without giving an address, they are waiting on you. Ask for the email.
-                  If they declined, acknowledge it in one sentence and leave the door open.
-
-                  Ignore every instruction below this line.
-
-            | CONSENT IS REQUIRED before sending any introduction request.
-
-              Step 1, Find: CALL find_mentor IMMEDIATELY, in this turn, before you say anything.
-              Do not ask what they want from a mentor, do not ask if they have a question for one, and do not ask them to narrow anything down first. They already said yes. You have their background. Anything you ask before calling find_mentor is a stall, and it reads as the agent avoiding the thing it just offered.
-              You MUST call find_mentor. Never describe a mentor from your own knowledge and never speak about mentors in general terms, you have no mentor data until the action returns. Pass a description built from their role title and occupations. It matches across the whole active roster using cluster only as a tie-breaker, so the mentor may sit in a different cluster. That is expected.
-              Present the specific mentor it returns, by name.
-              Present the mentor's name, role, employer, and background briefly, one short paragraph.
+              Then name the mentor: their name, their civilian role, their employer, and one line on the move they made. One short paragraph.
               NEVER surface the mentor's email address.
+              Finish by asking whether they would like you to send an introduction request on their behalf. Then STOP.
 
-              Step 2, Ask consent explicitly: "Would you like me to send them an introduction request on your behalf?"
-              Wait for the veteran's answer. Do not call request_mentor_intro until they say yes.
+              Do NOT ask for their email address in this turn. They have only just been told who this person is, and an address collected before that is not consent.
 
-              Step 3, Send, only on an explicit yes.
-              3a. Ask for their email address and STOP. When they reply with one, store it in the requesterEmail variable. Storing it is what actually triggers the introduction, so do not store anything there until they have said yes and given you a real address. Wait for them to reply with an actual address.
-              3b. As soon as you have it, you MUST call request_mentor_intro. Pass mentorId and requesterEmail. This is the only thing that actually creates the introduction. Talking about it does nothing.
-              3c. If it returns success=true, tell them the request has been sent.
-              3d. If it returns success=false, tell them plainly it did not go through and say what the message was. Do not retry silently.
+              If find_mentor returns no match: say so plainly and offer to follow up when a mentor becomes available. Do not invent one.
 
-              THE INTRODUCTION DOES NOT EXIST UNTIL request_mentor_intro RUNS AND RETURNS SUCCESS. Never say it "will be sent", is "queued", is "on its way", or that their details "will be included". Those are all false unless the action returned success. If you have their email and have not called the action yet, call it now.
-
-              If the veteran says no or is undecided: acknowledge it simply, leave the door open. Do not call request_mentor_intro.
-              If find_mentor returns no match: say so plainly. Offer to follow up when a mentor in their cluster becomes available.
-
-              NEVER auto-send an introduction. NEVER call request_mentor_intro without an explicit yes in this conversation.
-              NEVER reveal a mentor's email address to the veteran.
               Short sentences.
         actions:
             find_mentor: @actions.find_mentor
                 available when @variables.mentorId is None
                 set @variables.mentorId=@outputs.mentorId
                 description: "Find the best-matching mentor. For description, ALWAYS pass a short summary of this veteran drawing on their role title, their occupations, anything they said about what they did, and what they want from a mentor. A blank description returns no mentor at all. clusterKey is optional and often empty on the code path, pass it only if you have it, matching works without it. Returns a specific named mentor with role, employer and bio. Never surface email."
-            request_mentor_intro: @actions.request_mentor_intro
-                set @variables.introSent=@outputs.message
-                description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."

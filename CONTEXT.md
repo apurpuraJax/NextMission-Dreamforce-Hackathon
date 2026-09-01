@@ -871,6 +871,44 @@ Publishing is asynchronous. Give it a minute, then verify the home page returns
 200 **and** a guest conversation still completes. A successful publish call is
 not evidence the site works.
 
+### Instructions are not a mechanism. Split the subagent instead.
+
+The mentor was described twice in a row: presented, the veteran said "Yes,
+connect me", and the same paragraph came back verbatim.
+
+The first attempt fixed it with wording, a block saying "if you already named
+this mentor, never describe them again, read the history to tell which
+situation you are in". It passed the suite and then failed in real use, because
+that asks the model to make a judgement call every turn and it will not make it
+reliably. **An instruction is a preference. A subagent boundary is a
+guarantee.**
+
+The structural fix, which is also why it works:
+
+* `NM_Mentor_Connection` finds and presents. It owns `find_mentor` and does NOT
+  own `request_mentor_intro`.
+* `NM_Mentor_Intro` handles consent and sending. It owns `request_mentor_intro`
+  and has **no access to mentor data at all**, so it physically cannot
+  re-describe anyone.
+* The router picks between them on `@variables.mentorId`.
+
+This works where a subagent conditional could not, because **the router's
+conditionals are evaluated at the start of the turn**, before any action runs.
+A conditional inside a subagent is evaluated after that turn's action, so
+`mentorId` is already set on the very turn `find_mentor` runs and cannot
+distinguish "just now" from "earlier". The router can.
+
+The same shape solved the earlier planner problem, where `look_up_occupations`
+and `classify_cluster` competed inside one subagent until they were separated.
+**When two behaviours compete inside one subagent, separate the subagents.**
+
+### Run flaky scenarios more than once
+
+Conversation defects are frequently flaky. The mentor repetition passed a single
+run of the suite and was then reported from real use within the hour.
+`scripts/scenarios.py` takes `repeat=N`; use it for anything the model could get
+right by luck. A single green run proves very little.
+
 ---
 
 ## Accessibility Standards

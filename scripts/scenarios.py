@@ -11,7 +11,18 @@ def call(method, params, timeout=180):
                                headers={"Content-Type":"application/json"})
     return json.loads(urllib.request.urlopen(r, timeout=timeout).read())
 
-def run(name, turns, checks):
+def run(name, turns, checks, repeat=1):
+    """repeat > 1 for anything the model can get right by luck. A mentor being
+    re-described slipped through a single passing run and was then reported from
+    real use. Conversation bugs are frequently flaky; run them more than once."""
+    if repeat > 1:
+        allok = True
+        for i in range(repeat):
+            allok &= _once("%s [%d/%d]" % (name, i+1, repeat), turns, checks)
+        return allok
+    return _once(name, turns, checks)
+
+def _once(name, turns, checks):
     sid = call("startSession", {"sourceUrl":"https://scenario"})["returnValue"]["sessionId"]
     replies = []
     for t in turns:
@@ -79,13 +90,15 @@ def names_a_mentor(idx):
 ok &= run("A mentor is named BEFORE any email address is requested",
     ["Army 88M", "show me the roles", "connect me with a mentor"],
     [("names the mentor with role and employer", names_a_mentor(2)),
-     ("does not ask for an email before naming anyone", lacks(2, "email address", "your email"))])
+     ("does not ask for an email before naming anyone", lacks(2, "email address", "your email"))],
+    repeat=3)
 
 ok &= run("Mentor consent does not loop when the veteran agrees twice",
     ["Army 88M", "show me the roles", "connect me with a mentor", "Yes, connect me", "Yes, connect me"],
     [("no two replies are near-identical", no_repeats()),
      ("asks for an email once the mentor is known", contains(3, "email")),
-     ("does not re-describe the mentor on the repeat", lacks(4, "Vantage", "employer"))])
+     ("does not re-describe the mentor on the repeat", lacks(4, "employer", "started as", "moved into"))],
+    repeat=3)
 
 ok &= run("Describe path does not repeat the same framing",
     ["i fixed ship engines", "Let me add something", "i was a marksman", "How do my skills translate?"],
