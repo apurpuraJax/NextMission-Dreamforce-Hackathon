@@ -750,6 +750,41 @@ The live job runs hourly (`0 0 * * * ?`) while the class header documents daily
 Note also that `QA_Issues__c` and `Transcript__c` are long text areas and
 **cannot be filtered in SOQL**. Select on something else and filter in Apex.
 
+### What the QA grader will and will not score
+
+Conversation logging writes **one row per turn** (a guest cannot update a
+record), so one conversation appears as `<session>-t1`, `-t2`, `-t3`, each
+holding the cumulative transcript up to that point.
+
+The grader therefore:
+
+1. **Groups rows by base session key** and keeps only the highest turn. The
+   earlier rows are marked `Not scored: superseded by a later turn`. Grading
+   every row would score a one-line fragment as if it were a finished
+   conversation and burn one Einstein call per turn instead of one per
+   conversation.
+2. **Waits `SETTLE_MINUTES` (30) of silence** before scoring. There is no
+   end-of-conversation signal, so this is the closest honest approximation.
+   An unsettled row is left for the next run, not graded half-finished.
+3. **Does NOT skip short conversations.** Someone who asks one question, gets
+   a good answer and leaves has had a COMPLETE conversation, and turn count
+   cannot distinguish that from giving up. A length threshold was tried and
+   removed for exactly this reason.
+
+**Never write a score you did not earn.** `QA_Score__c` stays NULL for an
+empty transcript, a superseded row, and a grader failure, each with the reason
+in `QA_Issues__c`. Writing 0 made a broken Einstein call look identical to an
+agent performing terribly and dragged every average to the floor.
+
+**A visitor leaving is not the agent's failure.** If the metric starts showing
+`NoHelpDelivered` on conversations that simply stopped, fix the template
+guidance rather than the score.
+
+**Self-chaining:** the Queueable re-enqueues ONLY when it filled a full batch.
+Chaining on "any unreviewed record remains" recursed to
+`System.AsyncException: Maximum stack depth has been reached`, because rows
+inside the settle window are deliberately left unreviewed and never clear.
+
 ---
 
 ## Accessibility Standards

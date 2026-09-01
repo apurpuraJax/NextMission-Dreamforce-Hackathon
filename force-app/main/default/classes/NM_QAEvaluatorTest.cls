@@ -97,10 +97,10 @@ private class NM_QAEvaluatorTest {
         NM_Conversation__c errored = after[0];
         System.assertEquals(true, errored.QA_Reviewed__c,       'QA_Reviewed__c must be true even on error');
         System.assertNotEquals(null, errored.QA_Reviewed_At__c, 'QA_Reviewed_At__c must be set on error');
-        System.assertEquals(0, (Integer) errored.QA_Score__c,   'QA_Score__c should be 0 on error');
+        System.assertEquals(null, errored.QA_Score__c,   'A grader failure is our failure; leave the score null, never write a 0');
         System.assert(
-            errored.QA_Issues__c != null && errored.QA_Issues__c.startsWith('Grader error:'),
-            'QA_Issues__c should start with "Grader error:"'
+            errored.QA_Issues__c != null && errored.QA_Issues__c.startsWith('Grader error, not scored:'),
+            'QA_Issues__c should start with "Grader error, not scored:"'
         );
     }
 
@@ -147,31 +147,37 @@ private class NM_QAEvaluatorTest {
 
     @isTest
     static void testLivePathFallsToErrorWhenNoMock() {
-        // Arrange: do NOT set mockResponseJson. The invokeTemplate else-branch fires,
-        // callLiveEinsteinApi is invoked, and ConnectApi throws in test context.
-        // The execute() catch block must handle the exception and mark records reviewed.
-        // This covers the else-branch in invokeTemplate and the live API call statements.
+        // Arrange: no mock, so invokeTemplate takes the live branch. That branch
+        // now runs NM_QAGrade_Flow rather than ConnectApi, which does not
+        // necessarily throw under test. The guarantee that matters is not
+        // "it errors" but "a record is never left silently unprocessed":
+        // it is marked reviewed, and it is either scored or carries a reason.
 
         // Act
         Test.startTest();
         System.enqueueJob(new NM_QAEvaluator());
         Test.stopTest();
 
-        // Assert: both seed records from @TestSetup should be processed via error path
         List<NM_Conversation__c> after = [
-            SELECT Id, QA_Reviewed__c, QA_Reviewed_At__c, QA_Issues__c
+            SELECT Id, QA_Reviewed__c, QA_Reviewed_At__c, QA_Score__c, QA_Issues__c
             FROM NM_Conversation__c
             WHERE QA_Reviewed__c = true
         ];
-        System.assert(after.size() >= 1, 'At least one record should be processed when live path throws');
+        System.assert(after.size() >= 1, 'At least one record should be processed on the live path');
 
-        NM_Conversation__c errored = after[0];
-        System.assertEquals(true, errored.QA_Reviewed__c,       'QA_Reviewed__c must be true even on live error');
-        System.assertNotEquals(null, errored.QA_Reviewed_At__c, 'QA_Reviewed_At__c must be set on live error');
-        System.assert(
-            errored.QA_Issues__c != null && errored.QA_Issues__c.startsWith('Grader error:'),
-            'QA_Issues__c should start with "Grader error:" when the live path throws'
-        );
+        for (NM_Conversation__c c : after) {
+            System.assertNotEquals(null, c.QA_Reviewed_At__c,
+                'Every processed record must be stamped, however it resolved');
+            Boolean scored      = (c.QA_Score__c != null);
+            Boolean hasReason   = String.isNotBlank(c.QA_Issues__c);
+            System.assert(scored || hasReason,
+                'A record must never come back both unscored and unexplained');
+            if (!scored) {
+                System.assert(c.QA_Issues__c.startsWith('Not scored:')
+                           || c.QA_Issues__c.startsWith('Grader error, not scored:'),
+                    'An unscored record must say why, and must not be given a fake 0');
+            }
+        }
     }
 
     @isTest
@@ -195,10 +201,10 @@ private class NM_QAEvaluatorTest {
             WHERE External_Session_Key__c = 'qa-test-null-transcript'
         ];
         System.assertEquals(true,  skipped.QA_Reviewed__c, 'Null-transcript record should be marked reviewed');
-        System.assertEquals(0, (Integer) skipped.QA_Score__c, 'QA_Score__c should be 0 for skipped record');
+        System.assertEquals(null, skipped.QA_Score__c, 'A record with no transcript is unscored, not zero');
         System.assert(
-            skipped.QA_Issues__c != null && skipped.QA_Issues__c.startsWith('Skipped:'),
-            'QA_Issues__c should start with "Skipped:"'
+            skipped.QA_Issues__c != null && skipped.QA_Issues__c.startsWith('Not scored:'),
+            'QA_Issues__c should start with "Not scored:"'
         );
     }
 

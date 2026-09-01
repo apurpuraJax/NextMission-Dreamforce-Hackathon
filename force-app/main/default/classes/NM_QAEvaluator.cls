@@ -30,18 +30,83 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
     public void execute(QueueableContext context) {
         System.debug('Entering NM_QAEvaluator.execute');
 
-        List<NM_Conversation__c> records = [
-            SELECT Id, Transcript__c
+        // Conversation logging writes ONE ROW PER TURN, because a guest user
+        // cannot update a record (see NM_AgentController). So the same
+        // conversation appears as several rows keyed <session>-t1, -t2, -t3,
+        // each holding the cumulative transcript up to that point.
+        //
+        // Grade only the LAST row of a settled conversation. Grading every row
+        // would score a one-line fragment as a finished conversation, which
+        // reads as "NoHelpDelivered" and drags the average down, and it burns
+        // one Einstein call per turn instead of one per conversation.
+        List<NM_Conversation__c> candidates = [
+            SELECT Id, Transcript__c, External_Session_Key__c, Message_Count__c, CreatedDate
             FROM NM_Conversation__c
             WHERE QA_Reviewed__c = false
             ORDER BY CreatedDate ASC
-            LIMIT 10
+            LIMIT 200
         ];
 
         List<NM_Conversation__c> toUpdate = new List<NM_Conversation__c>();
 
+        // Keep the highest-turn row per conversation; supersede the rest.
+        Map<String, NM_Conversation__c> latestBySession = new Map<String, NM_Conversation__c>();
+        List<NM_Conversation__c> superseded = new List<NM_Conversation__c>();
+
+        for (NM_Conversation__c c : candidates) {
+            String base = baseSessionKey(c.External_Session_Key__c);
+            if (base == null) {
+                // No key at all, e.g. the minimal record NM_RequestMentorIntroAction
+                // creates so an introduction is never orphaned. Handled below.
+                latestBySession.put('nokey-' + c.Id, c);
+                continue;
+            }
+            NM_Conversation__c held = latestBySession.get(base);
+            if (held == null) {
+                latestBySession.put(base, c);
+            } else if (turnOf(c) > turnOf(held)) {
+                latestBySession.put(base, c);
+                superseded.add(held);
+            } else {
+                superseded.add(c);
+            }
+        }
+
+        for (NM_Conversation__c prior : superseded) {
+            toUpdate.add(new NM_Conversation__c(
+                Id                = prior.Id,
+                QA_Reviewed__c    = true,
+                QA_Reviewed_At__c = DateTime.now(),
+                QA_Score__c       = null,
+                QA_Issues__c      = 'Not scored: superseded by a later turn of the same conversation'
+            ));
+        }
+
+        // A conversation is treated as settled once nothing new has arrived for
+        // SETTLE_MINUTES. There is no end-of-conversation signal, so this is the
+        // closest honest approximation. An unsettled row is simply left for the
+        // next run rather than graded half-finished.
+        // Tests create records with CreatedDate = now, which the settle window
+        // would always exclude, so bypass the wait under test.
+        Integer settle = Test.isRunningTest() ? 0 : SETTLE_MINUTES;
+        DateTime cutoff = DateTime.now().addMinutes(-settle);
+        List<NM_Conversation__c> records = new List<NM_Conversation__c>();
+        for (NM_Conversation__c c : latestBySession.values()) {
+            if (String.isBlank(c.Transcript__c) || c.CreatedDate < cutoff) {
+                records.add(c);
+            }
+            if (records.size() >= BATCH_SIZE) { break; }
+        }
+
         for (NM_Conversation__c record : records) {
             NM_Conversation__c upd = new NM_Conversation__c(Id = record.Id);
+
+            // NOTE: deliberately NOT skipping short conversations. Someone who
+            // asks one question, gets a good answer and leaves has had a
+            // COMPLETE conversation, and turn count cannot tell that apart from
+            // giving up. The template is instructed to judge the agent's conduct
+            // only and never to penalise it for the visitor leaving.
+
             if (String.isBlank(record.Transcript__c)) {
                 // No/blank transcript. Mark reviewed so it is not re-queried on
                 // every batch, but leave QA_Score__c NULL. Writing 0 here scored
@@ -105,17 +170,17 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
             update toUpdate;
         }
 
-        // Self-chain if more unreviewed records remain after this batch
-        Integer remaining = [
-            SELECT COUNT()
-            FROM NM_Conversation__c
-            WHERE QA_Reviewed__c = false
-        ];
-        if (remaining > 0) {
+        // Self-chain ONLY when this batch was full, which is the only case that
+        // implies more gradeable work. Chaining on "any unreviewed record
+        // remains" recursed until "Maximum stack depth has been reached",
+        // because rows inside the settle window are deliberately left
+        // unreviewed and would never clear.
+        if (records.size() >= BATCH_SIZE && !Test.isRunningTest()) {
             System.enqueueJob(new NM_QAEvaluator());
         }
 
-        System.debug('Exiting NM_QAEvaluator.execute: processed=' + toUpdate.size() + ', remaining=' + remaining);
+        System.debug('Exiting NM_QAEvaluator.execute: processed=' + toUpdate.size()
+            + ', batch=' + records.size());
     }
 
     /*****************************************************************
@@ -126,6 +191,32 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
     Parameters:    transcript — full conversation text
     Returns:       JSON string from the prompt template response
     *****************************************************************/
+    /* Minutes of silence after which a conversation is treated as finished. */
+    private static final Integer SETTLE_MINUTES = 30;
+
+    /* Records graded per queueable execution. */
+    private static final Integer BATCH_SIZE = 10;
+
+    /*
+     * Purpose:  Strip the per-turn suffix so every row of one conversation
+     *           groups together. "nm-abc123-t4" -> "nm-abc123".
+     * Returns:  null when the record has no session key at all.
+     */
+    @TestVisible
+    private static String baseSessionKey(String key) {
+        if (String.isBlank(key)) { return null; }
+        Integer i = key.lastIndexOf('-t');
+        if (i <= 0) { return key; }
+        String suffix = key.substring(i + 2);
+        return suffix.isNumeric() ? key.substring(0, i) : key;
+    }
+
+    /* Turn number for ordering; 0 when absent. */
+    @TestVisible
+    private static Integer turnOf(NM_Conversation__c c) {
+        return (c.Message_Count__c == null) ? 0 : c.Message_Count__c.intValue();
+    }
+
     @TestVisible
     private static String invokeTemplate(String transcript) {
         System.debug('Entering NM_QAEvaluator.invokeTemplate: transcriptLength=' + transcript.length());
