@@ -1,159 +1,303 @@
+/* Next Mission — "Forward" design system.
+   Every colour pair below is checked against WCAG AA in
+   scripts/check_contrast.py. Do not change a value without re-running it. */
+
 :host {
+    --nm-pine:   #14532D;  /* primary, headers, user bubble            */
+    --nm-green:  #3F9142;  /* decorative only, never small text on white */
+    --nm-sand:   #EFE7D8;  /* page ground                              */
+    --nm-cream:  #F8F5EE;  /* panel ground                             */
+    --nm-ink:    #1B1B18;  /* body copy                                */
+    --nm-muted:  #55534C;  /* secondary copy                           */
+    --nm-line:   #D8CFC0;  /* borders                                  */
+    --nm-clay:   #8A4513;  /* badges, accents                          */
+    --nm-clay-bg:#FBF0E4;
+    --nm-err:    #7F1D1D;
+    --nm-err-bg: #FEF2F2;
+    --nm-focus:  #8A4513;  /* focus ring, visible on every ground      */
+    --nm-radius: 14px;
+
     display: block;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    max-width: 44rem;
+    margin: 0 auto;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--nm-ink);
 }
 
-.nm-chat-widget {
+.nm-widget {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 480px;
-    height: 520px;
-    border: 1px solid #d0d5dd;
-    border-radius: 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--nm-line);
+    border-radius: var(--nm-radius);
     overflow: hidden;
-    background: #ffffff;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    box-shadow: 0 1px 2px rgba(27,27,24,.06), 0 12px 32px rgba(27,27,24,.10);
 }
 
-/* ── Message list ────────────────────────────────────────────── */
-.nm-messages {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    scroll-behavior: smooth;
-}
-
-/* ── Individual messages ─────────────────────────────────────── */
-.nm-msg {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    line-height: 1.45;
-    font-size: 0.9375rem;
-    word-wrap: break-word;
-}
-
-.nm-msg--user {
-    align-self: flex-end;
-    background: #1a6b3a;   /* WCAG AA contrast on white */
-    color: #ffffff;
-    border-bottom-right-radius: 4px;
-}
-
-.nm-msg--agent {
-    align-self: flex-start;
-    background: #f0f4ff;
-    color: #1a1a2e;
-    border-bottom-left-radius: 4px;
-}
-
-.nm-sender {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-bottom: 3px;
-    opacity: 0.85;   /* raised from 0.75: at 0.75 the "You" label on the green
-                        user bubble measured 4.46:1, just under WCAG AA 4.5:1;
-                        0.85 = 5.24:1 on the green bubble, 8.7:1 on the agent bubble */
-}
-
-.nm-text {
-    margin: 0;
-}
-
-/* ── Loading indicator ───────────────────────────────────────── */
-.nm-loading {
-    align-self: flex-start;
-    background: #f0f4ff;
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-    padding: 10px 18px;
-    color: #555;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-}
-
-/* ── Error banner ────────────────────────────────────────────── */
-.nm-error {
-    background: #fff3cd;
-    border-top: 1px solid #ffc107;
-    color: #856404;
-    font-size: 0.875rem;
-    padding: 8px 16px;
-    text-align: center;
-}
-
-/* ── Input row ───────────────────────────────────────────────── */
-.nm-input-row {
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.nm-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-top: 1px solid #e5e7eb;
-    background: #f9fafb;
+    gap: .75rem;
+    padding: .95rem 1.15rem;
+    background: var(--nm-pine);
+    color: #FFFFFF;
+}
+.nm-mark { display: flex; width: 2rem; height: 2rem; flex: 0 0 auto; }
+.nm-mark-svg { width: 100%; height: 100%; }
+.nm-mark-ring  { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1.5; }
+.nm-mark-arrow { fill: #FFFFFF; }
+.nm-headtext { display: flex; flex-direction: column; line-height: 1.25; }
+.nm-title    { font-size: 1.02rem; font-weight: 650; letter-spacing: .01em; }
+.nm-subtitle { font-size: .78rem; color: rgba(255,255,255,.86); }
+
+/* ── Journey stepper ────────────────────────────────────────────────────── */
+.nm-steps {
+    display: flex;
+    gap: .25rem;
+    margin: 0;
+    padding: .6rem 1.15rem;
+    list-style: none;
+    background: var(--nm-cream);
+    border-bottom: 1px solid var(--nm-line);
+}
+.nm-step {
+    display: flex;
+    align-items: center;
+    gap: .38rem;
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: .74rem;
+    color: var(--nm-muted);
+}
+.nm-step-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: 0 0 auto;
+    border: 2px solid var(--nm-line);
+    border-radius: 50%;
+    background: #FFFFFF;
+}
+.nm-step-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nm-step--done .nm-step-dot    { background: var(--nm-pine); border-color: var(--nm-pine); }
+.nm-step--done .nm-step-check  { width: .62rem; height: .62rem; fill: none; stroke: #FFFFFF; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.nm-step--done .nm-step-label  { color: var(--nm-ink); }
+/* Current step is marked by weight and a ring, not colour alone. */
+.nm-step--current .nm-step-dot { border-color: var(--nm-pine); box-shadow: 0 0 0 3px rgba(20,83,45,.16); }
+.nm-step--current .nm-step-label { color: var(--nm-pine); font-weight: 650; }
+
+/* ── Messages ───────────────────────────────────────────────────────────── */
+.nm-messages {
+    flex: 1 1 auto;
+    min-height: 21rem;
+    max-height: 30rem;
+    overflow-y: auto;
+    padding: 1.15rem;
+    background: var(--nm-cream);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.nm-messages:focus-visible { outline: 3px solid var(--nm-focus); outline-offset: -3px; }
+
+.nm-row { display: flex; flex-direction: column; max-width: 88%; animation: nm-rise .22s ease-out; }
+.nm-row--agent { align-self: flex-start; }
+.nm-row--user  { align-self: flex-end; align-items: flex-end; }
+
+.nm-sender {
+    font-size: .7rem;
+    font-weight: 650;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--nm-muted);
+    margin-bottom: .3rem;
 }
 
+.nm-bubble {
+    padding: .8rem .95rem;
+    border-radius: var(--nm-radius);
+    background: #FFFFFF;
+    border: 1px solid var(--nm-line);
+    line-height: 1.55;
+    font-size: .94rem;
+}
+.nm-row--agent .nm-bubble { border-top-left-radius: 4px; }
+.nm-row--user  .nm-bubble {
+    background: var(--nm-pine);
+    border-color: var(--nm-pine);
+    color: #FFFFFF;
+    border-top-right-radius: 4px;
+}
+.nm-block + .nm-block { margin-top: .7rem; }
+.nm-text { margin: 0; }
+
+/* ── Occupation card ────────────────────────────────────────────────────── */
+.nm-card {
+    position: relative;
+    padding: .8rem .9rem .8rem 2.85rem;
+    background: var(--nm-cream);
+    border: 1px solid var(--nm-line);
+    border-left: 4px solid var(--nm-green);
+    border-radius: 10px;
+}
+.nm-card-icon {
+    position: absolute;
+    left: .8rem;
+    top: .82rem;
+    width: 1.35rem;
+    height: 1.35rem;
+}
+.nm-card-icon svg { width: 100%; height: 100%; fill: none; stroke: var(--nm-pine); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nm-card-title { margin: 0 0 .25rem; font-size: .93rem; font-weight: 700; color: var(--nm-pine); }
+.nm-card-body  { margin: 0; font-size: .88rem; color: var(--nm-ink); }
+.nm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin: .55rem 0 0;
+    padding: .2rem .5rem;
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--nm-clay);
+    background: var(--nm-clay-bg);
+    border: 1px solid #E6D2BC;
+    border-radius: 999px;
+}
+.nm-badge-dot { width: .4rem; height: .4rem; border-radius: 50%; background: var(--nm-clay); }
+
+/* ── Mentor card ────────────────────────────────────────────────────────── */
+.nm-person {
+    display: flex;
+    gap: .75rem;
+    padding: .8rem .9rem;
+    background: var(--nm-cream);
+    border: 1px solid var(--nm-line);
+    border-radius: 10px;
+}
+.nm-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--nm-pine);
+    color: #FFFFFF;
+    font-size: .82rem;
+    font-weight: 700;
+}
+.nm-person-body { margin: 0; font-size: .9rem; }
+
+.nm-list { margin: 0; padding-left: 1.15rem; }
+.nm-li { margin: .2rem 0; }
+
+/* ── Typing ─────────────────────────────────────────────────────────────── */
+.nm-bubble--typing { display: inline-flex; gap: .3rem; align-items: center; padding: .85rem .95rem; }
+.nm-dot {
+    width: .42rem; height: .42rem; border-radius: 50%;
+    background: var(--nm-green);
+    animation: nm-blink 1.3s infinite ease-in-out;
+}
+.nm-dot:nth-child(2) { animation-delay: .18s; }
+.nm-dot:nth-child(3) { animation-delay: .36s; }
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+.nm-error {
+    display: flex; align-items: center; gap: .55rem;
+    margin: 0; padding: .7rem 1.15rem;
+    background: var(--nm-err-bg);
+    color: var(--nm-err);
+    border-top: 1px solid #F3C9C9;
+    font-size: .87rem;
+}
+.nm-error-mark {
+    display: flex; align-items: center; justify-content: center;
+    width: 1.15rem; height: 1.15rem; flex: 0 0 auto;
+    border-radius: 50%; background: var(--nm-err); color: #FFFFFF;
+    font-size: .78rem; font-weight: 700;
+}
+
+/* ── Suggestions ────────────────────────────────────────────────────────── */
+.nm-starters { padding: .8rem 1.15rem 0; background: #FFFFFF; }
+.nm-starters-label {
+    margin: 0 0 .5rem; font-size: .74rem; font-weight: 650;
+    letter-spacing: .04em; text-transform: uppercase; color: var(--nm-muted);
+}
+.nm-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.nm-chip {
+    min-height: 2.35rem;
+    padding: .45rem .85rem;
+    font: inherit;
+    font-size: .84rem;
+    color: var(--nm-pine);
+    background: var(--nm-cream);
+    border: 1px solid var(--nm-line);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+}
+.nm-chip:hover { background: #EFE7D8; border-color: var(--nm-green); }
+.nm-chip:focus-visible { outline: 3px solid var(--nm-focus); outline-offset: 2px; }
+
+/* ── Composer ───────────────────────────────────────────────────────────── */
+.nm-composer {
+    display: flex;
+    gap: .55rem;
+    padding: .9rem 1.15rem 1.05rem;
+    background: #FFFFFF;
+}
 .nm-input {
     flex: 1 1 auto;
-    min-height: 44px;   /* WCAG AA touch target */
-    padding: 10px 14px;
-    border: 1px solid #d0d5dd;
-    border-radius: 22px;
-    font-size: 0.9375rem;
-    transition: border-color 0.15s;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: .6rem .85rem;
+    font: inherit;
+    font-size: .94rem;
+    color: var(--nm-ink);
+    background: #FFFFFF;
+    border: 1px solid var(--nm-line);
+    border-radius: 999px;
 }
-
-/* Focus indicator: the previous rule removed the native outline and replaced it
-   with only a border-color change + a near-invisible 0.18-alpha shadow. Replaced
-   with a solid 2px #1a6b3a outline (6.55:1 vs the white field, 6.26:1 vs the
-   #f9fafb input row — both clear WCAG 1.4.11's 3:1 for non-text/UI indicators)
-   plus outline-offset so the ring reads clearly against the rounded border.
-   Kept the border-color change as a secondary cue. */
-.nm-input:focus {
-    border-color: #1a6b3a;
-    outline: 2px solid #1a6b3a;
-    outline-offset: 2px;
-}
-
-.nm-input:disabled {
-    background: #e9ecef;
-    cursor: not-allowed;
-}
+.nm-input::placeholder { color: var(--nm-muted); }
+/* Focus is a real ring, not a border tint. */
+.nm-input:focus-visible { outline: 3px solid var(--nm-focus); outline-offset: 1px; border-color: var(--nm-pine); }
+.nm-input:disabled { background: #F4F2ED; color: var(--nm-muted); }
 
 .nm-send-btn {
-    min-width: 44px;    /* WCAG AA touch target */
-    min-height: 44px;
-    padding: 0 18px;
-    background: #1a6b3a;
-    color: #ffffff;
-    border: none;
-    border-radius: 22px;
-    font-size: 0.9375rem;
-    font-weight: 600;
+    min-height: 2.75rem;
+    min-width: 5rem;
+    padding: .6rem 1.25rem;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 650;
+    color: #FFFFFF;
+    background: var(--nm-pine);
+    border: 1px solid var(--nm-pine);
+    border-radius: 999px;
     cursor: pointer;
-    transition: background 0.15s, opacity 0.15s;
-    white-space: nowrap;
+    transition: background .12s ease;
+}
+.nm-send-btn:hover:not(:disabled) { background: #0F3D21; }
+.nm-send-btn:focus-visible { outline: 3px solid var(--nm-focus); outline-offset: 2px; }
+.nm-send-btn:disabled { background: #6E7A70; border-color: #6E7A70; cursor: not-allowed; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+@keyframes nm-rise  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes nm-blink { 0%, 80%, 100% { opacity: .28; } 40% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .nm-row { animation: none; }
+    .nm-dot { animation: none; opacity: .7; }
+    .nm-chip, .nm-send-btn, .nm-input { transition: none; }
 }
 
-.nm-send-btn:hover:not(:disabled) {
-    background: #155c30;
-}
-
-/* Focus indicator: the button previously had NO focus style at all — tabbing to
-   it produced no visible change. A same-color outline would be invisible against
-   the green button, so this uses a dark #1a1a2e ring with outline-offset: the gap
-   (the #f9fafb input row) separates the ring from the button, and the ring reads
-   16.3:1 against that row — well past WCAG 1.4.11's 3:1. */
-.nm-send-btn:focus {
-    outline: 2px solid #1a1a2e;
-    outline-offset: 2px;
-}
-
-.nm-send-btn:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
+@media (max-width: 30rem) {
+    .nm-messages { max-height: 24rem; padding: .9rem; }
+    .nm-step-label { display: none; }        /* dots remain, labels are in assistive text */
+    .nm-steps { justify-content: flex-start; gap: .5rem; }
+    .nm-step { flex: 0 0 auto; }
 }

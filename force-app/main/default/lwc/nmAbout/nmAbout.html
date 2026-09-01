@@ -1,0 +1,69 @@
+<template>
+    <div class="nm-about">
+
+        <section class="nm-sec" aria-labelledby="nm-how">
+            <h2 id="nm-how" class="nm-h2">How it works</h2>
+            <ol class="nm-steps">
+                <template for:each={steps} for:item="s">
+                    <li key={s.key} class="nm-step">
+                        <span class="nm-num" aria-hidden="true">{s.n}</span>
+                        <h3 class="nm-h3">{s.title}</h3>
+                        <p class="nm-p">{s.body}</p>
+                    </li>
+                </template>
+            </ol>
+        </section>
+
+        <section class="nm-sec" aria-labelledby="nm-try">
+            <h2 id="nm-try" class="nm-h2">Try it yourself</h2>
+            <p class="nm-p nm-p--lead">
+                Type any of these into the assistant above. The first pair is the one worth trying:
+                two codes that used to return identical advice now return different careers.
+            </p>
+            <ul class="nm-tries">
+                <template for:each={tries} for:item="t">
+                    <li key={t.key} class="nm-try">
+                        <code class="nm-code">{t.input}</code>
+                        <span class="nm-try-arrow" aria-hidden="true">&rarr;</span>
+                        <span class="nm-try-out">{t.output}</span>
+                    </li>
+                </template>
+            </ul>
+        </section>
+
+        <section class="nm-sec" aria-labelledby="nm-data">
+            <h2 id="nm-data" class="nm-h2">Where the data comes from</h2>
+            <p class="nm-p nm-p--lead">
+                Next Mission does not guess what a military code means. Every match is read from
+                published federal labor data, so the same code always returns the same answer.
+            </p>
+            <div class="nm-grid">
+                <template for:each={sources} for:item="s">
+                    <article key={s.key} class="nm-card">
+                        <h3 class="nm-h3">{s.title}</h3>
+                        <p class="nm-p">{s.body}</p>
+                        <p class="nm-meta">{s.meta}</p>
+                    </article>
+                </template>
+            </div>
+        </section>
+
+        <section class="nm-sec" aria-labelledby="nm-rai">
+            <h2 id="nm-rai" class="nm-h2">How we built it responsibly</h2>
+            <ul class="nm-rai">
+                <template for:each={guardrails} for:item="g">
+                    <li key={g.key} class="nm-rai-item">
+                        <span class="nm-tick" aria-hidden="true">
+                            <svg viewBox="0 0 16 16" focusable="false"><path d="M3 8.5 L6.5 12 L13 4.5"/></svg>
+                        </span>
+                        <span>
+                            <strong class="nm-rai-t">{g.title}</strong>
+                            <span class="nm-rai-b">{g.body}</span>
+                        </span>
+                    </li>
+                </template>
+            </ul>
+        </section>
+
+    </div>
+</template>

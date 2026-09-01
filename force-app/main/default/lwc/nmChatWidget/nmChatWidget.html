@@ -1,41 +1,154 @@
 <template>
-    <section class="nm-chat-widget" aria-label={i18n.widgetAriaLabel}>
-        <!-- Message list: role=log + aria-live for screen-reader announcements -->
+    <section class="nm-widget" aria-label={i18n.widgetAriaLabel}>
+
+        <header class="nm-header">
+            <span class="nm-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" class="nm-mark-svg" focusable="false">
+                    <circle cx="16" cy="16" r="15" class="nm-mark-ring"/>
+                    <path d="M16 6 L23 22 L16 18 L9 22 Z" class="nm-mark-arrow"/>
+                </svg>
+            </span>
+            <span class="nm-headtext">
+                <span class="nm-title">{i18n.title}</span>
+                <span class="nm-subtitle">{i18n.subtitle}</span>
+            </span>
+        </header>
+
+        <!-- Journey stepper: shows how far along the conversation is. -->
+        <ol class="nm-steps" aria-label={i18n.stepsAria}>
+            <template for:each={steps} for:item="st">
+                <li key={st.key} class={st.cssClass} aria-current={st.current}>
+                    <span class="nm-step-dot" aria-hidden="true">
+                        <template lwc:if={st.done}>
+                            <svg viewBox="0 0 16 16" focusable="false" class="nm-step-check">
+                                <path d="M3 8.5 L6.5 12 L13 4.5"/>
+                            </svg>
+                        </template>
+                    </span>
+                    <span class="nm-step-label">{st.label}</span>
+                    <span class="slds-assistive-text">{st.statusText}</span>
+                </li>
+            </template>
+        </ol>
+
         <div
             class="nm-messages"
             role="log"
             aria-live="polite"
-            aria-label={i18n.messagesAriaLabel}
+            aria-label={i18n.scrollRegionLabel}
+            tabindex="0"
             lwc:ref="messageList"
         >
             <template for:each={messages} for:item="msg">
-                <div
-                    key={msg.id}
-                    class={msg.cssClass}
-                    aria-label={msg.senderLabel}
-                >
+                <div key={msg.id} class={msg.rowClass}>
                     <span class="nm-sender">{msg.senderLabel}</span>
-                    <p class="nm-text">{msg.text}</p>
+                    <div class="nm-bubble">
+                        <template for:each={msg.blocks} for:item="b">
+                            <div key={b.key} class="nm-block">
+
+                                <!-- Occupation card -->
+                                <template lwc:if={b.isCard}>
+                                    <article class="nm-card">
+                                        <span class="nm-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false">
+                                                <path d={b.iconPath}/>
+                                            </svg>
+                                        </span>
+                                        <h3 class="nm-card-title">{b.title}</h3>
+                                        <p class="nm-card-body">{b.body}</p>
+                                        <template lwc:if={b.hasBadge}>
+                                            <p class="nm-badge">
+                                                <span class="nm-badge-dot" aria-hidden="true"></span>{b.badge}
+                                            </p>
+                                        </template>
+                                    </article>
+                                </template>
+
+                                <!-- Mentor / person card -->
+                                <template lwc:elseif={b.isPerson}>
+                                    <article class="nm-person">
+                                        <span class="nm-avatar" aria-hidden="true">{b.initials}</span>
+                                        <p class="nm-person-body">{b.text}</p>
+                                    </article>
+                                </template>
+
+                                <!-- Bulleted list -->
+                                <template lwc:elseif={b.isList}>
+                                    <ul class="nm-list">
+                                        <template for:each={b.items} for:item="li">
+                                            <li key={li.key} class="nm-li">
+                                                <template for:each={li.segments} for:item="sg">
+                                                    <template lwc:if={sg.bold}>
+                                                        <strong key={sg.key}>{sg.text}</strong>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <span key={sg.key}>{sg.text}</span>
+                                                    </template>
+                                                </template>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </template>
+
+                                <!-- Paragraph with inline bold -->
+                                <template lwc:else>
+                                    <p class="nm-text">
+                                        <template for:each={b.segments} for:item="sg">
+                                            <template lwc:if={sg.bold}>
+                                                <strong key={sg.key}>{sg.text}</strong>
+                                            </template>
+                                            <template lwc:else>
+                                                <span key={sg.key}>{sg.text}</span>
+                                            </template>
+                                        </template>
+                                    </p>
+                                </template>
+
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </template>
 
-            <!-- Loading indicator while waiting for agent reply -->
             <template lwc:if={isLoading}>
-                <div class="nm-loading" role="status" aria-live="polite" aria-label={i18n.loadingAriaLabel}>
-                    <span class="nm-loading-dots" aria-hidden="true">{i18n.loadingText}</span>
+                <div class="nm-row nm-row--agent">
+                    <span class="nm-sender">{i18n.agentLabel}</span>
+                    <div class="nm-bubble nm-bubble--typing" role="status" aria-label={i18n.typingAria}>
+                        <span class="nm-dot" aria-hidden="true"></span>
+                        <span class="nm-dot" aria-hidden="true"></span>
+                        <span class="nm-dot" aria-hidden="true"></span>
+                        <span class="slds-assistive-text">{i18n.typingAria}</span>
+                    </div>
                 </div>
             </template>
         </div>
 
-        <!-- Error banner -->
         <template lwc:if={errorMessage}>
             <div class="nm-error" role="alert">
+                <span class="nm-error-mark" aria-hidden="true">!</span>
                 <span>{errorMessage}</span>
             </div>
         </template>
 
-        <!-- Input row -->
-        <div class="nm-input-row">
+        <template lwc:if={showChips}>
+            <div class="nm-starters">
+                <p class="nm-starters-label" id="nm-starters-label">{chipsLabel}</p>
+                <div class="nm-chips" role="group" aria-labelledby="nm-starters-label">
+                    <template for:each={chips} for:item="s">
+                        <button
+                            key={s.key}
+                            type="button"
+                            class="nm-chip"
+                            data-text={s.text}
+                            aria-label={s.aria}
+                            onclick={handleStarter}
+                        >{s.text}</button>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <div class="nm-composer">
             <label for="nm-input" class="slds-assistive-text">{i18n.inputLabel}</label>
             <input
                 id="nm-input"
@@ -47,6 +160,7 @@
                 onkeydown={handleKeydown}
                 oninput={handleInput}
                 disabled={isLoading}
+                lwc:ref="input"
             />
             <button
                 type="button"
@@ -54,9 +168,7 @@
                 aria-label={i18n.sendAriaLabel}
                 onclick={handleSend}
                 disabled={isSendDisabled}
-            >
-                {i18n.sendLabel}
-            </button>
+            >{i18n.sendLabel}</button>
         </div>
     </section>
 </template>

@@ -91,4 +91,165 @@
         <shortDescription>NM Chat You Label</shortDescription>
         <value>You</value>
     </labels>
+    <labels>
+        <fullName>NM_Chat_Title</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Title</shortDescription>
+        <value>Next Mission</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Subtitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Subtitle</shortDescription>
+        <value>Translating military experience into civilian careers</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_StartersLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_StartersLabel</shortDescription>
+        <value>New here? Try one of these</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Starter1</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Starter1</shortDescription>
+        <value>Army 88M</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Starter2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Starter2</shortDescription>
+        <value>Navy IT2</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Starter3</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Starter3</shortDescription>
+        <value>I fixed helicopters in the Marines</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Starter4</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Starter4</shortDescription>
+        <value>I am a military spouse</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_StarterAriaPrefix</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_StarterAriaPrefix</shortDescription>
+        <value>Start the conversation with: </value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_LicenseBadge</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_LicenseBadge</shortDescription>
+        <value>License or certification required</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_UploadLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_UploadLabel</shortDescription>
+        <value>Upload resume</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_UploadAriaLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_UploadAriaLabel</shortDescription>
+        <value>Upload your resume as a file</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ScrollRegionLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ScrollRegionLabel</shortDescription>
+        <value>Conversation history, scrollable. Use arrow keys to read.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Greeting</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Greeting</shortDescription>
+        <value>Hi, I'm Next Mission. I help veterans and military spouses turn service experience into civilian careers. Tell me your branch and specialty code, MOS, AFSC, Rating or NEC, or just describe what you did and I'll work from there.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_TypingAria</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_TypingAria</shortDescription>
+        <value>Next Mission is thinking</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_SuggestionsLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_SuggestionsLabel</shortDescription>
+        <value>Suggested next steps</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_ShowRoles</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_ShowRoles</shortDescription>
+        <value>Show me the roles</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_Skills</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_Skills</shortDescription>
+        <value>How do my skills translate?</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_Mentor</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_Mentor</shortDescription>
+        <value>Connect me with a mentor</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_YesConnect</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_YesConnect</shortDescription>
+        <value>Yes, connect me</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_NotNow</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_NotNow</shortDescription>
+        <value>Not right now</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_SoundsRight</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_SoundsRight</shortDescription>
+        <value>That sounds right</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_AddMore</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_AddMore</shortDescription>
+        <value>Let me add something</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_MoreRoles</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_MoreRoles</shortDescription>
+        <value>What else fits?</value>
+    </labels>
 </CustomLabels>

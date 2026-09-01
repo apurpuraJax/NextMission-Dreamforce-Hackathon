@@ -1,0 +1,43 @@
+<template>
+    <section class="nm-hero">
+        <div class="nm-hero-inner">
+            <p class="nm-eyebrow">
+                <span class="nm-eyebrow-dot" aria-hidden="true"></span>
+                For veterans and military spouses
+            </p>
+            <h1 class="nm-h1">Your service already qualifies you.<br/>Let&rsquo;s prove it.</h1>
+            <p class="nm-lede">
+                Tell Next Mission your specialty code, or just describe what you did. It maps your
+                experience to real civilian occupations using federal labor data, then connects you
+                with someone who made the same move.
+            </p>
+
+            <ul class="nm-stats">
+                <template for:each={stats} for:item="s">
+                    <li key={s.key} class="nm-stat">
+                        <span class="nm-stat-num">{s.num}</span>
+                        <span class="nm-stat-lbl">{s.label}</span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+        <svg class="nm-hero-art" viewBox="0 0 240 160" role="img" aria-label="A path leading toward a horizon">
+            <defs>
+                <linearGradient id="nmSky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#EFE7D8"/>
+                    <stop offset="100%" stop-color="#F8F5EE"/>
+                </linearGradient>
+            </defs>
+            <rect width="240" height="160" fill="url(#nmSky)"/>
+            <circle cx="185" cy="46" r="20" fill="#C2703D" opacity=".28"/>
+            <path d="M0 120 L70 96 L120 108 L180 84 L240 100 V160 H0 Z" fill="#14532D" opacity=".14"/>
+            <path d="M0 138 L60 120 L130 130 L200 112 L240 122 V160 H0 Z" fill="#14532D" opacity=".26"/>
+            <path d="M96 160 L112 108 L128 108 L144 160 Z" fill="#14532D" opacity=".5"/>
+            <path d="M118 104 L120 92 L122 104 Z" fill="#14532D"/>
+            <g stroke="#F8F5EE" stroke-width="2.5" stroke-linecap="round">
+                <path d="M120 150 v-8"/><path d="M120 134 v-8"/><path d="M120 120 v-6"/>
+            </g>
+        </svg>
+    </section>
+</template>
