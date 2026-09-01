@@ -560,6 +560,72 @@ thing. Skills now presents transferable skills and is explicitly forbidden
 from naming a civilian job title; Job Matching names the roles. Two subagents
 rendering one variable is a design smell, not a prompt problem.
 
+### The Experience site: retrieve before you edit, never deploy stale
+
+The standing rule is that the DigitalExperienceBundle is not deployed to a
+live LWR site. The reason is concrete: on 2026-09-01 a retrieve immediately
+before editing came back with **10 files differing from the repo**. Deploying
+the checked-in bundle as it stood would have reverted real Builder changes.
+
+If a component must be placed programmatically, the only safe sequence is:
+
+1. `cp -r force-app/main/default/digitalExperiences /tmp/backup` (rollback)
+2. `sf project retrieve start --metadata DigitalExperienceBundle:site/Next_Mission1`
+3. Edit `sfdc_cms__view/home/content.json` — components live in the region
+   whose `children` array holds the existing component, each entry being
+   `{"attributes":{"dxpStyle":{}},"definition":"c:name","id":"<uuid>","type":"component"}`
+4. `sf project deploy start --metadata DigitalExperienceBundle:site/Next_Mission1`
+5. `sf community publish --name "Next Mission"`
+6. Verify: the home page returns 200 **and** a guest conversation still
+   completes. A successful deploy is not evidence the site still works.
+
+Prefer Builder for anything more than adding a component to a region.
+
+### Widget design system
+
+`nmChatWidget` uses the "Forward" palette (pine `#14532D`, sand `#EFE7D8`,
+cream `#F8F5EE`, ink `#1B1B18`, clay `#8A4513`). `nmHero` and `nmAbout` repeat
+the same tokens locally because LWC style scoping does not cross components.
+
+**Run `python3 scripts/check_contrast.py` after any colour change.** It checks
+19 pairs against WCAG AA and must report 0 failing. Do not claim a palette is
+accessible without the numbers; "verified AA" is not checkable, a ratio is.
+
+Agent replies are parsed into blocks in `_parseBlocks`: `Title :: Description`
+or `Title: <40+ chars>` becomes an occupation card, a paragraph opening
+"I found a mentor" becomes a person card, `- ` lines become a list, `**x**`
+becomes bold. **Every branch must fall back to a plain paragraph** so an
+unexpected reply shape still reads correctly. Never make the widget depend on
+the agent emitting a delimiter.
+
+CSP blocks external assets on the site. All graphics are inline SVG. Do not
+add image files, CDN links or web fonts beyond what LWR already loads.
+
+### Resume upload (NMDH-31), what the next session needs
+
+Stubbed at `handleUpload()` in `nmChatWidget.js`, gated by the `@api
+enableResumeUpload` property, default **false**, so no dead button ships.
+
+Known before starting:
+
+- **Guest file upload will fail like a permission problem disguised as a UI
+  bug.** The guest user needs create on `ContentVersion` and
+  `ContentDocumentLink` in `NM_Guest_Site_Access`. Reproduce with an anonymous
+  POST to the site's `webruntime/api/apex/execute` before reading logs, for the
+  reasons in the guest-credential section above.
+- **Apex cannot parse PDF.** Either reuse the OCR chain from the Maya build or
+  restrict the demo to DOCX/TXT and treat PDF as best effort.
+- **Resumes only, never a DD-214.** It carries discharge characterization and
+  an SSN, and the system instructions already forbid restating discharge type,
+  VA status or disability rating. Soliciting the document containing all of it
+  contradicts our own guardrail. The control must say "resume" and nothing
+  broader. Extracted text falls under the existing sensitive-details rule.
+- Extracted text feeds the **existing** background path: either a code is
+  picked out of it and sent to `look_up_occupations`, or the text becomes the
+  description passed to `classify_cluster`. Do not add a third path.
+- On extraction failure the agent says so and asks them to describe the role.
+  It must never invent a background it did not extract.
+
 ---
 
 ## Accessibility Standards
