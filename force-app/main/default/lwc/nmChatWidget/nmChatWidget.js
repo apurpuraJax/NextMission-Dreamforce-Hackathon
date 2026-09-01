@@ -66,6 +66,7 @@ export default class NmChatWidget extends LightningElement {
     _mentorReq    = false;
     _mentorMatched= false;
     _sourceUrl    = '';
+    _pendingInputFocus = false;   // set after a send; consumed in renderedCallback
 
     get isSendDisabled() {
         return this.isLoading || !this.inputText || !this.inputText.trim();
@@ -134,9 +135,24 @@ export default class NmChatWidget extends LightningElement {
             this.isLoading = false;
             this._appendTranscript(text, agentReply);
             this._logTurn(); // unconditional — fires even on error
+            // Return focus to the input so a keyboard user can keep typing without
+            // tabbing back. The input is disabled while isLoading is true, so we
+            // can't focus it here — set a flag and focus in renderedCallback once
+            // the re-render has re-enabled it.
+            this._pendingInputFocus = true;
         }
 
         this._scrollToBottom();
+    }
+
+    renderedCallback() {
+        if (this._pendingInputFocus) {
+            const input = this.template.querySelector('.nm-input');
+            if (input && !input.disabled) {
+                this._pendingInputFocus = false;
+                input.focus();
+            }
+        }
     }
 
     // ── Private helpers ─────────────────────────────────────────────────────
