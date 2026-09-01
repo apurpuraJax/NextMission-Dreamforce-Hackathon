@@ -8,13 +8,23 @@ History
 -------
 VERSION  AUTHOR          DATE        DETAIL
 1.0      Orchestrate     2026-08-31  NMDH-16 initial build
+2.0      Orchestrate     2026-08-31  NMDH-15/S14 — repoint to modern Agent API
+                                     (Named Credential NM_AgentAPI ->
+                                     https://api.salesforce.com/einstein/ai-agent/v1).
+                                     Streaming session payload, UUID session key,
+                                     ai-agent/v1 response parsing. Return types
+                                     (StartSessionResult / SendMessageResult) and
+                                     logTurn preserved: the NM_ChatWidget LWC and
+                                     CONTEXT.md client-owned persistence depend on them.
 *****************************************************************/
 public with sharing class NM_AgentController {
 
-    private static final String  AGENT_ID      = Label.NM_Bot_Definition_Id;
-    private static final String  NAMED_CRED    = 'callout:NM_Agent_API';
-    private static final String  SESSIONS_PATH = '/einstein/copilot/v1.0/assistants/';
-    private static final Integer TIMEOUT_MS    = 30000;
+    // Bot Definition Id from Custom Label (set in S13). Never hardcode the id.
+    private static final String  AGENT_ID   = Label.NM_Bot_Definition_Id;
+    // Named Credential base URL already includes /einstein/ai-agent/v1 (see the
+    // NM_AgentAPI Named Credential metadata). Paths below are relative to that base.
+    private static final String  NAMED_CRED = 'callout:NM_AgentAPI';
+    private static final Integer TIMEOUT_MS = 30000;
 
     // ── Result & Request inner classes ─────────────────────────────────────
 
@@ -58,16 +68,21 @@ public with sharing class NM_AgentController {
                 'instanceConfig' => new Map<String, Object>{
                     'endpoint' => URL.getOrgDomainUrl().toExternalForm()
                 },
+                'featureSupport' => 'Streaming',
+                'streamingCapabilities' => new Map<String, Object>{
+                    'chunkTypes' => new List<String>{ 'Text' }
+                },
+                'bypassUser' => true,
                 'variables' => new List<Object>{
                     new Map<String, Object>{'name'=>'sourceUrl',  'type'=>'Text','value'=>(sourceUrl==null?'':sourceUrl)},
                     new Map<String, Object>{'name'=>'sessionKey', 'type'=>'Text','value'=>sessionKey}
                 }
             };
-            HttpResponse resp = doPost(SESSIONS_PATH + AGENT_ID + '/sessions', JSON.serialize(body));
+            HttpResponse resp = doPost('/agents/' + AGENT_ID + '/sessions', JSON.serialize(body));
             if (resp.getStatusCode() == 200 || resp.getStatusCode() == 201) {
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(resp.getBody());
                 StartSessionResult result = new StartSessionResult();
-                result.sessionId  = (String) parsed.get('clientSessionId');
+                result.sessionId  = (String) parsed.get('sessionId');
                 result.sessionKey = sessionKey;
                 System.debug('Exiting startSession: sessionId=' + result.sessionId);
                 return result;
@@ -93,9 +108,13 @@ public with sharing class NM_AgentController {
                     'sequenceId' => DateTime.now().getTime(),
                     'type'       => 'Text',
                     'text'       => text
+                },
+                'variables' => new List<Object>{
+                    new Map<String, Object>{'name'=>'sourceUrl',  'type'=>'Text','value'=>(sourceUrl==null?'':sourceUrl)},
+                    new Map<String, Object>{'name'=>'sessionKey', 'type'=>'Text','value'=>(sessionId==null?'':sessionId)}
                 }
             };
-            HttpResponse resp = doPost(SESSIONS_PATH + AGENT_ID + '/sessions/' + sessionId + '/messages', JSON.serialize(body));
+            HttpResponse resp = doPost('/sessions/' + sessionId + '/messages', JSON.serialize(body));
             SendMessageResult result = new SendMessageResult();
             if (resp.getStatusCode() == 200) {
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(resp.getBody());
@@ -158,17 +177,40 @@ public with sharing class NM_AgentController {
 
     @TestVisible
     private static String extractReplyText(Map<String, Object> parsed) {
+        // ai-agent/v1 returns a "messages" array; concatenate the text of every
+        // chunk so multi-part (streamed-then-collated) agent replies come through
+        // whole rather than truncated to the first Inform chunk.
         List<Object> messages = (List<Object>) parsed.get('messages');
         if (messages == null || messages.isEmpty()) { return ''; }
+        String reply = '';
         for (Object msgObj : messages) {
-            Map<String, Object> msg = (Map<String, Object>) msgObj;
-            if ('Inform'.equalsIgnoreCase((String) msg.get('type'))) {
-                Map<String, Object> msgBody = (Map<String, Object>) msg.get('message');
-                if (msgBody != null) {
-                    String txt = (String) msgBody.get('text');
-                    if (String.isNotBlank(txt)) { return txt; }
-                }
-            }
+            reply += chunkText((Map<String, Object>) msgObj);
+        }
+        return reply;
+    }
+
+    /*
+     * Purpose:    Pull the text out of a single ai-agent/v1 response message,
+     *             tolerating both shapes the API emits: a nested
+     *             { "message": { "text": ... } } Map, or a top-level "message"
+     *             / "text" String. Returns '' for control messages (SessionEnded,
+     *             etc.) that carry no text.
+     * Parameters: msg - one element of the response "messages" array.
+     * Returns:    the message's text, or '' when the element carries none.
+     */
+    @TestVisible
+    private static String chunkText(Map<String, Object> msg) {
+        if (msg == null) { return ''; }
+        Object messageVal = msg.get('message');
+        if (messageVal instanceof Map<String, Object>) {
+            String nested = (String) ((Map<String, Object>) messageVal).get('text');
+            if (String.isNotBlank(nested)) { return nested; }
+        } else if (messageVal instanceof String && String.isNotBlank((String) messageVal)) {
+            return (String) messageVal;
+        }
+        Object topText = msg.get('text');
+        if (topText instanceof String && String.isNotBlank((String) topText)) {
+            return (String) topText;
         }
         return '';
     }
