@@ -105,4 +105,8 @@
         <object>NM_Mentor_Introduction__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>NM_AgentAPI_EC-NM_AgentAPI_Principal</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
 </PermissionSet>
