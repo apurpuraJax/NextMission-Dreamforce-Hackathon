@@ -41,6 +41,16 @@
         <enabled>true</enabled>
     </classAccesses>
 
+    <!-- External Credential Principal Access — NMDH-17.                                    -->
+    <!-- Grants this permset's holders (agent user + Experience Cloud guest user) the right  -->
+    <!-- to use the NM_AgentAPI_Principal named principal on NM_AgentAPI_EC. Without this,    -->
+    <!-- Apex callouts fail with "we couldn't access the credential(s)" even after the        -->
+    <!-- principal authenticates. Reference format: {ExternalCredential}-{Principal}.         -->
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>NM_AgentAPI_EC-NM_AgentAPI_Principal</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
+
     <!-- Custom Metadata Type access (read-only — CMDT records are always read-only at runtime) -->
     <customMetadataTypeAccesses>
         <enabled>true</enabled>
