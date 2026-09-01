@@ -218,10 +218,10 @@ subagent NM_Mentor_Connection:
 
     actions:
         find_mentor:
-            description: "Find an active mentor in the veteran's cluster."
+            description: "Find the best-matching active mentor by semantically comparing the veteran's background against every active mentor's civilian role and bio. Cluster is a tie-breaker only, not a hard filter, so cross-cluster matches are allowed."
             inputs:
                 clusterKey: string
-                branch: string
+                description: string
             outputs:
                 found: boolean
                 mentorName: string
@@ -230,7 +230,7 @@ subagent NM_Mentor_Connection:
                 mentorBio: string
                 mentorId: string
                 message: string
-            target: "apex://NM_FindMentorAction"
+            target: "flow://NM_FindMentor_Flow"
         request_mentor_intro:
             description: "Send an introduction request to a mentor on the veteran's behalf."
             inputs:
@@ -246,7 +246,7 @@ subagent NM_Mentor_Connection:
 
             | CONSENT IS REQUIRED before sending any introduction request.
 
-              Step 1, Find: Call find_mentor with clusterKey from the session.
+              Step 1, Find: Call find_mentor. It matches on the veteran's background across the whole active mentor roster, using their cluster only as a tie-breaker, so the mentor returned may sit in a different cluster. That is expected.
               Present the mentor's name, role, employer, and background briefly, one short paragraph.
               NEVER surface the mentor's email address.
 
@@ -270,8 +270,9 @@ subagent NM_Mentor_Connection:
         actions:
             find_mentor: @actions.find_mentor
                 with clusterKey=@variables.clusterKey
+                with description=@variables.userDescription
                 set @variables.mentorId=@outputs.mentorId
-                description: "Find a mentor who transitioned from a similar military cluster. Returns mentor name, role, employer, bio. Never surface email."
+                description: "Find the best-matching mentor by semantically comparing the veteran's background against every active mentor's role and bio. Cluster is a tie-breaker only. Returns mentor name, role, employer, bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
                 set @variables.introSent=@outputs.message
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."
