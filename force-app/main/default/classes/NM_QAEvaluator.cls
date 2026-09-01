@@ -43,11 +43,19 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         for (NM_Conversation__c record : records) {
             NM_Conversation__c upd = new NM_Conversation__c(Id = record.Id);
             if (String.isBlank(record.Transcript__c)) {
-                // No/blank transcript — mark reviewed so it is not re-queried on every batch
+                // No/blank transcript. Mark reviewed so it is not re-queried on
+                // every batch, but leave QA_Score__c NULL. Writing 0 here scored
+                // an empty shell as if the agent had performed terribly and
+                // dragged every average to the floor. A conversation with no
+                // transcript is unscored, not bad.
+                //
+                // Most of these shells come from NM_RequestMentorIntroAction,
+                // which creates a minimal conversation when the agent does not
+                // pass a session key so an introduction is never orphaned.
                 upd.QA_Reviewed__c    = true;
                 upd.QA_Reviewed_At__c = DateTime.now();
-                upd.QA_Score__c       = 0;
-                upd.QA_Issues__c      = 'Skipped: no transcript available';
+                upd.QA_Score__c       = null;
+                upd.QA_Issues__c      = 'Not scored: no transcript on this record';
                 toUpdate.add(upd);
                 continue;
             }
@@ -79,10 +87,16 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
 
             } catch (Exception e) {
                 System.debug('NM_QAEvaluator error for Id=' + record.Id + ': ' + e.getMessage());
+                // A grader failure is OUR failure, not a bad conversation.
+                // Writing 0 here made a broken Einstein call look identical to
+                // an agent that performed terribly. Leave the score NULL.
+                // Reviewed stays true so a permanently failing record cannot
+                // re-burn an Einstein call every hour; re-run deliberately
+                // after fixing the cause.
                 upd.QA_Reviewed__c    = true;
                 upd.QA_Reviewed_At__c = DateTime.now();
-                upd.QA_Score__c       = 0;
-                upd.QA_Issues__c      = 'Grader error: ' + e.getMessage();
+                upd.QA_Score__c       = null;
+                upd.QA_Issues__c      = 'Grader error, not scored: ' + e.getMessage();
             }
             toUpdate.add(upd);
         }

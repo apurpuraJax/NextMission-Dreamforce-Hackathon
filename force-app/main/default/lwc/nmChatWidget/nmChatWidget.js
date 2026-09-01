@@ -422,21 +422,40 @@ export default class NmChatWidget extends LightningElement {
         if (!this._mentorMatched && (t.includes('introduction') || t.includes('connected you'))) {
             this._mentorMatched = true;
         }
-        // Advance the stepper, never backwards.
-        let stage = this._stage;
-        if (/\byour (army|navy|air force|marine|coast guard|space force)\b|role title|is motor|specialist/i.test(reply)) {
-            stage = Math.max(stage, 1);
-        }
-        if (/skills|you know how to|experience operating|transferable/i.test(reply)) {
-            stage = Math.max(stage, 2);
-        }
-        if (/civilian (role|job)|drive a tractor|required|licen/i.test(reply)) {
-            stage = Math.max(stage, 3);
-        }
-        if (/found a mentor|introduction request/i.test(reply)) {
-            stage = Math.max(stage, 3);
-        }
-        this._stage = stage;
+        // Stepper advances on facts, not on prose matching. An occupation card
+        // means roles were actually shown; a person card means a mentor was
+        // actually named. Regex over the reply text advanced it too eagerly.
+        this._recomputeStage();
+    }
+
+    /**
+     * Steps: 0 Background, 1 Skills, 2 Roles, 3 Mentor. The value is the INDEX
+     * of the current step, so everything before it renders as done. Only ever
+     * moves forward.
+     */
+    _recomputeStage() {
+        const agentMsgs = this.messages.filter(m => m.senderLabel !== YOU_LABEL);
+        const blocks    = agentMsgs.reduce((acc, m) => acc.concat(m.blocks || []), []);
+
+        const sawRoles  = blocks.some(b => b.isCard);
+        const sawMentor = blocks.some(b => b.isPerson);
+
+        // Background is established once we know their code or the agent named
+        // their role. Skills counts only once the agent has actually explained
+        // the transfer, which is a turn with prose and no occupation cards.
+        const knowsBackground = !!this._specialtyCode || agentMsgs.length > 1;
+        const sawSkills = agentMsgs.some(m =>
+            (m.blocks || []).length > 0 &&
+            !(m.blocks || []).some(b => b.isCard || b.isPerson) &&
+            (m.blocks || []).some(b => (b.segments || []).some(sg => (sg.text || '').length > 120))
+        );
+
+        let stage = 0;
+        if (knowsBackground) { stage = 1; }
+        if (sawSkills)       { stage = 2; }
+        if (sawRoles)        { stage = 3; }
+        if (sawMentor)       { stage = 3; }
+        this._stage = Math.max(this._stage, stage);
     }
 
     async _startNewSession() {

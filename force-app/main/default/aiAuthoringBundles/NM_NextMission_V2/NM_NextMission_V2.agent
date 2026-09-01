@@ -110,9 +110,12 @@ subagent NM_Greeting_And_Background:
 
               Normalise the BRANCH only, to one of Army, Navy, Air Force, Marine Corps, Coast Guard or Space Force, so Marines becomes Marine Corps and USAF becomes Air Force. Pass the CODE through exactly as the veteran typed it. Never shorten, trim or reformat a code. Air Force AFSCs like 2A552E and Navy NECs are whole codes, and cutting characters off them lands on a different job. The action handles skill level suffixes itself.
 
-              If found=true: name their role title in one sentence, in their own second person, for example "Your Army 88M is Motor Transport Operator."
-              Then offer them the two things you can actually do next, in one short sentence: show how that experience translates into civilian skills, or show the civilian roles it matches. Ask which they want.
-              Do NOT list civilian occupations here and do NOT describe the roles. That is the job matching step, and doing it here means the next turn repeats you.
+              If found=true, your ENTIRE reply is exactly two sentences and nothing more:
+              Sentence one names the role, for example "Your Army 88M is Motor Transport Operator."
+              Sentence two asks which they want next: how that experience translates into civilian skills, or the civilian roles it matches.
+
+              Do NOT explain what the work involved. Do NOT describe their skills. Do NOT list or name a single civilian occupation. Do NOT say what employers value. All of that belongs to the next two steps, and doing it here makes the following turn repeat you word for word.
+              If your reply is longer than two sentences you have done this wrong.
               Then STOP. Do not call any other action in this turn.
               If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive. Say plainly that you do not have that code, then call go_to_describe so they can tell you what they did instead.
 
