@@ -106,6 +106,8 @@ public with sharing class NM_LookupOccupationAction {
             if (k != null) keys.add(k);
             String b = baseArmyKey(req.branch, req.code);
             if (b != null) keys.add(b);
+            String n = baseNavyRatingKey(req.branch, req.code);
+            if (n != null) keys.add(n);
         }
 
         // --- Query 1: the military codes ------------------------------------
@@ -146,6 +148,9 @@ public with sharing class NM_LookupOccupationAction {
             if (key != null && !codeByKey.containsKey(key)) {
                 // exact miss: fall back to the base Army MOS if this looked like one
                 String fallback = baseArmyKey(req.branch, req.code);
+                if (fallback == null || !codeByKey.containsKey(fallback)) {
+                    fallback = baseNavyRatingKey(req.branch, req.code);
+                }
                 if (fallback != null && codeByKey.containsKey(fallback)) key = fallback;
             }
 
@@ -205,6 +210,25 @@ public with sharing class NM_LookupOccupationAction {
      *             2A552E are three distinct crosswalk rows) and must never be
      *             shortened.
      */
+    /*
+     * Purpose:    A Navy rating is written with the sailor's paygrade attached, so
+     *             an IT2 is an Information Systems Technician at E-5. The crosswalk
+     *             holds the rating itself ("IT"), not the paygrade form, so "IT2"
+     *             missed entirely and sent the veteran down the describe path.
+     * Returns:    the rating key, or null when the pattern does not match.
+     * Note:       Deliberately narrow: two or three LETTERS followed by ONE digit
+     *             1 to 9. Navy NECs are alphanumeric (V25C, 841A, 4599) and must
+     *             never be shortened, since trimming 4599 to 459 lands on a
+     *             different real code and returns a confident wrong answer.
+     */
+    private static String baseNavyRatingKey(String branch, String code) {
+        if (String.isBlank(branch) || String.isBlank(code)) return null;
+        if (branch.trim().toUpperCase() != 'NAVY') return null;
+        String c = code.trim().toUpperCase();
+        if (!Pattern.matches('^[A-Z]{2,3}[1-9]$', c)) return null;
+        return 'NAVY|' + c.substring(0, c.length() - 1);
+    }
+
     private static String baseArmyKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
         if (branch.trim().toUpperCase() != 'ARMY') return null;

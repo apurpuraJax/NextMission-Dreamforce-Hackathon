@@ -785,6 +785,63 @@ Chaining on "any unreviewed record remains" recursed to
 `System.AsyncException: Maximum stack depth has been reached`, because rows
 inside the settle window are deliberately left unreviewed and never clear.
 
+### Subagent conditionals are evaluated AFTER the turn's action runs
+
+This one produced a genuinely harmful bug and is not obvious.
+
+`if @variables.mentorId is not None:` inside `NM_Mentor_Connection` fires on the
+**same turn `find_mentor` runs**, because the action executes first and its
+output binding sets the variable before the instructions are assembled. It is
+not evaluated against the state at the start of the turn.
+
+The effect: the "a mentor has already been shown, do not describe them again"
+branch fired the very first time a mentor was found, so the agent **never named
+the mentor** and jumped straight to "what is your email address?" Asking a
+veteran to hand over an address for an unnamed stranger is not consent.
+
+**Proven with markers, not reasoning.** Three instruction blocks were tagged
+ALPHA / BRAVO / CHARLIE. On a fresh session where `find_mentor` had never run,
+BRAVO came back. That is only possible if the variable was already set.
+
+**Rule:** a variable written by an action in a subagent cannot distinguish
+"just happened this turn" from "happened earlier". For that distinction the
+instruction must tell the model to read the conversation history. Use the
+variable for deterministic ACTION GATING (`available when ... is None`, so it
+runs once), and history for deciding what to SAY.
+
+### Codes carry a paygrade or skill level. Normalise in Apex, never in prompts
+
+`NM_LookupOccupationAction` handles two forms, and both are deliberately narrow:
+
+* **Army MOS** `NNXNN` (68W10) drops the two-digit skill level to 68W.
+* **Navy rating** two or three LETTERS plus ONE digit (IT2, BM1) drops the
+  paygrade to the rating (IT, BM). IT2 is an Information Systems Technician at
+  E-5; the crosswalk holds only "IT", so IT2 missed entirely and dumped the
+  veteran into the describe path, where they were then classified into a
+  completely wrong career cluster.
+
+**Never generalise this to prefix truncation.** Navy NECs are alphanumeric
+(V25C, 841A, 4599) and Air Force AFSCs encode skill level inside the code
+(2A512E / 2A532E / 2A552E are three distinct rows). Trimming 4599 to 459 lands
+on a different real code and returns a confident wrong answer. All of these are
+covered in `scripts/scenarios.py`.
+
+### Run scripts/scenarios.py before claiming a conversation works
+
+`python3 scripts/scenarios.py` drives the LIVE public site as an anonymous guest
+and **asserts** rather than printing for a human to eyeball. It covers the code
+path, the describe path, repeated consent, and a full introduction.
+
+Its most valuable check is `no_repeats`: no two substantive replies may be more
+than 75% identical. Short replies are excluded on purpose, because re-asking for
+an email the veteran has not given is correct, not repetition.
+
+**This suite exists because ad-hoc happy-path testing repeatedly missed real
+defects** that a user hit within one conversation: a mentor re-described three
+times, the same skills framing restated four times, and a valid Navy rating
+rejected. Add a scenario for every reported defect. A defect that is not in this
+file will come back.
+
 ---
 
 ## Accessibility Standards

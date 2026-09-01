@@ -191,6 +191,10 @@ subagent NM_Skills_Translation:
 
                   Three or four sentences. Second person, the experience is theirs.
 
+                  BEFORE YOU WRITE, CHECK THE HISTORY. If you have already given this veteran a skills framing earlier in this conversation, DO NOT WRITE IT AGAIN. They have read it. Restating the same paragraph with one clause added reads as though you were not listening.
+                  If they have just added a detail about their background, reply in ONE sentence that takes it on board, then ask if they want to see matching roles. Nothing else.
+                  If they are asking how their skills translate and you have already answered that, say so briefly and offer the roles instead of repeating yourself.
+
                   Then ask if that sounds right. STOP THERE. Do not say what you will do next, do not promise job matches, do not say you will pull anything up, and do not transition in this turn. Wait for their reply.
                   {!@variables.occupations}
 
@@ -202,6 +206,7 @@ subagent NM_Skills_Translation:
                   Frame the translation for a civilian reader: no untranslated military jargon.
                   Keep it short. Three or four sentences, not an essay. This is read on a phone. Do not write a paragraph per job role.
                   After presenting, ask if the framing resonates or if they want to add anything.
+                  If you have ALREADY presented this framing earlier in the conversation, do not present it again. Take their addition on board in one sentence and offer to show matching roles.
                   Then call go_to_job_matching to continue.
                   If found=false: surface message verbatim. Ask the veteran to describe their role in plain civilian terms. Retry get_cluster_data once with their description as userPrompt.
 
@@ -292,6 +297,24 @@ subagent NM_Mentor_Connection:
     reasoning:
         instructions: ->
 
+            if @variables.mentorId is None:
+                | NO MENTOR HAS BEEN FOUND YET. Call find_mentor now, then NAME the mentor in your reply: their name, their civilian role, their employer, and one line on the move they made.
+
+                  DO NOT ASK FOR AN EMAIL ADDRESS IN THIS TURN. Nobody can agree to an introduction to a person they have not been told about, so asking for an address before naming the mentor is not consent, it is collecting an address for an unnamed stranger. Show them who it is first, then ask whether they want the introduction.
+
+            if @variables.mentorId is not None and @variables.introSent is None:
+                | You have a mentor for this veteran. IMPORTANT: this instruction fires on the turn find_mentor runs as well as on later turns, so decide which situation you are in by reading the history.
+
+                  IF THIS IS THE FIRST TIME the veteran is seeing this mentor, meaning you have not named them in any earlier turn: name them now. Their name, their civilian role, their employer, and one line on the move they made. Then ask whether they would like you to send an introduction. Do NOT ask for an email address yet, they have not agreed to anything.
+
+                  IF YOU ALREADY NAMED THIS MENTOR in an earlier turn: never describe them again. They have read it. Repeating the mentor's name, role and background is what a broken agent looks like. Instead:
+                  If you have not yet asked for their email address, ask for it now in one short sentence and stop.
+                  If their latest message contains an email address, call request_mentor_intro immediately with it. Do not ask again, do not confirm first.
+                  If they agreed again without giving an address, they are waiting on you. Ask for the email.
+                  If they declined, acknowledge it in one sentence and leave the door open.
+
+                  Ignore every instruction below this line.
+
             | CONSENT IS REQUIRED before sending any introduction request.
 
               Step 1, Find: CALL find_mentor IMMEDIATELY, in this turn, before you say anything.
@@ -320,6 +343,7 @@ subagent NM_Mentor_Connection:
               Short sentences.
         actions:
             find_mentor: @actions.find_mentor
+                available when @variables.mentorId is None
                 set @variables.mentorId=@outputs.mentorId
                 description: "Find the best-matching mentor. For description, ALWAYS pass a short summary of this veteran drawing on their role title, their occupations, anything they said about what they did, and what they want from a mentor. A blank description returns no mentor at all. clusterKey is optional and often empty on the code path, pass it only if you have it, matching works without it. Returns a specific named mentor with role, employer and bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
