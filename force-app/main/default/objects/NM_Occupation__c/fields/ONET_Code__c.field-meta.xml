@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ONET_Code__c</fullName><label>O*NET Code</label><type>Text</type><length>20</length>
+    <externalId>true</externalId><unique>true</unique><required>true</required>
+    <description>O*NET-SOC code, e.g. 29-2042.00. External id for upsert.</description>
+</CustomField>

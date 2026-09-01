@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>External_Key__c</fullName><label>External Key</label><type>Text</type><length>80</length>
+    <externalId>true</externalId><unique>true</unique><required>true</required>
+    <description>branch|code, both uppercased. External id for upsert.</description>
+</CustomField>
