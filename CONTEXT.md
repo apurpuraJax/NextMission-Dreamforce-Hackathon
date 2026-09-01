@@ -64,6 +64,8 @@ All domain data — military specialty codes, civilian skill clusters, job categ
 
 There is no Data Cloud. There is no SOQL against user-generated records at translation time. Apex actions query Custom Metadata. This is intentional: the data is small, static, and must be deterministic. Do not introduce a retriever, a vector index, or a Data Cloud data stream for this use case.
 
+> **OVERRIDE (2026-09-01, approved) — NMDH-21.** The paragraph above is superseded **for job matching only**. Job matching may now be built on Data Cloud + a search/vector index + a retriever, wired into the Gen 2 AgentScript agent. This is an approved architecture-decision change; it does **not** open Data Cloud for translating military codes or resolving specialty clusters — that grounding stays Custom Metadata + Apex and remains locked. NMDH-7 (`NM_GetJobMatchesAction`, Apex) stays delivered as the baseline/fallback. Full design in the D01 job-matching Data Cloud retriever design deliverable; build tracked under NMDH-21.
+
 ### The Prompt Template is the only place generation happens
 
 The only `GenAiPromptTemplate` used by the Agentforce agent itself is `NM_Translate_Skills_Template`. It lives **inside** the autolaunched Flow `NM_GetCluster_Flow`. The Flow calls the template; the template generates the civilian-language restatement of the veteran's skills.
@@ -71,6 +73,8 @@ The only `GenAiPromptTemplate` used by the Agentforce agent itself is `NM_Transl
 No other action, topic instruction, or Apex class generates LLM output for the agent's conversational surface. Structured data output — job matches, mentor suggestions, conversation logs — comes from Apex, not generation.
 
 **Do not add a second Prompt Template to the agent flow.** Do not add a `GenAiFunction` with `invocationTargetType = generatePromptResponse` for any other purpose. If a new generation requirement arises, revise this file first and get approval before building.
+
+> **OVERRIDE (2026-09-01, approved) — NMDH-21.** One additional `GenAiPromptTemplate` — `NM_Job_Matches_Template` — is now approved specifically for the job-matching retriever path. It grounds its output on retriever results (Data Cloud job catalog), not free generation, and is bound to the `NM_Job_Matching` subagent in AgentScript. It must follow every v67 GenAiPromptTemplate rule in this file (both `activeVersionIdentifier` + `versionIdentifier` present and identical; `primaryModel` required; `status` Published; the hash is **retrieved from the org, never fabricated**) and every universal guardrail (never score/rank/reject the veteran; never fabricate job titles, salaries, or mentor names). No other new template or `generatePromptResponse` function is authorized by this override.
 
 (`NM_QA_Evaluator_Template` is a separate, back-office evaluation template used by the `NM_QAEvaluator` Queueable for quality assurance. It is not part of the agent's conversational flow.)
 
