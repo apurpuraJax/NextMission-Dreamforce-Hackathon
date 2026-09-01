@@ -842,6 +842,35 @@ times, the same skills framing restated four times, and a valid Navy rating
 rejected. Add a scenario for every reported defect. A defect that is not in this
 file will come back.
 
+### Three separate "deployed is not live" traps. All bit us in one day.
+
+Each of these reports success while the thing you changed is still not what
+users get. Assume nothing is live until the specific second step has run.
+
+| Change | Deploy step | The step that actually makes it live |
+| --- | --- | --- |
+| Agent Script | `sf agent publish authoring-bundle` | `sf agent activate --api-name <n> --version <N>` |
+| LWC on the site | `sf project deploy start` | `sf community publish --name "Next Mission"` |
+| Site pages | `sf project deploy start` (bundle) | `sf community publish --name "Next Mission"` |
+
+**Deploying an LWC does not update the site.** The component is updated in the
+org, but the Experience site keeps serving its last published build. A user
+hard-refreshing will still see the old component and will reasonably conclude
+you never made the change. This wasted a round trip: the restart button was
+correctly deployed and confirmed present in the org's own copy of the bundle,
+and still was not on the page, because the site had not been republished.
+
+**After ANY widget change:**
+
+```
+sf project deploy start --metadata LightningComponentBundle:nmChatWidget --target-org <org>
+sf community publish --name "Next Mission" --target-org <org>
+```
+
+Publishing is asynchronous. Give it a minute, then verify the home page returns
+200 **and** a guest conversation still completes. A successful publish call is
+not evidence the site works.
+
 ---
 
 ## Accessibility Standards
