@@ -909,6 +909,35 @@ run of the suite and was then reported from real use within the hour.
 `scripts/scenarios.py` takes `repeat=N`; use it for anything the model could get
 right by luck. A single green run proves very little.
 
+### Test whether the answer is RIGHT, not whether it is well formed
+
+Every sweep before this one passed while a helicopter mechanic was offered
+Construction Project Manager, Heavy Equipment Operator and Estimator. The
+checks were all about mechanics: no repetition, no banned words, no API errors.
+Nothing verified the answer was correct, so a confident wrong answer sailed
+through, and that is the one a veteran would actually act on.
+
+`scripts/broad_run.py` now carries relevance assertions per scenario:
+`relevant(...)` requires the right vocabulary to appear, `never(...)` fails the
+whole conversation if a wrong career field appears at all.
+
+**Prove a new assertion can fail.** Feed it the real bad transcript and confirm
+it returns False, then feed it a correct one. An assertion that passes on both
+is decoration.
+
+### Two describe-path bugs worth remembering
+
+* **Re-classification overwrites a correct cluster.** "I fixed helicopters"
+  classifies as Aviation, then "i was a master sergeant" on the next turn could
+  reclassify to Engineering and silently move the veteran into the wrong career
+  field. `classify_cluster` is now `available when @variables.clusterKey is
+  None`, so a follow-up detail cannot change what they are.
+* **`userDescription` was never set by any action** yet was bound as
+  `with userPrompt=@variables.userDescription`, so the skills translation
+  received NULL and lost the veteran's own words. Binding an input to a
+  variable nothing writes is a recurring failure in this file. Before adding
+  `with x=@variables.y`, confirm something actually sets `y`.
+
 ---
 
 ## Accessibility Standards

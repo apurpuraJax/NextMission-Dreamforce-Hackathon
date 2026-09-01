@@ -159,6 +159,7 @@ subagent NM_Describe_Background:
               Short sentences.
         actions:
             classify_cluster: @actions.classify_cluster
+                available when @variables.clusterKey is None
                 set @variables.clusterKey=@outputs.clusterKey
                 description: "Classify a plain-language description of military work into one of the nine clusters."
             go_to_skills_translation: @utils.transition to @subagent.NM_Skills_Translation
@@ -217,8 +218,7 @@ subagent NM_Skills_Translation:
             get_cluster_data: @actions.get_cluster_data
                 available when @variables.occupations is None
                 with clusterKey=@variables.clusterKey
-                with userPrompt=@variables.userDescription
-                description: "Retrieve cluster civilian skills summary and job framing. Returns found, translatedSkills, message."
+                description: "Retrieve cluster civilian skills summary and job framing. Pass userPrompt yourself, using the veteran's own words about what they did. Do not leave it blank. Returns found, translatedSkills, message."
             go_to_job_matching: @utils.transition to @subagent.NM_Job_Matching
                 description: "Transition to job matching after presenting skills translation."
 

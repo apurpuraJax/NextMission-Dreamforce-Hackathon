@@ -27,6 +27,34 @@ def converse(turns):
             out.append("ERROR " + str(e)[:120])
     return out
 
+# ---- RELEVANCE ---------------------------------------------------------------
+# The check that was missing. Every earlier sweep passed while a helicopter
+# mechanic was offered Construction Project Manager and Heavy Equipment
+# Operator, because nothing verified the answer was CORRECT, only that it was
+# well-formed and non-repetitive. A confident wrong answer is worse than an
+# unhelpful one, and it is exactly what a veteran would act on.
+
+def relevant(*words):
+    """At least one of these must appear somewhere in the conversation."""
+    def f(replies):
+        blob = " ".join(replies).lower()
+        return any(w in blob for w in words)
+    return f
+
+def never(*words):
+    """None of these may appear. Used to catch a whole wrong career field."""
+    def f(replies):
+        blob = " ".join(replies).lower()
+        return not any(w in blob for w in words)
+    return f
+
+WRONG_FIELD = {
+  "aviation":    ["construction project manager", "heavy equipment operator", "estimator"],
+  "medical":     ["construction project manager", "heavy equipment operator", "truck driver"],
+  "it":          ["construction project manager", "heavy equipment operator", "paramedic"],
+  "driving":     ["paramedic", "air traffic controller", "avionics"],
+}
+
 # ---- universal rules, applied to EVERY conversation -------------------------
 BANNED = ["hero", "thank you for your service", "sacrifice", "warrior",
           "leverage", "synergy", "best in class", "unlock"]
@@ -50,18 +78,28 @@ def universal(turns, replies):
     return p
 
 SCENARIOS = [
- ("Army medic",            ["Army 68W", "show me the roles", "connect me with a mentor"], []),
- ("Army truck driver",     ["Army 88M", "how do my skills translate", "what jobs fit"], []),
+ ("Army medic",            ["Army 68W", "show me the roles", "connect me with a mentor"],
+                           [("offers medical roles", relevant("paramedic","emergency medical","medical")),
+                            ("not a wrong career field", never(*WRONG_FIELD["medical"]))]),
+ ("Army truck driver",     ["Army 88M", "how do my skills translate", "what jobs fit"],
+                           [("offers driving roles", relevant("truck driver","tractor-trailer","driver")),
+                            ("not a wrong career field", never(*WRONG_FIELD["driving"]))]),
  ("Army skill-level code", ["Army 68W10", "show me the roles"], [("resolves the base MOS", lambda r: "medic" in r[0].lower() or "paramedic" in r[1].lower())]),
- ("Navy rating w/ paygrade",["Navy IT2", "show me the roles"], [("names the rating", lambda r: "information systems technician" in r[0].lower())]),
+ ("Navy rating w/ paygrade",["Navy IT2", "show me the roles"],
+                           [("names the rating", lambda r: "information systems technician" in r[0].lower()),
+                            ("offers IT roles", relevant("network","computer","systems administrator","information")),
+                            ("NOT construction", never(*WRONG_FIELD["it"]))]),
  ("Navy NEC",              ["Navy V25C", "what jobs fit"], [("does not reject a valid NEC", lambda r: "do not have" not in r[0].lower())]),
  ("Air Force AFSC",        ["Air Force 2A552E", "show me the roles"], [("resolves full AFSC", lambda r: "do not have" not in r[0].lower())]),
  ("Marine Corps",          ["Marine Corps 0311", "what civilian jobs fit"], []),
  ("Coast Guard",           ["Coast Guard BM2", "show me roles"], []),
  ("Space Force",           ["Space Force 5C0X1", "what jobs fit"], []),
  ("Military spouse",       ["I'm a military spouse looking for work", "I moved a lot and did admin work"], [("does not treat them as a veteran with a code", lambda r: "mos" not in r[0].lower() or "spouse" in r[0].lower())]),
- ("No code, describes",    ["i fixed helicopters in the marines", "what jobs fit"], []),
- ("Ship engines",          ["i fixed ship engines in the navy", "how do my skills translate", "what jobs fit"], []),
+ ("No code, describes",    ["i fixed helicopters in the marines", "what jobs fit"],
+                           [("offers aviation roles", relevant("aircraft","aviation","avionics","a&p")),
+                            ("NOT construction", never(*WRONG_FIELD["aviation"]))]),
+ ("Ship engines",          ["i fixed ship engines in the navy", "how do my skills translate", "what jobs fit"],
+                           [("offers mechanical or marine roles", relevant("mechanic","engine","marine","machinist","maintenance","technician"))]),
  ("Unknown code",          ["Army 99Z9", "i ran a supply warehouse", "what jobs fit"],
                            [("does not imply they mistyped", lambda r: not re.search(r"invalid|incorrect|mistake|wrong", r[0].lower()))]),
  ("Salary question",       ["Army 68W", "what does that pay?"],
@@ -84,6 +122,15 @@ SCENARIOS = [
  ("Asks for mentor first", ["connect me with a mentor", "Army 68W"], []),
  ("Vague opener",          ["i need help", "Army 25B", "show me the roles"], []),
  ("Changes code midway",   ["Army 68W", "actually I was 88M", "show me the roles"], []),
+ ("Rank does not change the field",
+                           ["i fixed helicopters in the marines", "i was a master sergeant",
+                            "doesn't that help with leadership?", "that works"],
+                           [("still aviation after a rank is mentioned", relevant("aircraft","aviation","avionics","a&p")),
+                            ("rank did not reclassify into construction", never(*WRONG_FIELD["aviation"]))]),
+ ("Mentor after a follow-up question",
+                           ["i fixed helicopters in the marines", "what jobs fit",
+                            "connect me with a mentor", "tell me about one of those roles",
+                            "yes", "yes"], []),
 ]
 
 def run_one(item):
