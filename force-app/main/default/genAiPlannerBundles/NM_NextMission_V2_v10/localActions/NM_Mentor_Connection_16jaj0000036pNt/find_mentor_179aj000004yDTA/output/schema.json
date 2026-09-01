@@ -1,0 +1,62 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "found" : {
+      "title" : "Found",
+      "description" : "Found",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "mentorBio" : {
+      "title" : "Mentor Bio",
+      "description" : "Mentor Bio",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "mentorCivilianRole" : {
+      "title" : "Mentor Civilian Role",
+      "description" : "Mentor Civilian Role",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "mentorEmployer" : {
+      "title" : "Mentor Employer",
+      "description" : "Mentor Employer",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "mentorId" : {
+      "title" : "Mentor Id",
+      "description" : "Mentor Id",
+      "lightning:type" : "lightning__recordIdType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "mentorName" : {
+      "title" : "Mentor Name",
+      "description" : "Mentor Name",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "message" : {
+      "title" : "Message",
+      "description" : "Message",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

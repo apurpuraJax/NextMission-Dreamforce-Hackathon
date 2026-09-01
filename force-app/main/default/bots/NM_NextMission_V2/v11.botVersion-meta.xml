@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v11</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Hi, I&apos;m NextMission. I help veterans connect their military experience to civilian careers. What&apos;s your branch and specialty code, MOS, AFSC, Rating, or NEC? Or just describe what you did and I&apos;ll work from there.</message>
+                <messageIdentifier>3533ac59-4613-4e9c-873f-c0438d3d7077</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>64f876fa-c3f5-4ab9-9fdf-0395ee5c7763</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>dbc3a2b8-dbbb-4828-8ecb-85e66e012a86</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Something went wrong on my end. Let&apos;s try again, what were you working on?</message>
+                <messageIdentifier>09cad77d-0586-42dc-b52c-3b746cb51112</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>12a8c59d-11de-45da-8e7a-e42983921e36</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>667dc7f7-b412-462e-9221-39a8029140f1</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Rich_Content_Error_Handling</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>929bbd93-a4c4-4a1b-8d68-375c479a29fd</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Transfer_To_Agent</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Transfer To Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationDefinitionPlanners>
+        <genAiPlannerName>NM_NextMission_V2_v11</genAiPlannerName>
+    </conversationDefinitionPlanners>
+    <conversationSystemDialogs>
+        <dialog>Rich_Content_Error_Handling</dialog>
+        <type>ErrorHandling</type>
+    </conversationSystemDialogs>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The veteran&apos;s own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data.</description>
+        <developerName>userDescription</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>User Description</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor.</description>
+        <developerName>branch</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Branch</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Civilian role title returned by look_up_military_code for code-based lookups (Path A). Null if Path B classification was used.</description>
+        <developerName>roleTitle</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Role Title</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The NM_Specialty_Cluster__mdt Cluster_Key__c for this veteran. Set by NM_Greeting_And_Background via look_up_military_code (Path A) or classify_cluster (Path B). Required by get_cluster_data, get_job_matches, find_mentor.</description>
+        <developerName>clusterKey</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Cluster Key</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The next topic to be visited</description>
+        <developerName>AgentScriptInternal_next_topic</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Next Topic</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The agent instructions</description>
+        <developerName>AgentScriptInternal_agent_instructions</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Agent Instructions</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <defaultStdObjForContactIdFltrEnabled>false</defaultStdObjForContactIdFltrEnabled>
+    <entryDialog>Welcome</entryDialog>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <isScriptCompatibleAgent>true</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <stopRecPrompts>false</stopRecPrompts>
+    <stopWelcomePrompts>false</stopWelcomePrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
+</BotVersion>

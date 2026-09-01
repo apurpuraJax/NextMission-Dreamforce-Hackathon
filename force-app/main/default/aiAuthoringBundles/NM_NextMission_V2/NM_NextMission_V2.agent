@@ -32,7 +32,7 @@ variables:
     userDescription: mutable string
         description: "The veteran's own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data."
     mentorId: mutable string
-        description: "Record Id of the mentor returned by find_mentor. Required by request_mentor_intro. Never surfaced to the veteran."
+        description: "Record Id of the mentor returned by find_mentor, as a string. Passed to request_mentor_intro. Never surfaced to the veteran."
     branch: mutable string
         description: "Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor."
 
@@ -182,17 +182,14 @@ subagent NM_Mentor_Connection:
                 mentorCivilianRole: string
                 mentorEmployer: string
                 mentorBio: string
-                mentorId: object
-                    complex_data_type_name: "lightning__recordIdType"
+                mentorId: string
                 message: string
             target: "apex://NM_FindMentorAction"
         request_mentor_intro:
             description: "Send an introduction request to a mentor on the veteran's behalf."
             inputs:
-                mentorId: object
-                    complex_data_type_name: "lightning__recordIdType"
+                mentorId: string
                 requesterEmail: string
-                conversationKey: string
             outputs:
                 success: boolean
                 message: string
@@ -210,11 +207,12 @@ subagent NM_Mentor_Connection:
               Wait for the veteran's answer. Do not call request_mentor_intro until they say yes.
 
               Step 3, Send, only on an explicit yes.
-              3a. Ask for their email address and STOP. Say something like "What email address should I use for the introduction?" Wait for them to reply with it. Do not continue until you have an actual email address from them.
-              3b. Once you have the email address, call request_mentor_intro with it.
-              3c. Only after request_mentor_intro returns success, tell them the request has been sent and the mentor will reach out by email.
+              3a. Ask for their email address and STOP. Wait for them to reply with an actual address.
+              3b. As soon as you have it, you MUST call request_mentor_intro. Pass mentorId and requesterEmail. This is the only thing that actually creates the introduction. Talking about it does nothing.
+              3c. If it returns success=true, tell them the request has been sent.
+              3d. If it returns success=false, tell them plainly it did not go through and say what the message was. Do not retry silently.
 
-              CRITICAL, DO NOT FABRICATE THE OUTCOME: never say "I'll get you connected", "I'm making the introduction", "I'll pass your details along", or anything implying an introduction is underway, unless request_mentor_intro has actually run and returned success. Saying it without calling the action is a false promise to someone who is counting on it. If you do not have an email address yet, the only correct next step is to ask for one.
+              THE INTRODUCTION DOES NOT EXIST UNTIL request_mentor_intro RUNS AND RETURNS SUCCESS. Never say it "will be sent", is "queued", is "on its way", or that their details "will be included". Those are all false unless the action returned success. If you have their email and have not called the action yet, call it now.
 
               If the veteran says no or is undecided: acknowledge it simply, leave the door open. Do not call request_mentor_intro.
               If find_mentor returns no match: say so plainly. Offer to follow up when a mentor in their cluster becomes available.
