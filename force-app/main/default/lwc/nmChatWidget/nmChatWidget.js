@@ -122,8 +122,10 @@ export default class NmChatWidget extends LightningElement {
     _messageCount = 0;
     _mentorReq = false;
     _mentorMatched = false;
+    _introSent = false;
     _sourceUrl = '';
     _shouldFocus = false;
+    _shouldScroll = false;
 
     // ── Getters ─────────────────────────────────────────────────────────────
 
@@ -149,7 +151,7 @@ export default class NmChatWidget extends LightningElement {
     get steps() {
         return STEP_DEFS.map((s, i) => {
             const done    = i < this._stage;
-            const current = i === this._stage;
+            const current = i === this._stage;   // false for every step once complete
             return {
                 key: s.key,
                 label: s.label,
@@ -171,14 +173,36 @@ export default class NmChatWidget extends LightningElement {
         const key = sessionStorage.getItem(SK_SESSION_KEY);
         if (id && key) { this._sessionId = id; this._sessionKey = key; }
         else { this._startNewSession(); }
+        this._shouldFocus = true;
+        this._shouldScroll = true;
     }
 
     renderedCallback() {
+        // Scroll HERE, not from the handler. LWC renders asynchronously, so
+        // calling scrollTop right after setting state scrolled the OLD height
+        // and left the newest reply below the fold, which meant scrolling by
+        // hand after every single turn.
+        if (this._shouldScroll) {
+            this._shouldScroll = false;
+            const list = this.refs && this.refs.messageList;
+            if (list) { list.scrollTop = list.scrollHeight; }
+        }
         if (this._shouldFocus) {
             this._shouldFocus = false;
             const el = this.refs && this.refs.input;
             if (el) { el.focus(); }
         }
+    }
+
+    /**
+     * Only auto-scroll when the reader is already at the bottom. If they have
+     * scrolled up to re-read something, yanking them back down mid-sentence is
+     * worse than the problem it solves.
+     */
+    _isNearBottom() {
+        const el = this.refs && this.refs.messageList;
+        if (!el) { return true; }
+        return (el.scrollHeight - el.scrollTop - el.clientHeight) < 120;
     }
 
     disconnectedCallback() {
@@ -192,6 +216,7 @@ export default class NmChatWidget extends LightningElement {
 
     handleKeydown(evt) {
         if (evt.key === 'Enter' && !this.isSendDisabled) { this.handleSend(); }
+        if (evt.key === 'Escape' && this.inputText) { this.inputText = ''; }
     }
 
     handleStarter(evt) {
@@ -222,6 +247,7 @@ export default class NmChatWidget extends LightningElement {
         this._messageCount = 0;
         this._mentorReq    = false;
         this._mentorMatched= false;
+        this._introSent    = false;
         this._sessionId    = null;
         this._sessionKey   = null;
 
@@ -247,8 +273,10 @@ export default class NmChatWidget extends LightningElement {
         this._suggestions = null;
         this._messageCount++;
 
+        const wasAtBottom = this._isNearBottom();
         this._appendMessage(text, 'user');
         this._extractConversationData(text);
+        // Sending is an explicit act, so always follow the reader down.
         this._scrollToBottom();
 
         let agentReply = null;
@@ -272,7 +300,7 @@ export default class NmChatWidget extends LightningElement {
             this._appendTranscript(text, agentReply);
             this._logTurn();
         }
-        this._scrollToBottom();
+        if (wasAtBottom) { this._scrollToBottom(); }
     }
 
     // ── Rendering helpers ───────────────────────────────────────────────────
@@ -422,6 +450,9 @@ export default class NmChatWidget extends LightningElement {
         if (!this._mentorMatched && (t.includes('introduction') || t.includes('connected you'))) {
             this._mentorMatched = true;
         }
+        if (/(introduction|request)[^.]*\b(has been sent|was sent|is sent|sent)\b/.test(t)) {
+            this._introSent = true;
+        }
         // Stepper advances on facts, not on prose matching. An occupation card
         // means roles were actually shown; a person card means a mentor was
         // actually named. Regex over the reply text advanced it too eagerly.
@@ -434,27 +465,32 @@ export default class NmChatWidget extends LightningElement {
      * moves forward.
      */
     _recomputeStage() {
-        const agentMsgs = this.messages.filter(m => m.senderLabel !== YOU_LABEL);
-        const blocks    = agentMsgs.reduce((acc, m) => acc.concat(m.blocks || []), []);
+        // Only agent messages that REPLY to something count. The opening
+        // greeting is long enough to look like a skills explanation, which used
+        // to tick Background and Skills before the visitor had said a word.
+        const replies = [];
+        let seenUser = false;
+        for (const m of this.messages) {
+            if (m.senderLabel === YOU_LABEL) { seenUser = true; continue; }
+            if (seenUser) { replies.push(m); }
+        }
+        const blocks = replies.reduce((acc, m) => acc.concat(m.blocks || []), []);
 
         const sawRoles  = blocks.some(b => b.isCard);
         const sawMentor = blocks.some(b => b.isPerson);
-
-        // Background is established once we know their code or the agent named
-        // their role. Skills counts only once the agent has actually explained
-        // the transfer, which is a turn with prose and no occupation cards.
-        const knowsBackground = !!this._specialtyCode || agentMsgs.length > 1;
-        const sawSkills = agentMsgs.some(m =>
-            (m.blocks || []).length > 0 &&
+        const sawSkills = replies.some(m =>
             !(m.blocks || []).some(b => b.isCard || b.isPerson) &&
             (m.blocks || []).some(b => (b.segments || []).some(sg => (sg.text || '').length > 120))
         );
 
         let stage = 0;
-        if (knowsBackground) { stage = 1; }
-        if (sawSkills)       { stage = 2; }
-        if (sawRoles)        { stage = 3; }
-        if (sawMentor)       { stage = 3; }
+        if (replies.length > 0) { stage = 1; }   // background established
+        if (sawSkills)          { stage = 2; }
+        if (sawRoles)           { stage = 3; }
+        if (sawMentor)          { stage = 3; }
+        // The journey has to be completable. Without this, Mentor stayed the
+        // current step forever, even after an introduction was confirmed.
+        if (this._introSent)    { stage = STEP_DEFS.length; }
         this._stage = Math.max(this._stage, stage);
     }
 
@@ -496,7 +532,6 @@ export default class NmChatWidget extends LightningElement {
     }
 
     _scrollToBottom() {
-        const el = this.refs && this.refs.messageList;
-        if (el) { el.scrollTop = el.scrollHeight; }
+        this._shouldScroll = true;
     }
 }

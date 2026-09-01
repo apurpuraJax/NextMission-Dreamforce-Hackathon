@@ -39,7 +39,7 @@
                         </template>
                     </span>
                     <span class="nm-step-label">{st.label}</span>
-                    <span class="slds-assistive-text">{st.statusText}</span>
+                    <span class="nm-sr-only">{st.statusText}</span>
                 </li>
             </template>
         </ol>
@@ -49,6 +49,7 @@
             role="log"
             aria-live="polite"
             aria-label={i18n.scrollRegionLabel}
+            aria-busy={isLoading}
             tabindex="0"
             lwc:ref="messageList"
         >
@@ -130,7 +131,7 @@
                         <span class="nm-dot" aria-hidden="true"></span>
                         <span class="nm-dot" aria-hidden="true"></span>
                         <span class="nm-dot" aria-hidden="true"></span>
-                        <span class="slds-assistive-text">{i18n.typingAria}</span>
+                        <span class="nm-sr-only">{i18n.typingAria}</span>
                     </div>
                 </div>
             </template>
@@ -162,13 +163,16 @@
         </template>
 
         <div class="nm-composer">
-            <label for="nm-input" class="slds-assistive-text">{i18n.inputLabel}</label>
+            <label for="nm-input" class="nm-sr-only">{i18n.inputLabel}</label>
             <input
                 id="nm-input"
                 type="text"
                 class="nm-input"
                 placeholder={i18n.inputPlaceholder}
                 aria-label={i18n.inputAriaLabel}
+                maxlength="500"
+                autocomplete="off"
+                enterkeyhint="send"
                 value={inputText}
                 onkeydown={handleKeydown}
                 oninput={handleInput}
