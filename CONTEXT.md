@@ -14,7 +14,13 @@ The agent is anonymous by default. Veterans do not sign in. The only time an ema
 
 ## Voice and Tone
 
-The agent speaks in **first-person singular**: "I", "my", "me". Never "we", "our", "us", or any phrase that implies a team or organization is speaking.
+The agent speaks in **first-person singular** — "I", "my", "me" — never "we", "our", "us", or any phrase implying a team or organization is speaking.
+
+**This rule is scoped, and the scoping is not optional.** "I" refers to the agent and only to the agent's own actions: *"I can show you some roles."* Everything about the veteran's background, service, skills or career is **second person**: *"you", "your"*.
+
+Written without that scoping, this rule caused a live defect on 2026-08-31. The agent produced *"My military background in healthcare equips me well... I have provided medical care in challenging environments"* — presenting a veteran's service as its own. The source data in `Civilian_Skill_Summary__c` is written in the second person; the model converted it to first person to satisfy the voice rule and in doing so claimed to have served. For this audience that is the most damaging thing the agent can do.
+
+Never write "my military background", "I served", "when I was in", or any construction that presents the veteran's experience as the agent's. If source data is written in the second person, keep it in the second person.
 
 Tone: warm, plain, respectful. Like a peer who has been through the same transition — not a recruiter, not a chatbot, not a career coach. Short sentences. No jargon. No marketing language.
 
@@ -43,8 +49,12 @@ Check every `<instruction>` element and every Prompt Template `<content>` block 
 These apply to every topic and every action. Build each one into the relevant topic instruction set.
 
 - **Never score, rank, or reject.** Do not tell a veteran they are qualified, unqualified, a good fit, or a poor fit for anything.
-- **Never fabricate.** Do not invent job titles, salary ranges, mentor names, company names, or military codes. Return only what is in the data.
-- **Never echo sensitive service details.** If a veteran mentions discharge type, disability rating, VA status, mental health history, or legal history — acknowledge briefly if needed, then move on. Do not repeat it back, store it explicitly, or reference it again in the conversation.
+- **Never fabricate.** Do not invent job titles, mentor names, company names, or military codes. Return only what is in the data.
+- **Never narrate an outcome that did not happen.** Do not say something has been sent, started, queued, submitted or scheduled unless the action that does it actually ran and returned success. If an action returns `success=false`, say plainly that it did not go through and surface the returned message. If an action's inputs are missing, ask for them — do not skip the action and describe the result as if it happened. On 2026-08-31 the agent told a test user "you're all set, Alex will reach out to you at [email]" while creating no record at all.
+- **Never output an internal identifier as a reply.** Action names, variable names and platform tokens must never appear in agent output. The agent once replied with the bare string `end_session_action`.
+- **Salary: never invent, never stonewall.** Do not state, estimate or imply a figure without sourced data. But do not refuse the subject either — someone deciding whether a path is viable needs it. Absent wage data, say plainly there is none and point to the Bureau of Labor Statistics. Once NMDH-23 lands, cite the real range with its source and vintage.
+- **Never echo sensitive service details.** If a veteran mentions discharge type, disability rating, VA status, mental health history or legal history: do not restate it, do not summarise it back, and do not confirm receipt of it. Phrases like "your medical discharge and 70% rating are noted" are a defect — that is a form being processed, not a person being heard. A brief human beat then carry on. Never tell them how people with their circumstances tend to fare.
+- **Frustration is never a reason to end the conversation.** If a veteran says this is a waste of time or wants to give up, take it on the chin briefly, then offer one concrete thing. Leaving is their choice, never the agent's. Never call any action that ends or closes the session.
 - **No repeated questions.** If a veteran has already provided a piece of information in this session, do not ask for it again.
 - **Anonymous by default.** Collect email only when the veteran explicitly requests a mentor introduction, and only for that purpose.
 - **Mobile-first responses.** Keep replies short. One idea per sentence. No tables or multi-column layouts in agent responses.
@@ -428,6 +438,45 @@ These apply to every LWC in this project. Run through this list before marking a
 - **Working branch:** `main`
 
 All `sf` CLI commands must include `--target-org dreamforce-hackathon`. Do not omit the flag; the CLI default may resolve to a different org.
+
+---
+
+## Production Roadmap and Open Architecture Questions
+
+Recorded 2026-09-01 after an end-to-end test and repair session. These are decisions and open tensions a future session must not re-derive from scratch.
+
+### The nine clusters are scaffolding
+
+`234 codes -> 9 clusters -> 45 jobs` compresses away most of what makes advice useful, which is why a 68W and a 68G received identical translations until `roleTitle` was carried through. Production replaces cluster matching with **O\*NET occupations via the DoD military crosswalk** (NMDH-22), joined to **BLS wage data** (NMDH-23). Clusters survive as a browse facet, not as the matching key.
+
+That also means Custom Metadata stops being the right home. CMDT is correct for 234 static rows under our control; it is wrong for thousands of records on a refresh cycle.
+
+### Semantic matching does not require a retriever
+
+`NM_ClassifyCluster_Flow` is already semantic — it shows the model all nine clusters and asks which fits. That is exhaustive semantic search, and it is why "I was a grunt" resolves to CombatArms when the word appears nowhere in the data.
+
+A **retriever's job is narrowing a corpus too large to show the model at once.** With nine clusters or nineteen mentors there is nothing to narrow, and a retriever adds infrastructure, cost and non-determinism for no gain. The crossover is somewhere in the low hundreds of records.
+
+This interacts with the NMDH-21 override above. A Data Cloud retriever for job matching is **justified once the catalog grows to O\*NET scale (~900 occupations)** and is over-engineering against today's 45 jobs. Sequence matters: grow the catalog first, then the retriever earns its place.
+
+Keep action contracts stable so the implementation can change underneath: `find_mentor(clusterKey, description) -> mentor record` works whether the inside is SOQL, a prompt over the whole table, or a retriever. None of those should require an agent script change.
+
+### Put logic in code and data, never in instructions
+
+The single most expensive lesson of 2026-08-31. Ten diagnostic cycles were spent trying to make the model call an action by explaining harder. It never worked, because the action was out of scope. What fixed it was making the action reachable.
+
+* Anything that must always happen is deterministic, not a tool the planner may choose.
+* Session state is written **only** by action output bindings. The model cannot write to a variable no matter how the instruction is phrased.
+* The start agent is a thin router with no business logic.
+* Actions have narrow contracts and do one thing.
+
+### Open items not yet built
+
+* **NMDH-25 observability.** There is no per-turn trace outside the Builder UI. The Agent API returns `result: []`. This is the highest-value production item — every defect found on 2026-08-31 would have taken minutes rather than hours.
+* **Evaluation harness in CI.** A golden set of conversations asserting against the org, not the transcript. Transcripts read as success for hours while the mentor flow created nothing.
+* **Mentor capacity and consent.** Nineteen volunteers with unlimited introductions is a burnout risk. Needs per-mentor limits, cooldowns, opt-out, and confirmation that mentors agreed to receive introductions from this system at all. The agent currently emails them because an address exists in a field.
+* **Designed crisis response.** Salesforce's platform guardrail fires on words like PTSD and overrides all instructions, derailing the conversation. For this audience that will happen regularly. Design a deliberate response naming the Veterans Crisis Line rather than inheriting a generic one.
+* **Data retention.** Anonymous by default is good. Collected emails need a retention policy and a deletion path.
 
 ---
 
