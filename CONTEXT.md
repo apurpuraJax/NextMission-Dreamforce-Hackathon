@@ -499,6 +499,67 @@ A related red herring: the live LWR home page HTML contains no component
 references. LWR is a single page app and renders client side, so component
 markup never appears in the initial HTML. Its absence proves nothing.
 
+### Publishing an agent does NOT activate it
+
+`sf agent publish authoring-bundle` creates a **new version** and leaves the
+previously activated version serving traffic. Publish reports
+`published successfully` either way, so nothing in its output tells you the
+org is still running old instructions.
+
+**Every publish must be followed by an activate:**
+
+```
+sf agent publish authoring-bundle --api-name NM_NextMission_V2 --target-org <org>
+V=$(ls force-app/main/default/bots/NM_NextMission_V2/ \
+     | grep -o 'v[0-9]*' | sort -t v -k2 -n | tail -1 | tr -d 'v')
+sf agent activate --api-name NM_NextMission_V2 --version $V --target-org <org>
+```
+
+Activate prints `NM_NextMission_V2 v43 activated.` That line, and only that
+line, means your edits are live. `sf agent activate` without `--version`
+prompts interactively for a choice and will hang in a non-interactive shell,
+producing an empty log that looks like a timeout.
+
+Publish also writes the new `vNN.botVersion-meta.xml` into
+`force-app/main/default/bots/`, which is how you read the version number back.
+
+**This cost most of a day.** Six consecutive edits were published, tested, and
+judged to have "no effect", producing a series of wrong conclusions about
+variable persistence, conditional evaluation and same-turn transitions. All of
+them were wrong. The org was serving v35 throughout while v36 to v41 sat
+published and inactive.
+
+**Verify with a marker, not by reading the reply.** Put a nonsense token in
+the instruction under test (`Begin your reply with the exact word ZULU`),
+publish, activate, and check whether the token comes back. A behavioural read
+of a reply cannot distinguish "the model ignored my instruction" from "the
+model never received my instruction". A marker can, in one turn. Both failure
+modes look identical otherwise, and they have opposite fixes.
+
+### Every variable a router branches on must be set on EVERY path
+
+`clusterKey` was written only by `classify_cluster`, on the free-text describe
+path. The code path writes `occupations` and `roleTitle` and never touches it.
+The router's entire routing block sat behind `if @variables.clusterKey is not
+None:`, so for any veteran who typed a specialty code that block never
+executed. `go_to_jobs` and `go_to_mentor` were unreachable, and the agent
+could only ever re-ask about their background. It looped for four turns.
+
+The router now tests `clusterKey is not None or roleTitle is not None`, which
+covers both paths. `or` and `and` both compile in Agent Script conditionals.
+
+**When adding a second path that establishes the same state, re-check every
+condition that tests for that state.** A new path that sets different
+variables silently disables every branch keyed on the old ones.
+
+### One payload, one presenter
+
+After the O*NET cutover both `NM_Skills_Translation` and `NM_Job_Matching`
+rendered `{!@variables.occupations}`, so consecutive turns said the same
+thing. Skills now presents transferable skills and is explicitly forbidden
+from naming a civilian job title; Job Matching names the roles. Two subagents
+rendering one variable is a design smell, not a prompt problem.
+
 ---
 
 ## Accessibility Standards
