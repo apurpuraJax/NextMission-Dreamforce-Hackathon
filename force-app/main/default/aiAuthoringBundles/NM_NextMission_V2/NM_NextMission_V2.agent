@@ -40,7 +40,35 @@ variables:
     branch: mutable string
         description: "Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor."
 
-start_agent NM_Greeting_And_Background:
+start_agent NM_Router:
+    label: "Router"
+    description: "Entry point for every turn. Decides which subagent handles this utterance. Does no work itself."
+
+    reasoning:
+        instructions: ->
+            if @variables.mentorId is not None and @variables.introSent is None:
+                | A mentor introduction is already in progress for this veteran. Call go_to_mentor immediately and say nothing else.
+
+            if @variables.clusterKey is None:
+                | This veteran's background is not established yet. Call go_to_greeting immediately and say nothing else.
+
+            | Your only job is to choose the right subagent for what the veteran just said. Do not answer them, do not greet them, do not ask questions, do not repeat anything back. Transition and nothing else.
+              If they ask to talk to a mentor, to a person, or to someone who has been through it: go_to_mentor.
+              If they ask about jobs, roles, what work fits them, or a specific job title: go_to_jobs.
+              If they ask how their experience translates, what their skills mean, or add detail about what they did: go_to_skills.
+              If they give a new specialty code or a different military background: go_to_greeting.
+              If it is unclear, choose go_to_skills.
+        actions:
+            go_to_greeting: @utils.transition to @subagent.NM_Greeting_And_Background
+                description: "Establish the veteran's background and skill cluster. Use when the cluster is not known yet, or when they supply a new code or background."
+            go_to_skills: @utils.transition to @subagent.NM_Skills_Translation
+                description: "Explain how the veteran's military background translates to civilian skills."
+            go_to_jobs: @utils.transition to @subagent.NM_Job_Matching
+                description: "Show civilian job roles that match the veteran's cluster."
+            go_to_mentor: @utils.transition to @subagent.NM_Mentor_Connection
+                description: "Find a mentor and handle the introduction. Use for any mention of mentors, or any reply while an introduction is in progress."
+
+subagent NM_Greeting_And_Background:
     label: "Greeting and Background"
     description: "Welcome the veteran, collect their military code or background description, identify their cluster, then transition to skills translation."
 
@@ -69,8 +97,6 @@ start_agent NM_Greeting_And_Background:
 
     reasoning:
         instructions: ->
-            if @variables.mentorId is not None and @variables.introSent is None:
-                | A mentor introduction is already in progress for this veteran. Whatever they have just said, including an email address, a yes, a no, a question, or anything else, your ONLY valid move is to call go_to_mentor_connection immediately. Do not greet them, do not ask for their code, do not answer, do not confirm anything. Transition now.
 
             | Welcome the veteran. Ask for their military branch and specialty code, MOS, AFSC, Rating, or NEC.
               If they don't have a code or prefer to describe their role, ask them to describe what they did in plain terms: what they worked on, what environment, what skills they used most.

@@ -279,6 +279,39 @@ Orchestrate can author the `.agent` file, deploy the bundle, and build every sup
 
 2. **Commit Version button** in Setup → Agentforce Builder. The bundle appears there once deployed as metadata, and this button is the point-and-click equivalent of publish. Requires no CLI or scopes.
 
+#### Architecture: the start agent MUST be a thin router
+
+**Every conversation turn re-enters `start_agent`.** Salesforce documents this plainly: *"All requests, including the first request, begin at the agent router, the start_agent block. With every customer utterance, the agent begins execution at this block."* Transitions are one way and do not persist — after each turn control returns to `start_agent`, and re-entering a subagent starts it from the beginning.
+
+**State lives in variables, and variables are written only by action output bindings** (`set @variables.x=@outputs.y`). The model cannot write to a variable no matter how the instructions are phrased. Any routing decision that has to survive a turn must be driven off a variable that some action populated.
+
+This was originally built with `NM_Greeting_And_Background` as the start agent, which meant every turn re-entered the greeting subagent and tried to greet, ask for a specialty code, and answer from a subagent that had no relevant actions in scope. Symptoms this produced, all of which took a long time to diagnose:
+
+* The agent re-greeted mid-conversation and asked for a code it had already been given.
+* Mentor introductions never fired. At the moment the veteran consented, control was back in Greeting, where `request_mentor_intro` is not in scope. Unable to call it, the model narrated a confirmation instead and no record was ever created.
+* The agent invented mentors, because Greeting has no mentor data. Builder Preview flagged those turns `UNGROUNDED`.
+* Follow-up questions drifted off the grounding data into general model knowledge.
+
+**The correct structure**, which is what the platform's own generated boilerplate produces:
+
+```
+start_agent NM_Router:
+    reasoning:
+        instructions: ->
+            if @variables.mentorId is not None and @variables.introSent is None:
+                | An introduction is in progress. Call go_to_mentor immediately, say nothing else.
+            if @variables.clusterKey is None:
+                | Background not established. Call go_to_greeting immediately, say nothing else.
+            | Choose the right subagent for what they just said. Do not answer them yourself.
+        actions:
+            go_to_greeting: @utils.transition to @subagent.NM_Greeting_And_Background
+            ...
+```
+
+The router does no work. Deterministic guards on variables come first, intent classification second, and every real subagent sits below it. Do not put business logic, greetings, or data actions in the start agent.
+
+**Diagnosing this class of bug:** the Agent API returns `result: []` and exposes no action invocations. Only **Agentforce Builder Preview** shows the trace — `Reasoning: <subagent>`, `Transition to Subagent`, `Action: <name>`, and a GROUNDED/UNGROUNDED verdict per turn. If an action is not firing, get a Preview trace before changing anything; it tells you which subagent the agent was actually standing in.
+
 #### Agent Script syntax rules learned the hard way
 
 Every one of these cost a failed publish cycle. The compiler reports **one error at a time** and stops.
