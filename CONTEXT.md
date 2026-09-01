@@ -283,6 +283,20 @@ Orchestrate can author the `.agent` file, deploy the bundle, and build every sup
 
 2. **Commit Version button** in Setup → Agentforce Builder. The bundle appears there once deployed as metadata, and this button is the point-and-click equivalent of publish. Requires no CLI or scopes.
 
+#### Military code coverage: the table is a fast path, not the source of truth
+
+`NM_Military_Code__mdt` holds 234 codes: Air Force 58, Navy 55, Army 53, Marine Corps 44, Coast Guard 24. The real world is far larger — roughly 190 Army MOSs, 350 Marine Corps MOSs, 200 Air Force AFSCs, and several thousand Navy NECs. **Most veterans who type a perfectly valid code will not be in this table.** Do not treat a lookup miss as user error, and do not try to close the gap by growing the table to thousands of rows.
+
+Measured behaviour, tested against the live org:
+
+* **Free-text descriptions classify well.** 10 of 12 realistic descriptions resolved correctly, including slang the data does not contain — "I was a grunt" to CombatArms, "I was a POG in supply" to Logistics. The model's own military vocabulary carries this, not our corpus.
+* **Bare codes classify badly.** Only 4 of 10 resolved, and it failed even on codes that ARE in the table, because `NM_ClassifyCluster_Flow` only ever sees nine cluster keys and labels. `0621` is an opaque token with no semantic content.
+* **Expanding the code first fixes it completely.** All 5 codes that failed as bare tokens resolved correctly once turned into role language first: 2T2X1 to Logistics, 6115 to Aviation, AWS to Aviation, 3F5X1 to FinanceAdmin, 0621 to Communications_IT.
+
+**So the flow is: exact match first, expansion second, ask third.** On a lookup miss the agent expands the code itself into a plain-language role description, then calls `classify_cluster` with that expansion. Only when it genuinely does not know the code does it ask the veteran what they did, and it says so without implying they made a mistake. `notFoundMessage` is deliberately not surfaced.
+
+This also absorbs input variants that the exact match cannot handle. `Marines, 0311` and `Army, 68W10` both failed the Apex lookup (branch synonym and skill-level suffix) and both now resolve correctly, because the model normalises before the exact match and expands after a miss. Do not build a branch-synonym list or progressive prefix truncation in Apex — prefix truncation in particular can return a *different* valid code's cluster and produce a confident wrong answer.
+
 #### Architecture: the start agent MUST be a thin router
 
 **Every conversation turn re-enters `start_agent`.** Salesforce documents this plainly: *"All requests, including the first request, begin at the agent router, the start_agent block. With every customer utterance, the agent begins execution at this block."* Transitions are one way and do not persist — after each turn control returns to `start_agent`, and re-entering a subagent starts it from the beginning.
