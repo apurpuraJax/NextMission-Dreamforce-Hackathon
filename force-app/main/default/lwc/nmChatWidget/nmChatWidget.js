@@ -194,7 +194,7 @@ export default class NmChatWidget extends LightningElement {
         if (text) { this.inputText = text; this.handleSend(); }
     }
 
-    handleUpload() { /* NMDH-30, wired once extraction is proven */ }
+    handleUpload() { /* NMDH-31, wired once extraction is proven */ }
 
     async handleSend() {
         const text = this.inputText.trim();
