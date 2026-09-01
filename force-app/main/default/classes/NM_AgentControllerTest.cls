@@ -7,6 +7,12 @@ History
 -------
 VERSION  AUTHOR          DATE        DETAIL
 1.0      Orchestrate     2026-08-31  NMDH-16 initial test coverage
+2.0      Orchestrate     2026-08-31  NMDH-15/S14 — align mocks + assertions to
+                                     the ai-agent/v1 shapes: session response now
+                                     returns "sessionId"; extractReplyText
+                                     concatenates every chunk's text; chunkText
+                                     tolerates nested-Map, String-message, and
+                                     top-level-text shapes.
 *****************************************************************/
 @isTest
 private class NM_AgentControllerTest {
@@ -31,8 +37,10 @@ private class NM_AgentControllerTest {
                     'isLastMessage' => true
                 }));
             } else {
+                // ai-agent/v1 session creation returns "sessionId" (NMDH-16 used the
+                // older Copilot "clientSessionId"; NMDH-15/S14 repoints to ai-agent/v1).
                 resp.setBody(JSON.serialize(new Map<String, Object>{
-                    'clientSessionId' => 'test-session-id-12345'
+                    'sessionId' => 'test-session-id-12345'
                 }));
             }
             return resp;
@@ -194,22 +202,72 @@ private class NM_AgentControllerTest {
     @isTest
     static void testExtractReplyTextEmpty() {
         Map<String, Object> parsed = new Map<String, Object>{'messages' => new List<Object>()};
-        String result = NM_AgentController.extractReplyText(parsed);
-        System.assertEquals('', result, 'Empty messages should return empty string');
+        System.assertEquals('', NM_AgentController.extractReplyText(parsed),
+            'Empty messages should return empty string');
+        System.assertEquals('', NM_AgentController.extractReplyText(new Map<String, Object>()),
+            'Missing messages key should return empty string');
     }
 
     @isTest
-    static void testExtractReplyTextNonInform() {
+    static void testExtractReplyTextConcatenatesChunks() {
+        // ai-agent/v1 may split one reply across several chunks; extractReplyText
+        // concatenates every chunk's text so the collated reply comes through whole.
         Map<String, Object> parsed = new Map<String, Object>{
             'messages' => new List<Object>{
                 new Map<String, Object>{
-                    'type' => 'EndOfConversation',
-                    'message' => new Map<String, Object>{'type'=>'Text','text'=>'ignored'}
+                    'type' => 'Inform',
+                    'message' => new Map<String, Object>{'type'=>'Text','text'=>'Hello '}
+                },
+                new Map<String, Object>{
+                    'type' => 'Inform',
+                    'message' => new Map<String, Object>{'type'=>'Text','text'=>'there.'}
                 }
             }
         };
-        String result = NM_AgentController.extractReplyText(parsed);
-        System.assertEquals('', result, 'Non-Inform messages should return empty string');
+        System.assertEquals('Hello there.', NM_AgentController.extractReplyText(parsed),
+            'Text from every chunk should be concatenated in order');
+    }
+
+    @isTest
+    static void testExtractReplyTextSkipsTextlessControlChunks() {
+        // A control message (SessionEnded etc.) that carries no text contributes
+        // nothing; a text-bearing chunk in the same array still comes through.
+        Map<String, Object> parsed = new Map<String, Object>{
+            'messages' => new List<Object>{
+                new Map<String, Object>{ 'type' => 'SessionEnded' },
+                new Map<String, Object>{
+                    'type' => 'Inform',
+                    'message' => new Map<String, Object>{'type'=>'Text','text'=>'Done.'}
+                }
+            }
+        };
+        System.assertEquals('Done.', NM_AgentController.extractReplyText(parsed),
+            'Text-less control chunks should be skipped, text chunks retained');
+    }
+
+    @isTest
+    static void testChunkTextShapes() {
+        // Nested { message: { text } } shape.
+        System.assertEquals('nested', NM_AgentController.chunkText(new Map<String, Object>{
+            'message' => new Map<String, Object>{'text' => 'nested'}
+        }), 'Nested message.text should be extracted');
+
+        // Flat { message: "..." } String shape.
+        System.assertEquals('flat', NM_AgentController.chunkText(new Map<String, Object>{
+            'message' => 'flat'
+        }), 'String message should be extracted');
+
+        // Top-level { text: "..." } shape.
+        System.assertEquals('top', NM_AgentController.chunkText(new Map<String, Object>{
+            'text' => 'top'
+        }), 'Top-level text should be extracted');
+
+        // No text anywhere, and null → ''.
+        System.assertEquals('', NM_AgentController.chunkText(new Map<String, Object>{
+            'type' => 'SessionEnded'
+        }), 'A chunk with no text should yield empty string');
+        System.assertEquals('', NM_AgentController.chunkText(null),
+            'Null chunk should yield empty string');
     }
 
     // ── Bulk test ───────────────────────────────────────────────────────────

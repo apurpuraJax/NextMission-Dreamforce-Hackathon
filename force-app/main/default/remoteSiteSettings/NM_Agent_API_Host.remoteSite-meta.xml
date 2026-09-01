@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows Apex callouts from NM_AgentController to the Agentforce ai-agent/v1 External Client API host. Required by NMDH-15 (S14).</description>
+    <disableProtocolSecurity>false</disableProtocolSecurity>
+    <isActive>true</isActive>
+    <url>https://api.salesforce.com</url>
+</RemoteSiteSetting>
