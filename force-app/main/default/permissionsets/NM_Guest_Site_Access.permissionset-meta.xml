@@ -1,104 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>NM Guest Site Access</label>
+    <classAccesses>
+        <apexClass>NM_AgentController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>Least-privilege guest access for the Next Mission public LWR site: Read+Create on NM_Conversation__c and NM_Mentor_Introduction__c plus FLS on client-written fields only. Excludes QA/back-office fields. NM_Agent_Data_Access left untouched. Story NMDH-17.</description>
-    <hasActivationRequired>false</hasActivationRequired>
-    <objectPermissions>
-        <object>NM_Conversation__c</object>
-        <allowRead>true</allowRead>
-        <allowCreate>true</allowCreate>
-        <allowEdit>false</allowEdit>
-        <allowDelete>false</allowDelete>
-        <viewAllRecords>false</viewAllRecords>
-        <modifyAllRecords>false</modifyAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <object>NM_Mentor_Introduction__c</object>
-        <allowRead>true</allowRead>
-        <allowCreate>true</allowCreate>
-        <allowEdit>false</allowEdit>
-        <allowDelete>false</allowDelete>
-        <viewAllRecords>false</viewAllRecords>
-        <modifyAllRecords>false</modifyAllRecords>
-    </objectPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Branch__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Cluster_Key__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.External_Session_Key__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Lead_Captured__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Mentor_Matched__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Mentor_Requested__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Message_Count__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>NM_Conversation__c.Source_URL__c</field>
-        <readable>true</readable>
         <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>NM_Conversation__c.Specialty_Code__c</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>NM_Conversation__c.Started_At__c</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>NM_Conversation__c.Transcript__c</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>NM_Conversation__c.Summary__c</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
         <field>NM_Conversation__c.Sentiment__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>NM_Mentor_Introduction__c.Requester_Email__c</field>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Source_URL__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>NM_Mentor_Introduction__c.Status__c</field>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Specialty_Code__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Started_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Summary__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Conversation__c.Transcript__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Mentor_Introduction__c.Introduced_At__c</field>
         <readable>true</readable>
-        <editable>true</editable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Mentor_Introduction__c.Requester_Email__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Mentor_Introduction__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>NM Guest Site Access</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Conversation__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Mentor_Introduction__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
 </PermissionSet>
