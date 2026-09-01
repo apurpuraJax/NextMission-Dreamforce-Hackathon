@@ -5,6 +5,10 @@
 
     <!-- Apex class access — agents must reach every Apex action they invoke -->
     <classAccesses>
+        <apexClass>NM_LookupOccupationAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>NM_AgentController</apexClass>
         <enabled>true</enabled>
     </classAccesses>

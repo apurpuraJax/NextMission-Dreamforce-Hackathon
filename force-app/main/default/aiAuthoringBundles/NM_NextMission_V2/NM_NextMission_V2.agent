@@ -26,9 +26,9 @@ variables:
         source: @MessagingSession.EndUserLanguage
         description: "This variable may also be referred to as MessagingSession EndUserLanguage"
     clusterKey: mutable string
-        description: "The NM_Specialty_Cluster__mdt Cluster_Key__c for this veteran. Set by NM_Greeting_And_Background via look_up_military_code (Path A) or classify_cluster (Path B). Required by get_cluster_data, get_job_matches, find_mentor."
+        description: "One of the nine Next Mission clusters. Set by classify_cluster. Used only for mentor matching now; job and skills content comes from the O*NET occupations instead."
     roleTitle: mutable string
-        description: "Civilian role title returned by look_up_military_code for code-based lookups (Path A). Null if Path B classification was used."
+        description: "The veteran's military role title, e.g. Combat Medic Specialist, returned by look_up_occupations. Null when they described their background instead of giving a code."
     userDescription: mutable string
         description: "The veteran's own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data."
     mentorId: mutable string
@@ -37,8 +37,10 @@ variables:
         description: "Email address the veteran supplied for a mentor introduction. Set ONLY after they explicitly agree to an introduction. Its presence is the consent signal."
     introSent: mutable string
         description: "Result message from request_mentor_intro once the introduction has actually been created. Prevents sending twice."
+    occupations: mutable string
+        description: "Civilian occupations this veteran's specialty code maps to, from the O*NET military crosswalk. Set by look_up_occupations in the greeting. Each entry is Title :: Description. Present verbatim, never invent entries."
     branch: mutable string
-        description: "Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor."
+        description: "Military branch as stated by the veteran, normalised to one of the six service names."
 
 start_agent NM_Router:
     label: "Router"
@@ -50,7 +52,7 @@ start_agent NM_Router:
                 | An introduction is already in progress. Call go_to_mentor immediately and say nothing else. Ignore every other instruction below.
 
             if @variables.clusterKey is None:
-                | This veteran's background is not established yet, so no other subagent can do anything useful. Their cluster must be identified first, even if they have asked for a mentor. Call go_to_greeting immediately and say nothing else. Ignore every other instruction below.
+                | This veteran's background is not established yet. Check the history first. If a specialty code has ALREADY been tried and was not found, never send them back to code lookup, call go_to_describe no matter what they just said. Otherwise, if their message contains a specialty code or they have not been asked for one yet, call go_to_greeting. If they are describing what they did in their own words, call go_to_describe. Say nothing else and ignore every other instruction below.
 
             if @variables.clusterKey is not None:
                 | Their background is established. Choose the subagent that fits what they just said. Do not answer them, do not greet them, do not ask questions, do not repeat anything back. Transition and nothing else.
@@ -71,7 +73,9 @@ start_agent NM_Router:
 
         actions:
             go_to_greeting: @utils.transition to @subagent.NM_Greeting_And_Background
-                description: "Establish the veteran's background and skill cluster. Use when the cluster is not known yet, or when they supply a new code or background."
+                description: "Use when the veteran gives, or should be asked for, a military specialty code such as an MOS, AFSC, Rating or NEC."
+            go_to_describe: @utils.transition to @subagent.NM_Describe_Background
+                description: "Use when the veteran is describing what they did in their own words rather than giving a code."
             go_to_skills: @utils.transition to @subagent.NM_Skills_Translation
                 description: "Explain how the veteran's military background translates to civilian skills."
             go_to_jobs: @utils.transition to @subagent.NM_Job_Matching
@@ -80,22 +84,51 @@ start_agent NM_Router:
                 description: "Find a mentor and handle the introduction. Use for any mention of mentors, or any reply while an introduction is in progress."
 
 subagent NM_Greeting_And_Background:
-    label: "Greeting and Background"
-    description: "Welcome the veteran, collect their military code or background description, identify their cluster, then transition to skills translation."
+    label: "Code Lookup"
+    description: "Resolve a veteran's military specialty code to their role title and civilian occupations using the O*NET crosswalk. Handles codes only."
 
     actions:
-        look_up_military_code:
-            description: "Look up a military specialty code to find its civilian cluster mapping."
+        look_up_occupations:
+            description: "Resolve a military specialty code to the civilian occupations it maps to, using the O*NET military crosswalk."
             inputs:
                 branch: string
                 code: string
             outputs:
                 found: boolean
                 roleTitle: string
-                clusterKey: string
-                clusterLabel: string
-                notFoundMessage: string
-            target: "apex://NM_LookupMilitaryCodeAction"
+                occupations: string
+                message: string
+            target: "apex://NM_LookupOccupationAction"
+
+    reasoning:
+        instructions: ->
+            | The veteran has given, or is being asked for, a military specialty code.
+
+              If you do not yet have both a branch and a code, ask for them in one short question. MOS, AFSC, Rating or NEC.
+
+              Once you have both, you MUST call look_up_occupations. It is the only thing here that knows what a code means. Do not answer from your own knowledge of military codes, and do not guess a career area.
+
+              Normalise before calling. Branch resolves to one of Army, Navy, Air Force, Marine Corps, Coast Guard or Space Force, so Marines becomes Marine Corps and USAF becomes Air Force. Strip any skill level suffix, so 68W10 becomes 68W.
+
+              If found=true: acknowledge their role title in one sentence, then call go_to_skills_translation immediately.
+              If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive. Say plainly that you do not have that code, then call go_to_describe so they can tell you what they did instead.
+
+              Short sentences. First person only for your own actions.
+        actions:
+            look_up_occupations: @actions.look_up_occupations
+                set @variables.occupations=@outputs.occupations
+                set @variables.roleTitle=@outputs.roleTitle
+                description: "THE lookup for a specialty code. Covers 8,179 codes from the O*NET military crosswalk. Returns their exact role title and the specific civilian occupations that code maps to."
+            go_to_skills_translation: @utils.transition to @subagent.NM_Skills_Translation
+                description: "Go to skills translation once look_up_occupations has returned occupations."
+            go_to_describe: @utils.transition to @subagent.NM_Describe_Background
+                description: "Go here when the veteran has no code, or the code was not in the crosswalk."
+
+subagent NM_Describe_Background:
+    label: "Describe Background"
+    description: "Establish a veteran's skill cluster from a free-text description of what they did, when no specialty code is available."
+
+    actions:
         classify_cluster:
             description: "Classify a free-text description of military background into one of the nine Next Mission clusters."
             inputs:
@@ -108,39 +141,22 @@ subagent NM_Greeting_And_Background:
 
     reasoning:
         instructions: ->
+            | The veteran either has no specialty code or gave one we do not hold.
 
-            | Welcome the veteran. Ask for their military branch and specialty code, MOS, AFSC, Rating, or NEC.
-              If they don't have a code or prefer to describe their role, ask them to describe what they did in plain terms: what they worked on, what environment, what skills they used most.
+              Ask them once to describe what they did in plain terms: what they worked on, what environment, what skills they used most. If they have already described it, do not ask again.
 
-              PATH A, military code provided:
-              Call look_up_military_code with branch and code.
-              If found=true: store the returned clusterKey and roleTitle in session variables. Briefly acknowledge the match in one sentence, no jargon. Then call go_to_skills_translation immediately. Do not ask follow-up questions before transitioning.
-              If found=false: do NOT tell them their code is unrecognised and do NOT surface notFoundMessage. Our table holds only a fraction of real military codes, so a miss usually means we lack the row, not that they got it wrong. Never imply they made a mistake.
-              Instead, expand the code yourself into a plain-language description of that role, for example 2T2X1 becomes "Air Force air transportation specialist, loading and moving cargo and passengers on military aircraft", or 0621 becomes "Marine Corps field radio operator setting up and running tactical communications". Then call classify_cluster passing that expansion as userDescription.
-              If you genuinely do not know what the code means, say so plainly without blaming them, and ask what they actually did day to day. Then use their answer for Path B.
+              Call classify_cluster with their description. If they gave a code we could not resolve, first expand that code yourself into a plain-language description of the role and classify that instead.
 
-              PATH B, description provided or after a failed lookup:
-              Store the veteran's description in the userDescription session variable.
-              Call classify_cluster with that description as userDescription.
-              If found=true: store the returned clusterKey. Acknowledge the cluster area in one sentence. Then call go_to_skills_translation.
-              If found=false: surface narrowingQuestion verbatim. Ask once. Do not rephrase or expand on it.
-              If a second classify_cluster call also returns found=false: say "I'm not finding a close match in our cluster library right now, let me connect you with someone who can help." Then call go_to_mentor_connection.
+              If found=true: acknowledge the area in one sentence, then call go_to_skills_translation.
+              If found=false: surface narrowingQuestion verbatim, ask once, then try classify_cluster again with their answer. If it still fails, say plainly that you cannot place their background yet. Do not fabricate a cluster.
 
-              CRITICAL: Never transition without a confirmed clusterKey from a function response.
-              CRITICAL: Never invent a cluster key or fabricate a match.
               Short sentences.
         actions:
-            look_up_military_code: @actions.look_up_military_code
-                set @variables.clusterKey=@outputs.clusterKey
-                set @variables.roleTitle=@outputs.roleTitle
-                description: "Call when the veteran provides their branch and specialty code. Returns found, clusterKey, roleTitle, notFoundMessage."
             classify_cluster: @actions.classify_cluster
                 set @variables.clusterKey=@outputs.clusterKey
-                description: "Call when the veteran describes their background in their own words, or after a failed code lookup. Returns found, clusterKey, narrowingQuestion."
+                description: "Classify a plain-language description of military work into one of the nine clusters."
             go_to_skills_translation: @utils.transition to @subagent.NM_Skills_Translation
-                description: "Transition to skills translation. Call only after clusterKey is confirmed from a function response."
-            go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
-                description: "Transition to mentor connection whenever the veteran asks to talk to a mentor, asks to speak to someone who has been through it, or agrees to a mentor introduction. Also use it when two consecutive classification attempts both return found=false. Never answer a mentor request yourself, you have no mentor data in this subagent and any mentor you describe here is invented. Always transition."
+                description: "Go to skills translation once a cluster is established."
 
 subagent NM_Skills_Translation:
     label: "Skills Translation"
@@ -160,6 +176,10 @@ subagent NM_Skills_Translation:
 
     reasoning:
         instructions: ->
+            if @variables.occupations is not None:
+                | You have the specific civilian occupations for this veteran's exact specialty code, from the O*NET military crosswalk. Use these, they are far more precise than the cluster summary. Present them in the veteran's own second person, keep it to three or four sentences, and name the occupations. Do not call get_cluster_data as well, and do not invent occupations that are not in this list.
+                  {!@variables.occupations}
+
             | The veteran's clusterKey is set from NM_Greeting_And_Background.
               Call get_cluster_data with clusterKey and userDescription as userPrompt from session variables.
               If roleTitle is set, mention it as additional context in your framing.
@@ -173,6 +193,7 @@ subagent NM_Skills_Translation:
               Short sentences.
         actions:
             get_cluster_data: @actions.get_cluster_data
+                available when @variables.occupations is None
                 with clusterKey=@variables.clusterKey
                 with userPrompt=@variables.userDescription
                 description: "Retrieve cluster civilian skills summary and job framing. Returns found, translatedSkills, message."
@@ -196,7 +217,11 @@ subagent NM_Job_Matching:
 
     reasoning:
         instructions: ->
-            | Call get_job_matches using clusterKey from the session.
+            if @variables.occupations is not None:
+                | You already have this veteran's specific civilian occupations from the O*NET crosswalk. Present those rather than calling get_job_matches, they are matched to their exact code rather than to a nine-way cluster. Give the occupation names with a short plain description of each, drawn only from this list.
+                  {!@variables.occupations}
+
+            | If you do not have occupations in session, call get_job_matches using clusterKey from the session.
               Present the returned job titles and descriptions exactly, do not add, rank, or editorialize.
               Do not claim one role is better than another.
               After presenting job matches, ask if the veteran would like to connect with a mentor who made a similar transition.
@@ -207,6 +232,7 @@ subagent NM_Job_Matching:
               Short sentences.
         actions:
             get_job_matches: @actions.get_job_matches
+                available when @variables.occupations is None
                 with clusterKey=@variables.clusterKey
                 description: "Retrieve civilian job role matches for the veteran's cluster. Returns job titles and descriptions."
             go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
@@ -246,7 +272,8 @@ subagent NM_Mentor_Connection:
 
             | CONSENT IS REQUIRED before sending any introduction request.
 
-              Step 1, Find: Call find_mentor. It matches on the veteran's background across the whole active mentor roster, using their cluster only as a tie-breaker, so the mentor returned may sit in a different cluster. That is expected.
+              Step 1, Find: You MUST call find_mentor. Never describe a mentor from your own knowledge and never speak about mentors in general terms, you have no mentor data until the action returns. Pass a description built from their role title and occupations. It matches across the whole active roster using cluster only as a tie-breaker, so the mentor may sit in a different cluster. That is expected.
+              Present the specific mentor it returns, by name.
               Present the mentor's name, role, employer, and background briefly, one short paragraph.
               NEVER surface the mentor's email address.
 
@@ -270,7 +297,7 @@ subagent NM_Mentor_Connection:
         actions:
             find_mentor: @actions.find_mentor
                 set @variables.mentorId=@outputs.mentorId
-                description: "Find the best-matching mentor by semantically comparing the veteran's background against every active mentor's role and bio. Pass clusterKey from the session. For description, always pass a short summary of this veteran in their own terms, drawing on their role title, anything they have told you about what they did, and what they have said they want from a mentor. NEVER pass an empty description, a blank one returns no mentor at all. Cluster is a tie-breaker only. Returns mentor name, role, employer, bio. Never surface email."
+                description: "Find the best-matching mentor. For description, ALWAYS pass a short summary of this veteran drawing on their role title, their occupations, anything they said about what they did, and what they want from a mentor. A blank description returns no mentor at all. clusterKey is optional and often empty on the code path, pass it only if you have it, matching works without it. Returns a specific named mentor with role, employer and bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
                 set @variables.introSent=@outputs.message
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."

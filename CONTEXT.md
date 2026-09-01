@@ -65,7 +65,22 @@ These apply to every topic and every action. Build each one into the relevant to
 
 These decisions are locked. A cold build session is most likely to redo these wrong — read carefully before designing any action or topic.
 
-### Custom Metadata is the grounding layer
+### Grounding layer: O*NET occupations (CUTOVER COMPLETE 2026-09-01)
+
+**The nine-cluster model is no longer the primary path for codes, skills or jobs.** Grounding is now the O\*NET occupation data and the DoD Military Crosswalk, in two custom objects:
+
+* `NM_Military_Code_V2__c` — 8,179 active military codes with their O\*NET mappings. Air Force 3,954, Navy 2,851, Marine Corps 797, Army 435, Coast Guard 142. The count difference is DoD taxonomy, not missing data: Air Force AFSCs encode skill level in the code itself (2A512E / 2A532E / 2A552E are one job at three levels) while the Army keeps it separate. Army coverage was spot checked at 20 of 20 common MOSs.
+* `NM_Occupation__c` — 1,016 O\*NET occupations with real descriptions.
+
+`NM_LookupOccupationAction` resolves branch and code to occupations. Two SOQL queries regardless of volume.
+
+**What this fixed:** a 68W and a 68G returned word-for-word identical text, because the cluster was the only thing carried downstream. They now return Paramedics and Medical Records Specialists respectively, with real O\*NET descriptions.
+
+Reload with `scripts/data/build_onet_load_files.py` against the published O\*NET release, then bulk upsert on the external ids. Do not hand edit these objects.
+
+**Still cluster-based, deliberately:** mentor matching uses `clusterKey` as a tie-breaker, and the description path (`NM_ClassifyCluster_Flow`) still classifies into the nine clusters when no code is available. `NM_Specialty_Cluster__mdt` and `NM_Military_Code__mdt` remain in the org as the fallback path and are still read by `get_cluster_data` and `get_job_matches`, which are now gated with `available when @variables.occupations is None`.
+
+### Custom Metadata is the grounding layer (SUPERSEDED for codes, skills and jobs — see above)
 
 All domain data — military specialty codes, civilian skill clusters, job category descriptions — lives in Custom Metadata Types:
 
@@ -306,6 +321,38 @@ Measured behaviour, tested against the live org:
 **So the flow is: exact match first, expansion second, ask third.** On a lookup miss the agent expands the code itself into a plain-language role description, then calls `classify_cluster` with that expansion. Only when it genuinely does not know the code does it ask the veteran what they did, and it says so without implying they made a mistake. `notFoundMessage` is deliberately not surfaced.
 
 This also absorbs input variants that the exact match cannot handle. `Marines, 0311` and `Army, 68W10` both failed the Apex lookup (branch synonym and skill-level suffix) and both now resolve correctly, because the model normalises before the exact match and expands after a miss. Do not build a branch-synonym list or progressive prefix truncation in Apex — prefix truncation in particular can return a *different* valid code's cluster and produce a confident wrong answer.
+
+#### Two actions that could answer the same question: the planner picks the wrong one
+
+CONTEXT.md has always said "the planner must not face two actions that could both plausibly answer the same question." On 2026-09-01 that cost several hours, so here is what it looks like in practice.
+
+`look_up_occupations` and `classify_cluster` both lived in the greeting subagent. Both plausibly answer "what is this person's background". The planner chose `classify_cluster` every time, because it is easier to satisfy, and silently ignored the crosswalk. The symptom was not an error: it was the agent confidently classifying `Navy V25C` (Surface Vessel Torpedo Tube Operation and Maintenance) as **Aviation**, from its own guesswork.
+
+Instruction changes did not fix it. Three rewrites, each more emphatic, all ignored. What fixed it was **splitting them into separate subagents** so neither competes:
+
+* `NM_Greeting_And_Background` — code lookup only, one data action
+* `NM_Describe_Background` — free-text classification only, one data action
+
+The router chooses which one to enter. Each subagent then has exactly one way to do its job.
+
+**Corollary:** `available when` is the deterministic way to remove a competing tool when you cannot split. `get_cluster_data` and `get_job_matches` are gated on `@variables.occupations is None`, so they simply do not exist once we have occupations.
+
+#### Every new Apex class must be added to NM_Agent_Data_Access, and the failure is silent
+
+This rule was already in this file. It was broken anyway on 2026-09-01, and the cost was an hour of misdiagnosis.
+
+`NM_LookupOccupationAction` deployed fine, was wired into the agent script correctly, appeared in the compiled graph, and returned `found=false` for every code — including codes that were provably in the data and that the class resolved correctly when called directly in anonymous Apex.
+
+The agent user could not execute the class. There is no error, no exception, and no log line. The action just returns nothing.
+
+**When an action returns not-found for data you can see in the org, check `SetupEntityAccess` before anything else.**
+
+#### Bulk loading: two failure modes that report as something else
+
+* Newly deployed fields are invisible until FLS is granted. The Bulk API reports this as `InvalidBatch : Field name not found : <field>`, which reads like a typo in the CSV. It is a permissions problem. Grant field permissions, then load.
+* Embedded newlines in field values break the job with a `LineEnding` error naming LF or CRLF, which points at the file's line endings rather than at the data. Flatten newlines inside values.
+
+Both are handled in `scripts/data/build_onet_load_files.py`.
 
 #### Architecture: the start agent MUST be a thin router
 
