@@ -12,6 +12,19 @@
                 <span class="nm-title">{i18n.title}</span>
                 <span class="nm-subtitle">{i18n.subtitle}</span>
             </span>
+            <button
+                type="button"
+                class="nm-restart"
+                aria-label={i18n.restartAria}
+                onclick={handleRestart}
+                disabled={isLoading}
+            >
+                <svg viewBox="0 0 24 24" class="nm-restart-icon" aria-hidden="true" focusable="false">
+                    <path d="M20 12a8 8 0 1 1-2.3-5.6"/>
+                    <path d="M20 4v5h-5"/>
+                </svg>
+                <span class="nm-restart-text">{i18n.restartLabel}</span>
+            </button>
         </header>
 
         <!-- Journey stepper: shows how far along the conversation is. -->

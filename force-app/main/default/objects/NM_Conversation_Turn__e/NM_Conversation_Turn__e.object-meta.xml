@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>One conversation turn, published by the chat widget. A guest user cannot update records, so the widget publishes this event and a trigger performs the upsert as Automated Process instead.</description>
+    <eventType>HighVolume</eventType>
+    <label>NM Conversation Turn</label>
+    <pluralLabel>NM Conversation Turns</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

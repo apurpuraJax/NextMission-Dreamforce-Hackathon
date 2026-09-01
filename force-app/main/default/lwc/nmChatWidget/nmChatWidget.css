@@ -48,6 +48,33 @@
 .nm-mark-ring  { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1.5; }
 .nm-mark-arrow { fill: #FFFFFF; }
 .nm-headtext { display: flex; flex-direction: column; line-height: 1.25; }
+/* Restart sits at the end of the header. Icon plus text, so it is not an
+   unlabelled glyph; the text hides on narrow screens but aria-label remains. */
+.nm-restart {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-left: auto;
+    min-height: 2.25rem;
+    padding: .4rem .75rem;
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.45);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .12s ease;
+}
+.nm-restart:hover:not(:disabled) { background: rgba(255,255,255,.22); }
+.nm-restart:focus-visible { outline: 3px solid #FFFFFF; outline-offset: 2px; }
+.nm-restart:disabled { opacity: .5; cursor: not-allowed; }
+.nm-restart-icon {
+    width: .95rem; height: .95rem; flex: 0 0 auto;
+    fill: none; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+}
 .nm-title    { font-size: 1.02rem; font-weight: 650; letter-spacing: .01em; }
 .nm-subtitle { font-size: .78rem; color: rgba(255,255,255,.86); }
 
@@ -297,6 +324,8 @@
 
 @media (max-width: 30rem) {
     .nm-messages { max-height: 24rem; padding: .9rem; }
+    .nm-restart-text { display: none; }   /* icon only; aria-label still names it */
+    .nm-restart { padding: .4rem .5rem; }
     .nm-step-label { display: none; }        /* dots remain, labels are in assistive text */
     .nm-steps { justify-content: flex-start; gap: .5rem; }
     .nm-step { flex: 0 0 auto; }

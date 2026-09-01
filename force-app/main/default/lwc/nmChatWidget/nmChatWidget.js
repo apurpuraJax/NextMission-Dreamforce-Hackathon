@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import startSession  from '@salesforce/apex/NM_AgentController.startSession';
 import sendMessage   from '@salesforce/apex/NM_AgentController.sendMessage';
-import logTurn       from '@salesforce/apex/NM_AgentController.logTurn';
+import logTurnFlat   from '@salesforce/apex/NM_AgentController.logTurnFlat';
 
 import WIDGET_ARIA   from '@salesforce/label/c.NM_Chat_WidgetAriaLabel';
 import LOADING_ARIA  from '@salesforce/label/c.NM_Chat_LoadingAriaLabel';
@@ -34,6 +34,9 @@ import SUG_RIGHT  from '@salesforce/label/c.NM_Chat_Sug_SoundsRight';
 import SUG_ADD    from '@salesforce/label/c.NM_Chat_Sug_AddMore';
 import SUG_MORE   from '@salesforce/label/c.NM_Chat_Sug_MoreRoles';
 import LICENSE_BADGE from '@salesforce/label/c.NM_Chat_LicenseBadge';
+import RESTART_LABEL from '@salesforce/label/c.NM_Chat_RestartLabel';
+import RESTART_ARIA  from '@salesforce/label/c.NM_Chat_RestartAria';
+import RESTARTED     from '@salesforce/label/c.NM_Chat_RestartedAnnounce';
 
 const SK_SESSION_ID  = 'nm_session_id';
 const SK_SESSION_KEY = 'nm_session_key';
@@ -98,7 +101,9 @@ export default class NmChatWidget extends LightningElement {
         subtitle: SUBTITLE,
         typingAria: TYPING_ARIA,
         scrollRegionLabel: SCROLL_LABEL,
-        stepsAria: 'Your progress through the conversation'
+        stepsAria: 'Your progress through the conversation',
+        restartLabel: RESTART_LABEL,
+        restartAria: RESTART_ARIA
     };
 
     @track messages     = [];
@@ -195,6 +200,42 @@ export default class NmChatWidget extends LightningElement {
     }
 
     handleUpload() { /* NMDH-31, wired once extraction is proven */ }
+
+    /**
+     * Clear everything and open a brand new agent session.
+     * A new session is what actually resets the agent: conversation variables
+     * live on the session, so clearing the UI alone would keep the old
+     * background and the agent would still think it knows their code.
+     */
+    async handleRestart() {
+        if (this.isLoading) { return; }
+
+        this.messages      = [];
+        this.errorMessage  = null;
+        this.inputText     = '';
+        this._suggestions  = null;
+        this._stage        = 0;
+        this._transcript   = '';
+        this._branch       = null;
+        this._specialtyCode= null;
+        this._clusterKey   = null;
+        this._messageCount = 0;
+        this._mentorReq    = false;
+        this._mentorMatched= false;
+        this._sessionId    = null;
+        this._sessionKey   = null;
+
+        sessionStorage.removeItem(SK_SESSION_ID);
+        sessionStorage.removeItem(SK_SESSION_KEY);
+
+        // Announced through the log region, which is already aria-live.
+        this._appendMessage(RESTARTED, 'agent');
+        this._appendMessage(GREETING, 'agent');
+
+        await this._startNewSession();
+        this._shouldFocus = true;
+        this._scrollToBottom();
+    }
 
     async handleSend() {
         const text = this.inputText.trim();
@@ -415,7 +456,9 @@ export default class NmChatWidget extends LightningElement {
 
     _logTurn() {
         if (!this._sessionKey) { return; }
-        const req = {
+        // Never silently swallowed. Conversation logging feeds the QA grader, and
+        // a swallowed failure here is how transcripts went missing for weeks.
+        logTurnFlat({
             sessionKey: this._sessionKey,
             transcript: this._transcript,
             branch: this._branch,
@@ -425,8 +468,12 @@ export default class NmChatWidget extends LightningElement {
             messageCount: this._messageCount,
             mentorRequested: this._mentorReq,
             mentorMatched: this._mentorMatched
-        };
-        logTurn({ req }).catch(() => {});
+        }).catch(err => {
+            // Deliberately console, not the error banner: a logging failure is
+            // ours to fix and must never interrupt the veteran's conversation.
+            // eslint-disable-next-line no-console
+            console.error('NM logTurn failed', JSON.stringify(err && err.body ? err.body : err));
+        });
     }
 
     _scrollToBottom() {

@@ -147,37 +147,61 @@ private class NM_AgentControllerTest {
         NM_AgentController.logTurn(req);
         Test.stopTest();
 
+        // Key is suffixed per turn: a guest cannot read or update records, so
+        // logging is insert-only and one row is written per turn.
+        String prefix = key + '-t';
         List<NM_Conversation__c> convs = [
             SELECT External_Session_Key__c, Transcript__c, Branch__c, Specialty_Code__c, Message_Count__c, Started_At__c
-            FROM NM_Conversation__c WHERE External_Session_Key__c = :key
+            FROM NM_Conversation__c WHERE External_Session_Key__c LIKE :(prefix + '%')
         ];
-        System.assertEquals(1, convs.size(), 'Should create one record');
-        System.assertEquals(key, convs[0].External_Session_Key__c, 'Session key should match');
+        System.assertEquals(1, convs.size(), 'Should create one record for turn 1');
+        System.assertEquals(key + '-t1', convs[0].External_Session_Key__c, 'Session key should carry the turn suffix');
         System.assertEquals('Army', convs[0].Branch__c, 'Branch should be set');
         System.assertEquals('11B', convs[0].Specialty_Code__c, 'SpecialtyCode should be set');
         System.assertEquals(1, (Integer) convs[0].Message_Count__c, 'MessageCount should be 1');
         System.assertNotEquals(null, convs[0].Started_At__c, 'Started_At should be set on create');
     }
 
+    /*
+     * Two turns of the same conversation produce two rows, and the row with the
+     * highest Message_Count__c carries the complete cumulative transcript.
+     * This is the contract the QA grader reads. It is not an upsert: a guest
+     * user can neither update a record nor query one back, even from a
+     * without sharing class, so read-modify-write is unavailable in guest
+     * context. See NMDH-19.
+     */
     @isTest
-    static void testLogTurnUpdate() {
+    static void testLogTurnWritesOneRowPerTurn() {
         String key = 'nm-testkey-update-002';
-        makeConversation(key);
 
-        NM_AgentController.LogTurnRequest req = new NM_AgentController.LogTurnRequest();
-        req.sessionKey   = key;
-        req.transcript   = 'You: Follow-up\nNext Mission: Sure!';
-        req.messageCount = 2;
+        NM_AgentController.LogTurnRequest t1 = new NM_AgentController.LogTurnRequest();
+        t1.sessionKey   = key;
+        t1.transcript   = 'You: Hi\nNext Mission: Hello!';
+        t1.messageCount = 1;
+
+        NM_AgentController.LogTurnRequest t2 = new NM_AgentController.LogTurnRequest();
+        t2.sessionKey   = key;
+        t2.transcript   = 'You: Hi\nNext Mission: Hello!\nYou: Follow-up\nNext Mission: Sure!';
+        t2.messageCount = 2;
 
         Test.startTest();
-        NM_AgentController.logTurn(req);
+        NM_AgentController.logTurn(t1);
+        NM_AgentController.logTurn(t2);
         Test.stopTest();
 
+        String prefix = key + '-t';
         List<NM_Conversation__c> convs = [
-            SELECT Transcript__c, Message_Count__c FROM NM_Conversation__c WHERE External_Session_Key__c = :key
+            SELECT Transcript__c, Message_Count__c
+            FROM   NM_Conversation__c
+            WHERE  External_Session_Key__c LIKE :(prefix + '%')
+            ORDER BY Message_Count__c DESC
         ];
-        System.assertEquals(1, convs.size(), 'Should still have one record after upsert');
-        System.assertEquals(2, (Integer) convs[0].Message_Count__c, 'MessageCount should be updated to 2');
+        System.assertEquals(2, convs.size(), 'One row per turn');
+        System.assertEquals(2, (Integer) convs[0].Message_Count__c, 'Newest row is turn 2');
+        System.assert(convs[0].Transcript__c.contains('Follow-up'),
+            'Newest row must carry the cumulative transcript');
+        System.assert(convs[0].Transcript__c.contains('Hello!'),
+            'Cumulative transcript must still include the earlier turn');
     }
 
     @isTest

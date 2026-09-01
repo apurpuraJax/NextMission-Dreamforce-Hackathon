@@ -144,10 +144,25 @@ public with sharing class NM_AgentController {
             if (String.isBlank(req.sessionKey)) {
                 throw new AuraHandledException('sessionKey is required for logTurn.');
             }
+            // Insert-only, one row per turn.
+            //
+            // A guest user cannot update records AND cannot query them back,
+            // even from a without sharing class. Proven at runtime: the SOQL
+            // returned nothing while the DUPLICATE_VALUE error named the exact
+            // record id it could not see. So there is no read-modify-write
+            // available in guest context at all.
+            //
+            // The widget sends the CUMULATIVE transcript every turn, so the row
+            // with the highest Message_Count__c for a session holds the complete
+            // conversation. The session key is suffixed per turn to stay within
+            // the unique constraint. NMDH-32 collapses these into one row from
+            // an admin context.
             ConversationWriter writer = new ConversationWriter();
-            Boolean isNew = writer.countExisting(req.sessionKey) == 0;
-            NM_Conversation__c conv = new NM_Conversation__c(External_Session_Key__c = req.sessionKey);
-            if (isNew)                  { conv.Started_At__c       = DateTime.now(); }
+            Integer turnNo = (req.messageCount == null) ? 0 : req.messageCount;
+            NM_Conversation__c conv = new NM_Conversation__c(
+                External_Session_Key__c = req.sessionKey + '-t' + String.valueOf(turnNo),
+                Started_At__c           = DateTime.now()
+            );
             if (req.transcript      != null) { conv.Transcript__c       = req.transcript; }
             if (req.branch          != null) { conv.Branch__c           = req.branch; }
             if (req.specialtyCode   != null) { conv.Specialty_Code__c   = req.specialtyCode; }
@@ -156,10 +171,40 @@ public with sharing class NM_AgentController {
             if (req.messageCount    != null) { conv.Message_Count__c    = req.messageCount; }
             if (req.mentorRequested != null) { conv.Mentor_Requested__c = req.mentorRequested; }
             if (req.mentorMatched   != null) { conv.Mentor_Matched__c   = req.mentorMatched; }
-            writer.upsertRecord(conv);
-            System.debug('Exiting logTurn: upsert complete, isNew=' + isNew);
+            writer.insertRecord(conv);
+            System.debug('Exiting logTurn: inserted turn ' + turnNo);
         } catch (AuraHandledException e) { throw e; }
         catch (Exception e) { throw new AuraHandledException('logTurn failed: ' + e.getMessage()); }
+    }
+
+    /*
+     * Purpose:    Flat-parameter form of logTurn.
+     *             The LWC calls THIS one. The LogTurnRequest form takes a custom
+     *             Apex type as its parameter, which the Experience Cloud
+     *             webruntime Apex endpoint rejects for guest callers with
+     *             "The Apex request is invalid" before any Apex runs. That is
+     *             why no widget-written transcript ever reached the org.
+     *             Primitives marshal cleanly; do not reintroduce a complex
+     *             parameter on a method the guest widget calls.
+     */
+    @AuraEnabled
+    public static void logTurnFlat(
+        String sessionKey, String transcript, String branch, String specialtyCode,
+        String clusterKey, String sourceUrl, Integer messageCount,
+        Boolean mentorRequested, Boolean mentorMatched
+    ) {
+        LogTurnRequest req = new LogTurnRequest();
+        req.sessionKey      = sessionKey;
+        req.transcript      = transcript;
+        req.branch          = branch;
+        req.specialtyCode   = specialtyCode;
+        req.clusterKey      = clusterKey;
+        req.sourceUrl       = sourceUrl;
+        req.messageCount    = messageCount;
+        req.mentorRequested = mentorRequested;
+        req.mentorMatched   = mentorMatched;
+
+        logTurn(req);
     }
 
     // ── Private helpers ─────────────────────────────────────────────────────
@@ -224,12 +269,21 @@ public with sharing class NM_AgentController {
      * Inner class without sharing allows DML in guest user (LWR public site) context.
      * The outer class remains with sharing for HTTP callouts.
      */
+    /*
+     * Purpose:   DML for conversation logging, isolated in a without sharing
+     *            class so it works in guest context.
+     * Note:      Deliberately does NOT use upsert-by-external-id. That form runs
+     *            an implicit match query which guest record visibility blocks, so
+     *            every turn after the first was treated as an insert and failed
+     *            with DUPLICATE_VALUE on External_Session_Key__c. With
+     *            allOrNone=false that error was swallowed and the call still
+     *            returned HTTP 200, which is why transcripts silently froze at
+     *            one turn. Look the Id up explicitly, then insert or update.
+     */
     private without sharing class ConversationWriter {
-        Integer countExisting(String sessionKey) {
-            return [SELECT COUNT() FROM NM_Conversation__c WHERE External_Session_Key__c = :sessionKey];
-        }
-        void upsertRecord(NM_Conversation__c conv) {
-            Database.upsert(conv, NM_Conversation__c.External_Session_Key__c, false);
+
+        void insertRecord(NM_Conversation__c conv) {
+            insert conv;
         }
     }
 }

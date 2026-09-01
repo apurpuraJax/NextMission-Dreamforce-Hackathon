@@ -252,4 +252,25 @@
         <shortDescription>NM_Chat_Sug_MoreRoles</shortDescription>
         <value>What else fits?</value>
     </labels>
+    <labels>
+        <fullName>NM_Chat_RestartLabel</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_RestartLabel</shortDescription>
+        <value>Start over</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_RestartAria</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_RestartAria</shortDescription>
+        <value>Start a new conversation. This clears the current one.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_RestartedAnnounce</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_RestartedAnnounce</shortDescription>
+        <value>Conversation cleared. Starting fresh.</value>
+    </labels>
 </CustomLabels>

@@ -626,6 +626,53 @@ Known before starting:
 - On extraction failure the agent says so and asks them to describe the role.
   It must never invent a background it did not extract.
 
+### Guest users cannot read or update records. Not even without sharing.
+
+This broke conversation logging for weeks and nobody noticed, because the
+failure returned HTTP 200.
+
+`logTurn` did `Database.upsert(conv, External_Session_Key__c, false)`. Upsert
+by external id runs an implicit match query. A guest user cannot see the
+record, so **every turn after the first was treated as an insert** and failed
+with `DUPLICATE_VALUE`. `allOrNone=false` swallowed it, the LWC had
+`.catch(() => {})`, and the call still returned success.
+
+**Proven at runtime, not inferred:** an explicit `SELECT Id ... WHERE
+External_Session_Key__c = :key` from a `without sharing` inner class returned
+**nothing**, while the DUPLICATE_VALUE error named the exact record id it could
+not see. `without sharing` does not lift guest record visibility.
+
+So in guest context there is no read-modify-write at all. Logging is now
+**insert-only, one row per turn**, with the key suffixed `-t<n>`. The widget
+sends the cumulative transcript every turn, so the row with the highest
+`Message_Count__c` for a session holds the complete conversation. That is the
+contract `NM_QAEvaluator` reads. NMDH-32 collapses the rows from an admin
+context.
+
+Also fixed at the same time:
+
+- **A complex Apex parameter cannot be called from a guest LWC.** `logTurn`
+  took a `LogTurnRequest`, and the Experience Cloud webruntime endpoint
+  rejected it with "The Apex request is invalid" before any Apex ran. That is
+  why zero widget-written transcripts existed. The widget now calls
+  `logTurnFlat`, which takes primitives. **Never give a method the guest widget
+  calls a custom-type parameter.**
+- The LWC no longer swallows logging errors. It logs to console rather than the
+  error banner, because a logging failure is ours and must not interrupt the
+  veteran.
+
+**Parked:** `NM_Conversation_Turn__e` and `NM_ConversationTurnTrigger` were
+built as the elevated-writer path. Events published successfully
+(`sr.isSuccess()==true`) but the trigger never produced a record and never
+produced an Automated Process log, so delivery was never confirmed in this org.
+Do not assume that path works without re-testing it.
+
+**Two writers exist for `NM_Conversation__c`.** The widget writes keyed rows;
+something running as NM Agent Bot writes rows with a null key and no
+transcript, which the QA grader then scores 0 and marks "Skipped: no transcript
+available". The V2 agent script has no logging action, so that writer is a
+leftover. Track it down before trusting QA numbers.
+
 ---
 
 ## Accessibility Standards
