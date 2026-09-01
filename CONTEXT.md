@@ -465,6 +465,40 @@ This is not the only permission set in the org. `NM_Agent_Data_Access` scopes th
 
 Object and field access for all custom objects belong in the story that creates the custom objects (S01 / NMDH-2). Each subsequent story that introduces an Apex class or autolaunched Flow must add that class or Flow to `NM_Agent_Data_Access` in the same commit. A class or Flow deploy and its permission set update always ship together — never split them across separate stories or separate commits.
 
+### Guest users, Named Credentials, and the site
+
+A guest user calling out through a Named Credential backed by an external
+credential principal needs **two** distinct grants, and having one without the
+other fails in a way that looks like a broken site rather than a permission
+problem:
+
+1. `externalCredentialPrincipalAccesses` for the principal, and
+2. **read on the standard `UserExternalCredential` object.**
+
+Both go in `NM_Guest_Site_Access`. Granting only the first still fails.
+
+**When the widget errors on the public site, hit the endpoint anonymously
+before reading logs.** One unauthenticated POST to the site's own Apex
+endpoint returns the actual error:
+
+```
+curl -X POST "https://<site>/<path>/webruntime/api/apex/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"namespace":"","classname":"NM_AgentController","method":"startSession",
+       "params":{"sourceUrl":"https://test"},"cacheable":false,
+       "isContinuation":false}'
+```
+
+This cost hours once. A debugging pass concluded the guest never reached Apex,
+reasoning from an absence of ApexLogs for the guest user, and went looking at
+client-to-Apex transport and site publish state. The guest was reaching Apex
+the whole time; the logs were not being captured for that user. **Absence of
+logs is not evidence the code did not run.**
+
+A related red herring: the live LWR home page HTML contains no component
+references. LWR is a single page app and renders client side, so component
+markup never appears in the initial HTML. Its absence proves nothing.
+
 ---
 
 ## Accessibility Standards
