@@ -11,6 +11,11 @@ History
 -------
 VERSION  AUTHOR       DATE         DETAIL    DESCRIPTION
 1.0      Orchestrate  2026-08-30   Created   NMDH-8
+1.1      Orchestrate  2026-09-01   Updated   NMDH-8 mentorId typed as String
+                                             so the Agentforce planner can hold
+                                             it in a simple string session
+                                             variable and pass it downstream to
+                                             NM_RequestMentorIntroAction.
 *****************************************************************/
 public with sharing class NM_FindMentorAction {
 
@@ -53,8 +58,11 @@ public with sharing class NM_FindMentorAction {
         @InvocableVariable(label='Mentor Bio')
         public String mentorBio;
 
-        @InvocableVariable(label='Mentor Id' description='NM_Mentor__c record Id — pass to NM_RequestMentorIntroAction.')
-        public Id mentorId;
+        // Typed as String (not Id) so the Agentforce planner can store the
+        // value in a simple string session variable and pass it to
+        // NM_RequestMentorIntroAction, which also accepts mentorId as String.
+        @InvocableVariable(label='Mentor Id' description='NM_Mentor__c record Id as text — pass to NM_RequestMentorIntroAction.')
+        public String mentorId;
 
         @InvocableVariable(label='Message' description='Human-readable result. Populated when found=false.')
         public String message;
@@ -120,7 +128,8 @@ public with sharing class NM_FindMentorAction {
 
             if (mentor != null) {
                 res.found          = true;
-                res.mentorId       = mentor.Id;
+                // Emit the Id as text so it flows through a string session variable.
+                res.mentorId       = String.valueOf(mentor.Id);
                 res.mentorName     = mentor.Name;
                 res.mentorCivilianRole = mentor.Civilian_Role__c;
                 res.mentorEmployer = mentor.Employer__c;

@@ -71,6 +71,10 @@ private class NM_FindMentorActionTest {
         System.assertEquals('Metro Health System', res.mentorEmployer,'employer should match');
         System.assertNotEquals(null, res.mentorBio,                   'bio should be populated');
         System.assertNotEquals(null, res.mentorId,                    'mentorId should be set');
+        // mentorId is now a String; confirm it is text that still holds a valid
+        // 18-char NM_Mentor__c Id so the downstream action can re-parse it.
+        System.assertEquals(18, res.mentorId.length(),                'mentorId should be an 18-char Id string');
+        System.assertNotEquals(null, Id.valueOf(res.mentorId),        'mentorId string should parse back to an Id');
     }
 
     @isTest
