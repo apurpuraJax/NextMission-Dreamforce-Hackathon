@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v16</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Hi, I&apos;m NextMission. I help veterans connect their military experience to civilian careers. What&apos;s your branch and specialty code, MOS, AFSC, Rating, or NEC? Or just describe what you did and I&apos;ll work from there.</message>
+                <messageIdentifier>12bdbb87-2a79-444e-a208-9963cc720aa3</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>5c37b462-ab70-4c7e-9e22-10ab5d0942d3</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>d011b80e-d82e-4541-b4a1-d2d144bcdb1b</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Something went wrong on my end. Let&apos;s try again, what were you working on?</message>
+                <messageIdentifier>70aca5fb-335b-4790-b4cb-b473c909ef25</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>87da6a55-d392-43c3-b449-9790231f4f61</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>7f3d480e-a8b6-40e0-a7f0-a6f16678ca3a</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Rich_Content_Error_Handling</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>ddeb0f21-a55c-4604-9768-26eea6787654</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Transfer_To_Agent</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Transfer To Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationDefinitionPlanners>
+        <genAiPlannerName>NM_NextMission_V2_v16</genAiPlannerName>
+    </conversationDefinitionPlanners>
+    <conversationSystemDialogs>
+        <dialog>Rich_Content_Error_Handling</dialog>
+        <type>ErrorHandling</type>
+    </conversationSystemDialogs>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The agent instructions</description>
+        <developerName>AgentScriptInternal_agent_instructions</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Agent Instructions</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor.</description>
+        <developerName>branch</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Branch</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Record Id of the mentor returned by find_mentor, as a string. Passed to request_mentor_intro. Never surfaced to the veteran.</description>
+        <developerName>mentorId</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Mentor Id</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Email address the veteran supplied for a mentor introduction. Set ONLY after they explicitly agree to an introduction. Its presence is the consent signal.</description>
+        <developerName>requesterEmail</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Requester Email</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The veteran&apos;s own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data.</description>
+        <developerName>userDescription</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>User Description</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Result message from request_mentor_intro once the introduction has actually been created. Prevents sending twice.</description>
+        <developerName>introSent</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Intro Sent</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The next topic to be visited</description>
+        <developerName>AgentScriptInternal_next_topic</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Next Topic</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The NM_Specialty_Cluster__mdt Cluster_Key__c for this veteran. Set by NM_Greeting_And_Background via look_up_military_code (Path A) or classify_cluster (Path B). Required by get_cluster_data, get_job_matches, find_mentor.</description>
+        <developerName>clusterKey</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Cluster Key</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Civilian role title returned by look_up_military_code for code-based lookups (Path A). Null if Path B classification was used.</description>
+        <developerName>roleTitle</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Role Title</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Runtime condition evaluation for if statements</description>
+        <developerName>AgentScriptInternal_condition_1</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Runtime Condition 1</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <defaultStdObjForContactIdFltrEnabled>false</defaultStdObjForContactIdFltrEnabled>
+    <entryDialog>Welcome</entryDialog>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <isScriptCompatibleAgent>true</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <stopRecPrompts>false</stopRecPrompts>
+    <stopWelcomePrompts>false</stopWelcomePrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
+</BotVersion>

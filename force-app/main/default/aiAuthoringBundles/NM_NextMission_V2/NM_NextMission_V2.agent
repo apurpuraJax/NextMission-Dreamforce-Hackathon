@@ -33,6 +33,10 @@ variables:
         description: "The veteran's own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data."
     mentorId: mutable string
         description: "Record Id of the mentor returned by find_mentor, as a string. Passed to request_mentor_intro. Never surfaced to the veteran."
+    requesterEmail: mutable string
+        description: "Email address the veteran supplied for a mentor introduction. Set ONLY after they explicitly agree to an introduction. Its presence is the consent signal."
+    introSent: mutable string
+        description: "Result message from request_mentor_intro once the introduction has actually been created. Prevents sending twice."
     branch: mutable string
         description: "Military branch as stated by the veteran. Used by look_up_military_code and optionally by find_mentor."
 
@@ -197,6 +201,7 @@ subagent NM_Mentor_Connection:
 
     reasoning:
         instructions: ->
+
             | CONSENT IS REQUIRED before sending any introduction request.
 
               Step 1, Find: Call find_mentor with clusterKey from the session.
@@ -207,7 +212,7 @@ subagent NM_Mentor_Connection:
               Wait for the veteran's answer. Do not call request_mentor_intro until they say yes.
 
               Step 3, Send, only on an explicit yes.
-              3a. Ask for their email address and STOP. Wait for them to reply with an actual address.
+              3a. Ask for their email address and STOP. When they reply with one, store it in the requesterEmail variable. Storing it is what actually triggers the introduction, so do not store anything there until they have said yes and given you a real address. Wait for them to reply with an actual address.
               3b. As soon as you have it, you MUST call request_mentor_intro. Pass mentorId and requesterEmail. This is the only thing that actually creates the introduction. Talking about it does nothing.
               3c. If it returns success=true, tell them the request has been sent.
               3d. If it returns success=false, tell them plainly it did not go through and say what the message was. Do not retry silently.
@@ -226,5 +231,4 @@ subagent NM_Mentor_Connection:
                 set @variables.mentorId=@outputs.mentorId
                 description: "Find a mentor who transitioned from a similar military cluster. Returns mentor name, role, employer, bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
-                with mentorId=@variables.mentorId
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."
