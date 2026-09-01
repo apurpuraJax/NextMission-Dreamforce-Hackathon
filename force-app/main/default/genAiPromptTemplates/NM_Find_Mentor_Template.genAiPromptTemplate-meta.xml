@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>vkW5qDLenhCSbHtTzxgV6K5YIrRc3eF9rfVaXaccZS8=_1</activeVersionIdentifier>
+    <description>Selects the single best-matching mentor from the active roster, matching on civilian role and bio. Cluster key is a tie-breaker only, not a filter — cross-cluster matches allowed. Returns the matched NM_Mentor__c Id or NONE. NMDH-24.</description>
+    <developerName>NM_Find_Mentor_Template</developerName>
+    <masterLabel>NM Find Mentor Template</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content>You are matching a transitioning veteran to the single best mentor from a fixed roster for a veteran career-transition service.
+
+The veteran described their background and goals as follows:
+{!$Input:User_Description}
+
+The veteran's specialty cluster key (use ONLY as a tie-breaker, NEVER as a hard filter):
+{!$Input:Cluster_Key}
+
+Here is the mentor roster. Each line is: MentorId | Name | Civilian Role | Employer | Cluster | Bio
+{!$Input:Mentor_Corpus}
+
+Rules:
+- Choose the ONE mentor whose civilian role and bio best match the veteran's background and goals.
+- Prefer relevance of the mentor's actual experience over the cluster. A mentor in a DIFFERENT cluster IS allowed to win if their role and bio are the better match. Use the cluster only to break a tie between otherwise equally strong matches.
+- Return ONLY that mentor's MentorId, exactly as it appears in the roster. Copy it character for character.
+- Do not return a name, a label, a sentence, quotes, punctuation, or any whitespace around the Id.
+- If no mentor is a reasonable match for the description, return the single word: NONE
+- Do not invent a MentorId that is not in the roster.</content>
+        <inputs>
+            <apiName>User_Description</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>User Description</masterLabel>
+            <referenceName>Input:User_Description</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>Cluster_Key</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Cluster Key</masterLabel>
+            <referenceName>Input:Cluster_Key</referenceName>
+            <required>false</required>
+        </inputs>
+        <inputs>
+            <apiName>Mentor_Corpus</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Mentor Corpus</masterLabel>
+            <referenceName>Input:Mentor_Corpus</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>vkW5qDLenhCSbHtTzxgV6K5YIrRc3eF9rfVaXaccZS8=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>
