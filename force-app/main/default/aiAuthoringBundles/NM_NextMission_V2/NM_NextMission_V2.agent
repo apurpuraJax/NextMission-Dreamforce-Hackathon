@@ -269,10 +269,8 @@ subagent NM_Mentor_Connection:
               Short sentences.
         actions:
             find_mentor: @actions.find_mentor
-                with clusterKey=@variables.clusterKey
-                with description=@variables.userDescription
                 set @variables.mentorId=@outputs.mentorId
-                description: "Find the best-matching mentor by semantically comparing the veteran's background against every active mentor's role and bio. Cluster is a tie-breaker only. Returns mentor name, role, employer, bio. Never surface email."
+                description: "Find the best-matching mentor by semantically comparing the veteran's background against every active mentor's role and bio. Pass clusterKey from the session. For description, always pass a short summary of this veteran in their own terms, drawing on their role title, anything they have told you about what they did, and what they have said they want from a mentor. NEVER pass an empty description, a blank one returns no mentor at all. Cluster is a tie-breaker only. Returns mentor name, role, employer, bio. Never surface email."
             request_mentor_intro: @actions.request_mentor_intro
                 set @variables.introSent=@outputs.message
                 description: "Send an introduction request to the mentor. Call ONLY after the veteran has explicitly said yes and provided their email address."
