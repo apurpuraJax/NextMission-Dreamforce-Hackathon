@@ -56,7 +56,9 @@
     font-size: 0.75rem;
     font-weight: 600;
     margin-bottom: 3px;
-    opacity: 0.75;
+    opacity: 0.85;   /* raised from 0.75: at 0.75 the "You" label on the green
+                        user bubble measured 4.46:1, just under WCAG AA 4.5:1;
+                        0.85 = 5.24:1 on the green bubble, 8.7:1 on the agent bubble */
 }
 
 .nm-text {
@@ -102,13 +104,19 @@
     border: 1px solid #d0d5dd;
     border-radius: 22px;
     font-size: 0.9375rem;
-    outline: none;
     transition: border-color 0.15s;
 }
 
+/* Focus indicator: the previous rule removed the native outline and replaced it
+   with only a border-color change + a near-invisible 0.18-alpha shadow. Replaced
+   with a solid 2px #1a6b3a outline (6.55:1 vs the white field, 6.26:1 vs the
+   #f9fafb input row — both clear WCAG 1.4.11's 3:1 for non-text/UI indicators)
+   plus outline-offset so the ring reads clearly against the rounded border.
+   Kept the border-color change as a secondary cue. */
 .nm-input:focus {
     border-color: #1a6b3a;
-    box-shadow: 0 0 0 2px rgba(26,107,58,0.18);
+    outline: 2px solid #1a6b3a;
+    outline-offset: 2px;
 }
 
 .nm-input:disabled {
@@ -133,6 +141,16 @@
 
 .nm-send-btn:hover:not(:disabled) {
     background: #155c30;
+}
+
+/* Focus indicator: the button previously had NO focus style at all — tabbing to
+   it produced no visible change. A same-color outline would be invisible against
+   the green button, so this uses a dark #1a1a2e ring with outline-offset: the gap
+   (the #f9fafb input row) separates the ring from the button, and the ring reads
+   16.3:1 against that row — well past WCAG 1.4.11's 3:1. */
+.nm-send-btn:focus {
+    outline: 2px solid #1a1a2e;
+    outline-offset: 2px;
 }
 
 .nm-send-btn:disabled {
