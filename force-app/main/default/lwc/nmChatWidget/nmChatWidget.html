@@ -167,6 +167,27 @@
         </template>
 
         <div class="nm-composer">
+            <!-- Attach control. A real <input type="file"> stays in the DOM and
+                 keeps its own keyboard and assistive-tech behaviour; the label
+                 is the visible, focusable control. A <button> that clicks a
+                 hidden input is the usual pattern and it strands keyboard users. -->
+            <input
+                id="nm-file"
+                type="file"
+                class="nm-file"
+                accept=".pdf,.txt,.md,text/plain,application/pdf"
+                onchange={handleFile}
+                disabled={isLoading}
+                lwc:ref="file"
+            />
+            <label class="nm-attach" for="nm-file">
+                <span class="nm-attach-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M16.5 6.5v8a4.5 4.5 0 1 1-9 0V6a3 3 0 0 1 6 0v8a1.5 1.5 0 1 1-3 0V7"/>
+                    </svg>
+                </span>
+                <span class="nm-sr-only">{i18n.attachAria}</span>
+            </label>
             <label for="nm-input" class="nm-sr-only">{i18n.inputAriaLabel}</label>
             <input
                 id="nm-input"

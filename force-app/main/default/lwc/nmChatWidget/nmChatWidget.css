@@ -344,3 +344,44 @@
     .nm-steps { justify-content: flex-start; gap: .5rem; }
     .nm-step { flex: 0 0 auto; }
 }
+
+/* Attach control. The file input is visually hidden but NOT display:none, so it
+   stays focusable and reachable by assistive tech; the label is the visible
+   control and shows the focus ring when the input behind it is focused. */
+.nm-file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+}
+.nm-attach {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2.75rem;
+    height: 2.75rem;          /* 44px, the minimum comfortable touch target */
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--nm-ink-soft, #4a5568);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background-color 120ms ease, border-color 120ms ease;
+}
+.nm-attach:hover { background: var(--nm-surface-2, #eef2f7); }
+.nm-file:focus-visible + .nm-attach {
+    outline: 3px solid var(--nm-focus, #1b4dc1);
+    outline-offset: 2px;
+}
+.nm-attach-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.nm-file:disabled + .nm-attach,
+.nm-attach[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }

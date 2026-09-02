@@ -2,6 +2,9 @@ import { LightningElement, api, track } from 'lwc';
 import startSession  from '@salesforce/apex/NM_AgentController.startSession';
 import sendMessage   from '@salesforce/apex/NM_AgentController.sendMessage';
 import logTurnFlat   from '@salesforce/apex/NM_AgentController.logTurnFlat';
+import sendResume    from '@salesforce/apex/NM_AgentController.sendResume';
+import { loadScript } from 'lightning/platformResourceLoader';
+import PDFJS          from '@salesforce/resourceUrl/NM_PdfJs';
 
 import WIDGET_ARIA   from '@salesforce/label/c.NM_Chat_WidgetAriaLabel';
 import LOADING_ARIA  from '@salesforce/label/c.NM_Chat_LoadingAriaLabel';
@@ -20,6 +23,14 @@ import TYPING_ARIA   from '@salesforce/label/c.NM_Chat_TypingAria';
 import SCROLL_LABEL  from '@salesforce/label/c.NM_Chat_ScrollRegionLabel';
 import STARTERS_LBL  from '@salesforce/label/c.NM_Chat_StartersLabel';
 import SUGGEST_LBL   from '@salesforce/label/c.NM_Chat_SuggestionsLabel';
+import SUG_PAY       from '@salesforce/label/c.NM_Chat_Sug_Pay';
+import ATTACH_ARIA   from '@salesforce/label/c.NM_Chat_AttachAria';
+import RES_READING   from '@salesforce/label/c.NM_Chat_ResumeReading';
+import RES_SENT      from '@salesforce/label/c.NM_Chat_ResumeSent';
+import RES_TOOBIG    from '@salesforce/label/c.NM_Chat_ResumeTooBig';
+import RES_WRONGTYPE from '@salesforce/label/c.NM_Chat_ResumeWrongType';
+import RES_NOTEXT    from '@salesforce/label/c.NM_Chat_ResumeNoText';
+import RES_FAILED    from '@salesforce/label/c.NM_Chat_ResumeFailed';
 import STARTER_ARIA  from '@salesforce/label/c.NM_Chat_StarterAriaPrefix';
 import S1 from '@salesforce/label/c.NM_Chat_Starter1';
 import S2 from '@salesforce/label/c.NM_Chat_Starter2';
@@ -94,6 +105,7 @@ export default class NmChatWidget extends LightningElement {
         inputLabel: INPUT_LABEL,
         inputAriaLabel: INPUT_ARIA,
         inputPlaceholder: INPUT_PH,
+        attachAria: ATTACH_ARIA,
         sendAriaLabel: SEND_ARIA,
         sendLabel: SEND_LABEL,
         agentLabel: AGENT_LABEL,
@@ -324,6 +336,127 @@ export default class NmChatWidget extends LightningElement {
         if (wasAtBottom) { this._scrollToBottom(); }
     }
 
+    // ── Resume upload ───────────────────────────────────────────────────────
+
+    /*
+     * The file is read in the browser and only its TEXT is sent. Someone asking
+     * a question about their resume should not have to hand us the document to
+     * get an answer, and we have no reason to hold it.
+     */
+    async handleFile(evt) {
+        const input = evt.target;
+        const file  = input.files && input.files[0];
+        if (!file) { return; }
+
+        // Clear immediately so choosing the SAME file again still fires change.
+        input.value = '';
+
+        const name  = file.name || 'resume';
+        const lower = name.toLowerCase();
+        const isPdf = file.type === 'application/pdf' || lower.endsWith('.pdf');
+        const isTxt = /^text\//.test(file.type || '') ||
+                      lower.endsWith('.txt') || lower.endsWith('.md');
+
+        if (!isPdf && !isTxt) { this._resumeError(RES_WRONGTYPE); return; }
+        if (file.size > 5 * 1024 * 1024) { this._resumeError(RES_TOOBIG); return; }
+
+        this.errorMessage = null;
+        this.isLoading    = true;
+        this._suggestions = null;
+        this._announce(RES_READING);
+
+        // Show the veteran what they just did, without dumping the whole
+        // resume into the transcript.
+        this._messageCount++;
+        this._appendMessage(RES_SENT + ': ' + name, 'user');
+        this._scrollToBottom();
+
+        let agentReply = null;
+        try {
+            const text = isPdf ? await this._pdfText(file) : await file.text();
+            if (!text || !text.trim()) { this._resumeError(RES_NOTEXT); return; }
+
+            const result = await sendResume({
+                sessionId: this._sessionId,
+                resumeText: text,
+                fileName: name,
+                sourceUrl: this._sourceUrl
+            });
+            if (result && result.success) {
+                agentReply = result.replyText;
+                this._appendMessage(agentReply, 'agent');
+                this._announce(agentReply);
+                this._extractAgentData(agentReply);
+                this._suggestions = this._suggestFor(agentReply);
+            } else {
+                this._resumeError((result && result.errorMessage) || RES_FAILED);
+                return;
+            }
+        } catch (err) {
+            this._resumeError(RES_FAILED);
+            return;
+        } finally {
+            this.isLoading  = false;
+            this._shouldFocus = true;
+            this._appendTranscript(RES_SENT + ': ' + name, agentReply);
+            this._logTurn();
+        }
+        this._scrollToBottom();
+    }
+
+    /*
+     * Surface a resume problem the same way any other error is surfaced, and
+     * ALWAYS announce it. A failure a screen-reader user cannot hear is a
+     * dead end with no explanation.
+     */
+    _resumeError(msg) {
+        this.errorMessage = msg;
+        this.isLoading    = false;
+        this._shouldFocus = true;
+        this._announce(msg);
+    }
+
+    /*
+     * Extract text from a PDF with pdf.js, loaded from a static resource rather
+     * than a CDN because Experience Cloud CSP blocks third-party script hosts.
+     * Page text is joined with newlines so headings and bullets stay separated;
+     * without that a resume arrives as one unbroken line.
+     */
+    async _pdfText(file) {
+        if (!this._pdfLib) {
+            await loadScript(this, PDFJS + '/pdf.min.js');
+            // eslint-disable-next-line no-undef
+            this._pdfLib = window.pdfjsLib;
+            this._pdfLib.GlobalWorkerOptions.workerSrc = PDFJS + '/pdf.worker.min.js';
+        }
+        const buf = await file.arrayBuffer();
+        const doc = await this._pdfLib.getDocument({ data: buf }).promise;
+
+        const pages = [];
+        const limit = Math.min(doc.numPages, 10);   // a resume is not 40 pages
+        for (let n = 1; n <= limit; n++) {
+            // eslint-disable-next-line no-await-in-loop
+            const page = await doc.getPage(n);
+            // eslint-disable-next-line no-await-in-loop
+            const content = await page.getTextContent();
+            let line = '';
+            const lines = [];
+            let lastY = null;
+            for (const item of content.items) {
+                const y = item.transform && item.transform[5];
+                if (lastY !== null && Math.abs(y - lastY) > 2) {
+                    if (line.trim()) { lines.push(line.trim()); }
+                    line = '';
+                }
+                line += item.str + (item.hasEOL ? '\n' : ' ');
+                lastY = y;
+            }
+            if (line.trim()) { lines.push(line.trim()); }
+            pages.push(lines.join('\n'));
+        }
+        return pages.join('\n\n');
+    }
+
     // ── Rendering helpers ───────────────────────────────────────────────────
 
     _appendMessage(text, role) {
@@ -438,8 +571,11 @@ export default class NmChatWidget extends LightningElement {
         if (/sound right|sounds right|resonate|anything you want to add/.test(t)) {
             return [SUG_RIGHT, SUG_ADD, SUG_MENTOR];
         }
+        // Once a figure is on screen, offering to fetch pay again is noise.
+        const hasPay = /\$\s?\d/.test(reply);
         if (/\bcivilian (role|job)|truck driver|specialist|technician|manager\b/.test(t)) {
-            return [SUG_MENTOR, SUG_SKILLS, SUG_MORE];
+            return hasPay ? [SUG_MENTOR, SUG_SKILLS, SUG_MORE]
+                          : [SUG_PAY, SUG_MENTOR, SUG_SKILLS];
         }
         return [SUG_ROLES, SUG_SKILLS, SUG_MENTOR];
     }

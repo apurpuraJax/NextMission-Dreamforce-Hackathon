@@ -180,7 +180,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>NM_Chat_Greeting</shortDescription>
-        <value>Hi, I'm Next Mission. I help veterans and military spouses turn service experience into civilian careers. Tell me your branch and specialty code, MOS, AFSC, Rating or NEC, or just describe what you did and I'll work from there.</value>
+        <value>Hi, I'm Next Mission. I help veterans and military spouses turn service experience into civilian careers. Tell me your branch and specialty code, MOS, AFSC, Rating or NEC, or just describe what you did. I can show you the civilian roles that match, what they pay, and connect you with someone who made the same move.</value>
     </labels>
     <labels>
         <fullName>NM_Chat_TypingAria</fullName>
@@ -272,5 +272,61 @@
         <protected>false</protected>
         <shortDescription>NM_Chat_RestartedAnnounce</shortDescription>
         <value>Conversation cleared. Starting fresh.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_Pay</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_Pay</shortDescription>
+        <value>What do those pay?</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_AttachAria</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_AttachAria</shortDescription>
+        <value>Attach your resume. PDF or plain text.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeReading</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeReading</shortDescription>
+        <value>Reading your resume...</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeSent</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeSent</shortDescription>
+        <value>Resume attached</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeTooBig</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeTooBig</shortDescription>
+        <value>That file is larger than 5 MB. Try a smaller PDF, or paste the text of your resume into the message box instead.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeWrongType</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeWrongType</shortDescription>
+        <value>I can read PDF and plain text files. If your resume is a Word document, save it as a PDF, or paste the text into the message box instead.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeNoText</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeNoText</shortDescription>
+        <value>I could not find any text in that file. If it is a scanned image rather than a text PDF, paste the text of your resume into the message box instead.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeFailed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeFailed</shortDescription>
+        <value>I could not read that file. You can paste the text of your resume into the message box instead.</value>
     </labels>
 </CustomLabels>

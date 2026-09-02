@@ -14,4 +14,8 @@
         <field>Basis__c</field>
         <value xsi:type="xsd:string">Curated. This is a military-only SOC with no civilian equivalent in the crosswalk, so without these the agent has nothing to offer and stalls asking the veteran to describe a job it just named. These are the civilian destinations for that background.</value>
     </values>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Mechanical_Maintenance</value>
+    </values>
 </CustomMetadata>

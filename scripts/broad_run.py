@@ -1,3 +1,4 @@
+import time
 """Broad conversation sweep against the LIVE public site as an anonymous guest.
 Runs concurrently, asserts, and reports failures with the turn that caused them.
 
@@ -16,16 +17,45 @@ def call(method, params, timeout=200):
                                headers={"Content-Type":"application/json"})
     return json.loads(urllib.request.urlopen(r, timeout=timeout).read())
 
+# A turn is either a typed message, or ("resume", text, filename) for an upload.
 def converse(turns):
     sid = call("startSession", {"sourceUrl":TAG})["returnValue"]["sessionId"]
     out = []
     for t in turns:
         try:
-            rv = call("sendMessage", {"sessionId":sid,"text":t,"sourceUrl":TAG})["returnValue"]
+            # Retry a transient failure once. A throttled request is not an agent
+            # defect, and reporting it as one buries the real findings.
+            rv = None
+            for attempt in (1, 2):
+                try:
+                    if isinstance(t, tuple) and t[0] == "resume":
+                        rv = call("sendResume", {"sessionId":sid, "resumeText":t[1],
+                                                 "fileName":t[2], "sourceUrl":TAG})["returnValue"]
+                    else:
+                        rv = call("sendMessage", {"sessionId":sid,"text":t,"sourceUrl":TAG})["returnValue"]
+                    break
+                except Exception:
+                    if attempt == 2:
+                        raise
+                    time.sleep(4)
             out.append((rv.get("replyText") or "").strip())
         except Exception as e:
             out.append("ERROR " + str(e)[:120])
     return out
+
+RESUME_91B = """JAMES R. CALDWELL
+Fayetteville, NC
+
+UNITED STATES ARMY  2014-2023
+Sergeant First Class (E-7), MOS 91B Wheeled Vehicle Mechanic
+
+- Supervised a 12-soldier maintenance section responsible for 60+ tactical
+  wheeled vehicles including HMMWV, FMTV and MRAP platforms.
+- Diagnosed and repaired diesel engines, hydraulic systems, transmissions and
+  electrical faults. Maintained 95% operational readiness across two deployments.
+- Managed a $2.4M parts inventory using SAMS-E.
+- Trained and certified 24 junior mechanics.
+- Held Secret clearance."""
 
 # ---- RELEVANCE ---------------------------------------------------------------
 # The check that was missing. Every earlier sweep passed while a helicopter
@@ -262,6 +292,26 @@ SCENARIOS = [
                            [("no fabricated salary for a military-only code", lambda r:
                               not any(x in r[2] for x in ["$0","$1","$2","$3","$4","$5","$6","$7","$8","$9"])
                               or "bureau of labor statistics" in r[2].lower())]),
+ # NMDH-31. A resume is a background description, not a document to read back.
+ ("Resume upload places the veteran and offers grounded roles",
+                           [("resume", RESUME_91B, "caldwell_resume.pdf"), "what jobs fit"],
+                           [("offers mechanical roles", lambda r: sum(w in r[1].lower() for w in
+                              ["diesel","mechanic","industrial machinery","millwright","maintenance"]) >= 2),
+                            ("never leaks the internal marker", lambda r:
+                              "resume_upload" not in " ".join(r).lower()),
+                            ("does not read the resume back", lambda r:
+                              "james" not in r[0].lower() and "caldwell" not in r[0].lower()),
+                            ("does not ask them to describe what it already says", lambda r:
+                              not any(p in r[0].lower() for p in
+                                ["tell me about what you did","describe what you did",
+                                 "what did a typical week","tell me more about your main"]))]),
+ ("Resume then pay, end to end",
+                           [("resume", RESUME_91B, "caldwell_resume.pdf"), "what jobs fit",
+                            "what do those pay?"],
+                           [("gives BLS figures", lambda r: "$" in r[2] and
+                              ("bureau of labor" in r[2].lower() or "bls" in r[2].lower())),
+                            ("no fabricated titles", never("private investigator","outdoor guide",
+                              "restaurant manager","marine rescue technician"))]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",

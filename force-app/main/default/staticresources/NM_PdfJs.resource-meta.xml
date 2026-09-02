@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>pdf.js 3.11.174, used to read a resume PDF in the browser so the file itself never leaves the veteran's machine. Only the extracted text is sent.</description>
+</StaticResource>

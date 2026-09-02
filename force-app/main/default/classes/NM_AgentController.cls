@@ -130,6 +130,70 @@ public with sharing class NM_AgentController {
         catch (Exception e) { throw new AuraHandledException('Message send failed: ' + e.getMessage()); }
     }
 
+    // A resume runs long and the agent does not need all of it. Two pages of
+    // text is comfortably inside this; the cap exists so a pathological file
+    // cannot blow the request, not to trim genuine content.
+    @TestVisible private static final Integer MAX_RESUME_CHARS = 12000;
+
+    /*
+     * Purpose:    Send an uploaded resume to the agent as the veteran's turn.
+     *             The FILE never reaches Salesforce. The browser reads it and
+     *             sends text only, so we are not storing someone's resume as a
+     *             side effect of them asking a question about it.
+     * Parameters: sessionId  - Agentforce clientSessionId from startSession.
+     *             resumeText - Text already extracted in the browser.
+     *             fileName   - Only so the agent can refer to it naturally.
+     *             sourceUrl  - The page URL.
+     * Returns:    SendMessageResult, exactly as sendMessage does.
+     * Note:       Flat String parameters on purpose. The Experience Cloud
+     *             webruntime endpoint rejects complex Apex parameter types, which
+     *             is the same reason logTurnFlat exists beside logTurn.
+     */
+    @AuraEnabled
+    public static SendMessageResult sendResume(String sessionId, String resumeText,
+                                               String fileName, String sourceUrl) {
+        System.debug('Entering sendResume: sessionId=' + sessionId
+            + ', fileName=' + fileName
+            + ', chars=' + (resumeText == null ? 0 : resumeText.length()));
+
+        String cleaned = cleanResumeText(resumeText);
+        if (String.isBlank(cleaned)) {
+            SendMessageResult empty = new SendMessageResult();
+            empty.success      = false;
+            empty.errorMessage = 'No readable text could be found in that file.';
+            return empty;
+        }
+
+        // The marker is what the agent keys its resume handling off. It is
+        // stripped before anything is shown, so the veteran never sees it.
+        String framed = '[RESUME_UPLOAD] The veteran uploaded a resume'
+            + (String.isBlank(fileName) ? '' : ' named ' + fileName.trim())
+            + '. Its text follows.\n\n' + cleaned;
+
+        SendMessageResult res = sendMessage(sessionId, framed, sourceUrl);
+        System.debug('Exiting sendResume: success=' + (res == null ? null : res.success));
+        return res;
+    }
+
+    /*
+     * Purpose:    Normalise extracted text. PDF extraction produces ragged
+     *             whitespace and stray form feeds; left alone they waste the
+     *             agent's attention on layout rather than content.
+     */
+    @TestVisible
+    private static String cleanResumeText(String raw) {
+        if (String.isBlank(raw)) return null;
+        String t = raw.replace('\r\n', '\n').replace('\r', '\n');
+        t = t.replaceAll('[\\u000B\\u000C]', '\n');   // vertical tab, form feed
+        t = t.replaceAll('[ \\t]+', ' ');                // runs of spaces
+        t = t.replaceAll('\n{3,}', '\n\n');             // runs of blank lines
+        t = t.trim();
+        if (t.length() > MAX_RESUME_CHARS) {
+            t = t.substring(0, MAX_RESUME_CHARS);
+        }
+        return String.isBlank(t) ? null : t;
+    }
+
     /*
      * Purpose:    Upsert a NM_Conversation__c record for conversation persistence.
      *             Must be called in the LWC finally block so it fires on every turn,

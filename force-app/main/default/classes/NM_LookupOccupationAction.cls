@@ -159,6 +159,12 @@ public with sharing class NM_LookupOccupationAction {
         //     ever offered as adjacent. See NMDH-37.
         Map<String, NM_Occupation_Supplement__mdt> supByKey =
             new Map<String, NM_Occupation_Supplement__mdt>();
+        // getAll(), NOT SOQL. SOQL on a custom metadata type is subject to the
+        // running user's access, and the Experience Cloud GUEST user has none on
+        // this type, so every coded lookup failed for real visitors while working
+        // perfectly when run as an admin. getAll() bypasses that. It does not
+        // populate Long Text Area fields on every type, so verify the field you
+        // need actually arrives rather than assuming either way.
         for (NM_Occupation_Supplement__mdt sup : NM_Occupation_Supplement__mdt.getAll().values()) {
             if (String.isNotBlank(sup.Match_Key__c)) {
                 supByKey.put(sup.Match_Key__c.toUpperCase().trim(), sup);
@@ -263,6 +269,9 @@ public with sharing class NM_LookupOccupationAction {
                             res.adjacentOccupations = String.join(madj, '\n\n');
                             res.adjacentCount = madj.size();
                         }
+                        // Place them. A military-only code otherwise leaves the
+                        // session with a role title and nothing else, and the
+                        // router can fall back to the greeting and repeat itself.
                     }
                 }
             } else if (parts.isEmpty()) {

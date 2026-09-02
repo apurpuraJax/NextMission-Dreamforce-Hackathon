@@ -75,6 +75,8 @@ start_agent NM_Router:
 
                   If it is neither, meaning they have said nothing about their background yet, call go_to_greeting so they get asked.
 
+                  IF THE MESSAGE STARTS WITH [RESUME_UPLOAD], they have attached a resume. Call go_to_describe. The resume text IS their background description; do not ask them to describe it again.
+
                   Say nothing else and ignore every other instruction below.
 
             if @variables.clusterKey is not None or @variables.roleTitle is not None:
@@ -83,6 +85,8 @@ start_agent NM_Router:
                   First check the history for an open mentor request. If they asked to speak to a mentor or a person at any earlier point and no mentor has yet been named to them, choose go_to_mentor now even if their latest message is about something else. This includes the case where the agent offered to find a mentor and they agreed with a short reply such as yes, yes please, sure, or ok. An accepted offer is an open mentor request.
 
                   Otherwise route on their latest message:
+                  Starting with [RESUME_UPLOAD]: go_to_skills. They already have a background on file and have now given you far more detail, so the resume should sharpen the translation rather than restart them.
+                  Disclosing a disability rating, discharge type, VA status, mental health history or legal history: go_to_jobs. NEVER go_to_greeting. They are not giving you a new background, so re-running the greeting throws their disclosure away and repeats what you already said, which is the coldest possible reply to someone who just told you something personal.
                   Asking to talk to a mentor, a person, or someone who has been through it: go_to_mentor.
                   Asking about jobs, roles, what work fits, or a specific job title: go_to_jobs.
                   Asking which role to pick, which one to go for, what you would recommend, which is the best fit, or where they should start: go_to_jobs. That is a question about the ROLES, not a request for a mentor, and sending it to mentor matching answers a question they did not ask.
@@ -149,6 +153,8 @@ subagent NM_Greeting_And_Background:
               Do NOT explain what the work involved. Do NOT describe their skills. Do NOT list or name a single civilian occupation. Do NOT say what employers value. All of that belongs to the next two steps, and doing it here makes the following turn repeat you word for word.
               If your reply is longer than two sentences you have done this wrong.
               Then STOP. Do not call any other action in this turn.
+              BEFORE ANYTHING ELSE, CHECK WHAT YOU LAST SAID. If you have already told this veteran what their code resolves to, DO NOT SAY IT AGAIN. They have read it. Whatever they just sent, it was not a request to hear the same paragraph a second time.
+
               If militaryOnly=true: their code IS in the crosswalk and the role title IS correct, there is simply no civilian occupation that corresponds to it. This is normal for combat and combat-support roles.
               NEVER SAY YOU DO NOT HAVE THEIR CODE. You have it. You are about to say their role title out loud, which proves you have it. Saying "I do not have that Navy code in my system" to someone whose code you just resolved is simply false, and it is the found=false script leaking into a case that is not found=false. ALWAYS name the role title first.
               THE TWO SENTENCE RULE ABOVE DOES NOT APPLY TO THIS CASE. Ignore it here. This reply is longer on purpose.
@@ -189,6 +195,11 @@ subagent NM_Describe_Background:
     reasoning:
         instructions: ->
             | The veteran either has no specialty code or gave one we do not hold.
+
+              IF THEIR MESSAGE STARTS WITH [RESUME_UPLOAD], IT IS A RESUME AND IT IS ALL THE DESCRIPTION YOU NEED.
+              NEVER show the marker, the file name, or the raw resume text back to them. They wrote it; reading it back is not a service.
+              Pull out what they actually DID: roles held, equipment and systems worked on, what they were responsible for, and any specialty code in it. Pass that to classify_cluster as the description. Do NOT ask them to describe their background and do NOT ask them to confirm the resume first.
+              Open by telling them what you took from it, in two or three sentences of civilian language, so they can see you read it. Then carry on to the roles.
 
               IF YOU ALREADY KNOW THEIR ROLE TITLE, DO NOT ASK THEM ANYTHING. CLASSIFY ON IT.
               A military-only code still resolved to a real role title, and you know what that job involves. A Rifleman led and served in an infantry squad, handled weapons and equipment, navigated, and worked under discipline in the field. Write that description yourself and pass it to classify_cluster. Asking someone to describe a job whose name you just said back to them is the fastest way to look like you were not listening, and if they answer 'show me the roles' rather than describing anything, asking a second time strands them completely.

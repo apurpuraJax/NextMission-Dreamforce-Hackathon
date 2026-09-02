@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cluster_Key__c</fullName>
+    <label>Cluster Key</label>
+    <description>Career area this supplement's roles belong to. Set for military-only SOCs so the lookup can place the veteran immediately. Without a cluster the session has no state to move on from, the router can fall back to the greeting, and the agent repeats what it just said.</description>
+    <length>60</length>
+    <type>Text</type>
+</CustomField>
