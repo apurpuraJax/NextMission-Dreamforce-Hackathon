@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>17-2199.00</label>
+    <protected>false</protected>
+    <values>
+        <field>Match_Key__c</field>
+        <value xsi:type="xsd:string">17-2199.00</value>
+    </values>
+    <values>
+        <field>Adjacent_ONET_Codes__c</field>
+        <value xsi:type="xsd:string">17-2112.00;17-2141.00;17-2071.00;17-2051.00;17-2199.05</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Curated. The group offers only niche specialisms; these are the mainstream engineering disciplines.</value>
+    </values>
+</CustomMetadata>

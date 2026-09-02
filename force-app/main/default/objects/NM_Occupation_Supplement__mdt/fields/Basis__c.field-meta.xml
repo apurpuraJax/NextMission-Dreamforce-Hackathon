@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Basis__c</fullName>
+    <label>Basis</label>
+    <description>Why these were chosen, so a later maintainer can tell a rule-derived set from a hand-curated one.</description>
+    <length>255</length>
+    <type>Text</type>
+</CustomField>

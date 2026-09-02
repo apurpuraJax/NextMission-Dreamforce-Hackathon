@@ -209,6 +209,27 @@ SCENARIOS = [
                            [("makes a recommendation", lambda r: any(w in r[3].lower() for w in
                               ["most realistic","closest","based on what you","i would start","best fit","strongest","start with","most direct","i'd go","recommend","go for"])),
                             ("does not re-list everything", lambda r: r[3].count(':') < 3)]),
+ # NMDH-37. A thin crosswalk row must be widened, and the two sets kept apart.
+ ("Thin row 92Y is widened past Stockers and Order Fillers",
+                           ["Army 92Y","the roles it matches"],
+                           [("keeps the honest direct match", lambda r: "stockers and order fillers" in r[1].lower()),
+                            ("offers real logistics roles", lambda r: sum(w in r[1].lower() for w in
+                              ["logistician","transportation, storage","purchasing manager","logistics analyst","production, planning"]) >= 2),
+                            ("does not pass adjacent off as the coded match", lambda r: not any(
+                              p in r[1].lower() for p in ["your code maps to logistician","code matches directly to logistician",
+                              "your 92y maps to logistician"]))]),
+ ("Residual bucket 25B is not left as Computer Occupations, All Other",
+                           ["Army 25B","the roles it matches"],
+                           [("offers real IT roles", lambda r: sum(w in r[1].lower() for w in
+                              ["penetration tester","information security","web administrator",
+                               "geographic information systems","document management"]) >= 2),
+                            ("no technical excuse", never("snag","could not pull","cannot pull"))]),
+ ("Rich mapping is not padded with adjacent roles",
+                           ["Navy HM","the roles it matches"],
+                           [("stays on the coded occupations", lambda r: sum(w in r[1].lower() for w in
+                              ["medical assistant","medical records","medical equipment"]) >= 2),
+                            ("no widening language when nothing needed widening", lambda r: not any(
+                              p in r[1].lower() for p in ["broad category","also move into","wider set"]))]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",

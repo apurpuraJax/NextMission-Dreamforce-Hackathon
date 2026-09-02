@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>19-1099.00</label>
+    <protected>false</protected>
+    <values>
+        <field>Match_Key__c</field>
+        <value xsi:type="xsd:string">19-1099.00</value>
+    </values>
+    <values>
+        <field>Adjacent_ONET_Codes__c</field>
+        <value xsi:type="xsd:string">19-1011.00;19-1012.00;19-1013.00;19-1021.00;19-1022.00</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Derived from the O*NET SOC MINOR GROUP sharing this bucket's classification.</value>
+    </values>
+</CustomMetadata>

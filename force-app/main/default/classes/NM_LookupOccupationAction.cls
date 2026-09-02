@@ -66,6 +66,16 @@ public with sharing class NM_LookupOccupationAction {
         public String occupations;
 
         @InvocableVariable(
+            label='Adjacent Occupations'
+            description='Grounded occupations ADJACENT to the direct match, offered when the crosswalk row is thin. Each entry is Title :: Description. NEVER present these as what the code maps to; they are a wider set, and saying otherwise misrepresents the federal crosswalk.')
+        public String adjacentOccupations;
+
+        @InvocableVariable(
+            label='Adjacent Count'
+            description='How many adjacent occupations were returned. Zero when the direct match is already rich enough.')
+        public Integer adjacentCount;
+
+        @InvocableVariable(
             label='Occupation Count'
             description='How many civilian occupations were returned.')
         public Integer occupationCount;
@@ -140,6 +150,27 @@ public with sharing class NM_LookupOccupationAction {
                     }
                 }
             }
+        }
+
+        // --- Supplements: widen a thin crosswalk row without overwriting it ---
+        //     Keyed either by SOC code (covers every military code whose only
+        //     match is that residual bucket) or by BRANCH:CODE for a single code.
+        //     The O*NET row stays the authoritative direct match; these are only
+        //     ever offered as adjacent. See NMDH-37.
+        Map<String, NM_Occupation_Supplement__mdt> supByKey =
+            new Map<String, NM_Occupation_Supplement__mdt>();
+        for (NM_Occupation_Supplement__mdt sup : NM_Occupation_Supplement__mdt.getAll().values()) {
+            if (String.isNotBlank(sup.Match_Key__c)) {
+                supByKey.put(sup.Match_Key__c.toUpperCase().trim(), sup);
+            }
+        }
+        for (Request req : requests) {
+            NM_Occupation_Supplement__mdt s1 = supByKey.get(supplementKey(req.branch, req.code));
+            if (s1 != null) onetCodes.addAll(splitCodes(s1.Adjacent_ONET_Codes__c));
+        }
+        for (String c : new Set<String>(onetCodes)) {
+            NM_Occupation_Supplement__mdt s2 = supByKey.get(c.toUpperCase());
+            if (s2 != null) onetCodes.addAll(splitCodes(s2.Adjacent_ONET_Codes__c));
         }
 
         // --- Query 2: the occupations those codes point at --------------------
@@ -218,12 +249,65 @@ public with sharing class NM_LookupOccupationAction {
                 res.roleTitle = mc.Role_Title__c;
                 res.occupations = String.join(parts, '\n\n');
                 res.occupationCount = parts.size();
+
+                // A code-specific supplement wins over a bucket-level one: it was
+                // written about THIS code, so it knows more than the bucket does.
+                NM_Occupation_Supplement__mdt sup =
+                    supByKey.get(supplementKey(req.branch, req.code));
+                if (sup == null && String.isNotBlank(mc.ONET_Codes__c)) {
+                    for (String c : mc.ONET_Codes__c.split(';')) {
+                        sup = supByKey.get(c.trim().toUpperCase());
+                        if (sup != null) break;
+                    }
+                }
+                if (sup != null) {
+                    Set<String> already = new Set<String>(parts);
+                    List<String> adj = new List<String>();
+                    for (String c : splitCodes(sup.Adjacent_ONET_Codes__c)) {
+                        if (adj.size() >= MAX_OCCUPATIONS) break;
+                        NM_Occupation__c o = occByCode.get(c);
+                        if (o == null || isMilitaryOnlyONET(o.ONET_Code__c)) continue;
+                        String entry = o.Name + ' :: ' +
+                            (o.Description__c == null ? '' : o.Description__c);
+                        if (already.contains(entry)) continue;
+                        adj.add(entry);
+                    }
+                    if (!adj.isEmpty()) {
+                        res.adjacentOccupations = String.join(adj, '\n\n');
+                        res.adjacentCount = adj.size();
+                    }
+                }
             }
+            if (res.adjacentCount == null) res.adjacentCount = 0;
             results.add(res);
         }
 
         System.debug('Exiting NM_LookupOccupationAction.lookupOccupations: results=' + results.size());
         return results;
+    }
+
+    /*
+     * Purpose:    Key for a code-specific supplement: BRANCH:CODE, uppercased.
+     *             Returns a non-matching sentinel rather than null so callers do
+     *             not have to null-check before every map lookup.
+     */
+    @TestVisible
+    private static String supplementKey(String branch, String code) {
+        if (String.isBlank(branch) || String.isBlank(code)) return '~none~';
+        return branch.trim().toUpperCase() + ':' + code.trim().toUpperCase();
+    }
+
+    /*
+     * Purpose:    Split a semicolon-separated SOC list, trimming and dropping blanks.
+     */
+    @TestVisible
+    private static List<String> splitCodes(String raw) {
+        List<String> out = new List<String>();
+        if (String.isBlank(raw)) return out;
+        for (String c : raw.split(';')) {
+            if (String.isNotBlank(c)) out.add(c.trim());
+        }
+        return out;
     }
 
     /*

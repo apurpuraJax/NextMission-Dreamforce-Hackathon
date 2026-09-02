@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Adjacent_ONET_Codes__c</fullName>
+    <label>Adjacent ONET Codes</label>
+    <description>Semicolon-separated O*NET SOC codes offered as ADJACENT, never as the direct crosswalk match. Every code must resolve to a real NM_Occupation__c row.</description>
+    <length>1000</length>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

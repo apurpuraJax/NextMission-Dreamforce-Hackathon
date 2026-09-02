@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Army:92Y</label>
+    <protected>false</protected>
+    <values>
+        <field>Match_Key__c</field>
+        <value xsi:type="xsd:string">Army:92Y</value>
+    </values>
+    <values>
+        <field>Adjacent_ONET_Codes__c</field>
+        <value xsi:type="xsd:string">13-1081.00;11-3071.00;43-5061.00;11-3061.00;13-1081.02</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Curated. 92Y maps only to Stockers and Order Fillers. A Unit Supply Specialist runs property accountability, requisition and a warehouse, often supervising.</value>
+    </values>
+</CustomMetadata>

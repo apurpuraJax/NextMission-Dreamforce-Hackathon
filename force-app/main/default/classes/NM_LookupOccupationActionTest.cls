@@ -186,4 +186,112 @@ private class NM_LookupOccupationActionTest {
         System.assert(!res.occupations.contains('Infantry'),
             'The military SOC must never appear');
     }
+
+    /* ---------------------------------------------------------------------
+     * NMDH-37. Thin crosswalk rows.
+     *
+     * NM_Occupation_Supplement__mdt cannot be inserted in a test, so these run
+     * against the records actually deployed to the org. That is deliberate: the
+     * supplement data IS the fix, and a test that mocked it would pass even if
+     * the records were never deployed.
+     * ------------------------------------------------------------------- */
+    @IsTest
+    static void residualBucketIsSupplementedWithAdjacentRoles() {
+        insert new List<NM_Occupation__c>{
+            new NM_Occupation__c(Name='Computer Occupations, All Other',
+                ONET_Code__c='15-1299.00', Description__c='Residual bucket.'),
+            new NM_Occupation__c(Name='Penetration Testers',
+                ONET_Code__c='15-1299.04', Description__c='Simulate cyberattacks.'),
+            new NM_Occupation__c(Name='Information Security Engineers',
+                ONET_Code__c='15-1299.05', Description__c='Design security tech.')
+        };
+        insert new NM_Military_Code_V2__c(Name='25B', External_Key__c='ARMY|25B',
+            Branch__c='Army', Code_Value__c='25B',
+            Role_Title__c='Information Technology Specialist',
+            ONET_Codes__c='15-1299.00');
+
+        NM_LookupOccupationAction.Request r = new NM_LookupOccupationAction.Request();
+        r.branch = 'Army'; r.code = '25B';
+        NM_LookupOccupationAction.Response res =
+            NM_LookupOccupationAction.lookupOccupations(
+                new List<NM_LookupOccupationAction.Request>{r})[0];
+
+        System.assert(res.found, 'The code is in the crosswalk');
+        System.assertEquals(1, res.occupationCount,
+            'The direct match must stay exactly what the crosswalk says');
+        System.assert(res.occupations.contains('Computer Occupations, All Other'),
+            'The direct match is not overwritten, only supplemented');
+        System.assert(res.adjacentCount > 0, 'A residual bucket must be supplemented');
+        System.assert(res.adjacentOccupations.contains('Penetration Testers'),
+            'Adjacent roles must come back');
+        System.assert(!res.occupations.contains('Penetration Testers'),
+            'An adjacent role must NEVER be presented as the coded match');
+    }
+
+    @IsTest
+    static void codeSpecificSupplementBeatsTheBucket() {
+        insert new List<NM_Occupation__c>{
+            new NM_Occupation__c(Name='Stockers and Order Fillers',
+                ONET_Code__c='53-7065.00', Description__c='Receive and store stock.'),
+            new NM_Occupation__c(Name='Logisticians',
+                ONET_Code__c='13-1081.00', Description__c='Coordinate the flow of goods.')
+        };
+        insert new NM_Military_Code_V2__c(Name='92Y', External_Key__c='ARMY|92Y',
+            Branch__c='Army', Code_Value__c='92Y',
+            Role_Title__c='Unit Supply Specialist', ONET_Codes__c='53-7065.00');
+
+        NM_LookupOccupationAction.Request r = new NM_LookupOccupationAction.Request();
+        r.branch = 'Army'; r.code = '92Y';
+        NM_LookupOccupationAction.Response res =
+            NM_LookupOccupationAction.lookupOccupations(
+                new List<NM_LookupOccupationAction.Request>{r})[0];
+
+        // Stockers and Order Fillers is a real occupation, not a residual bucket,
+        // so only a code-specific supplement can widen it.
+        System.assert(res.adjacentCount > 0,
+            'A code-specific supplement must apply even when the SOC is not residual');
+        System.assert(res.adjacentOccupations.contains('Logisticians'),
+            '92Y must reach logistics roles, not only Stockers and Order Fillers');
+    }
+
+    @IsTest
+    static void richMappingIsNotSupplemented() {
+        NM_LookupOccupationAction.Request r = new NM_LookupOccupationAction.Request();
+        r.branch = 'Army'; r.code = '68W';
+        NM_LookupOccupationAction.Response res =
+            NM_LookupOccupationAction.lookupOccupations(
+                new List<NM_LookupOccupationAction.Request>{r})[0];
+
+        System.assert(res.found, 'Sanity: the code resolves');
+        System.assertEquals(0, res.adjacentCount,
+            'A code that already maps to a real occupation must not be padded');
+        System.assertEquals(null, res.adjacentOccupations,
+            'No adjacent text when there is nothing to widen');
+    }
+
+    @IsTest
+    static void militaryOnlyCodeIsNotSupplemented() {
+        NM_LookupOccupationAction.Request r = new NM_LookupOccupationAction.Request();
+        r.branch = 'Army'; r.code = '11B';
+        NM_LookupOccupationAction.Response res =
+            NM_LookupOccupationAction.lookupOccupations(
+                new List<NM_LookupOccupationAction.Request>{r})[0];
+
+        // NMDH-33 owns this path. Supplementing it would smuggle civilian roles
+        // back in through a door that ticket deliberately closed.
+        System.assert(res.militaryOnly, 'Sanity: still the military-only path');
+        System.assertEquals(0, res.adjacentCount,
+            'The military-only path must not gain occupations via a supplement');
+    }
+
+    @IsTest
+    static void supplementKeyAndSplitAreDefensive() {
+        System.assertEquals('~none~', NM_LookupOccupationAction.supplementKey(null, '92Y'));
+        System.assertEquals('~none~', NM_LookupOccupationAction.supplementKey('Army', '  '));
+        System.assertEquals('ARMY:92Y', NM_LookupOccupationAction.supplementKey(' army ', ' 92y '));
+        System.assertEquals(0, NM_LookupOccupationAction.splitCodes(null).size());
+        System.assertEquals(0, NM_LookupOccupationAction.splitCodes('  ').size());
+        System.assertEquals(2, NM_LookupOccupationAction.splitCodes(' 1-1.00 ;; 2-2.00 ').size());
+        System.assertEquals('1-1.00', NM_LookupOccupationAction.splitCodes(' 1-1.00 ; 2-2.00 ')[0]);
+    }
 }

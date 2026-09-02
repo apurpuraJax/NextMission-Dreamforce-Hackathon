@@ -1267,3 +1267,36 @@ Note that action definitions are scoped to the subagent that declares them.
 `@actions.classify_cluster` exists in NM_Describe_Background and is invisible in
 NM_Job_Matching; the compiler says `'classify_cluster' is not defined in actions`.
 Declare it again in the subagent that needs it.
+
+### Thin crosswalk rows: supplement, never overwrite (NMDH-37)
+
+Measured first, which changed the fix. 94% of the 8,179 crosswalk rows map to a
+single SOC code, so "single SOC" is not the defect. The real defect is narrower
+and countable: **934 codes (11.4%) map only to an "All Other" residual bucket**,
+and 139 of those are 55-xx already handled by the military-only guard. That
+leaves **795 codes across 37 distinct buckets**, which is what made this a
+general fix rather than whack-a-mole.
+
+`NM_Occupation_Supplement__mdt` keys either on a SOC code (covering every
+military code whose sole match is that bucket) or on `BRANCH:CODE` for one code.
+Code-specific wins. The O*NET row stays the authoritative *direct* match and the
+supplement is only ever offered as *adjacent*, so we keep being able to say
+every match comes straight from the federal crosswalk.
+
+30 of the 37 buckets were derived from the SOC **broad** group (`XX-YYY`). The
+first attempt used the **minor** group (`XX-Y`) and produced nonsense:
+"Education Administrators, All Other" pulled in Farmers and Construction
+Managers. That is the same failure as the mentor-corpus alphabetical fill, and
+the lesson repeats: an ordering that looks principled is not the same as one
+that is relevant.
+
+The remaining 7 were hand-curated because the group itself is a grab bag.
+`49-9099` offered Coin and Vending Machine Servicers, Commercial Divers and
+Locksmiths to people who maintained torpedo and weapons systems. No rule
+rescues that; it needed judgement, and `Basis__c` records which records were
+rule-derived and which were curated so a later maintainer can tell them apart.
+
+Guardrail worth keeping: `NM_OccupationSupplementDataTest` asserts every
+adjacent SOC resolves to a real `NM_Occupation__c` row, and that none is 55-xx.
+A typo in the metadata would not throw. It would silently drop a role and show a
+shorter list, which reads as a thin mapping rather than as a bug.
