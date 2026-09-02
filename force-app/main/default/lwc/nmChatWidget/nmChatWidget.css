@@ -69,8 +69,8 @@
     align-items: center;
     gap: .4rem;
     margin-left: auto;
-    min-height: 2.25rem;
-    padding: .4rem .75rem;
+    min-height: 2.75rem;          /* 44px, our own stated target size */
+    padding: .5rem .8rem;
     font: inherit;
     font-size: .8rem;
     font-weight: 600;
@@ -89,7 +89,7 @@
     fill: none; stroke: currentColor; stroke-width: 2;
     stroke-linecap: round; stroke-linejoin: round;
 }
-.nm-title    { font-size: 1.02rem; font-weight: 650; letter-spacing: .01em; }
+.nm-title    { margin: 0; font-size: 1.02rem; font-weight: 650; letter-spacing: .01em; }
 .nm-subtitle { font-size: .78rem; color: rgba(255,255,255,.86); }
 
 /* ── Journey stepper ────────────────────────────────────────────────────── */
@@ -270,8 +270,8 @@
 }
 .nm-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
 .nm-chip {
-    min-height: 2.35rem;
-    padding: .45rem .85rem;
+    min-height: 2.75rem;          /* 44px, our own stated target size */
+    padding: .6rem .95rem;
     font: inherit;
     font-size: .84rem;
     color: var(--nm-pine);

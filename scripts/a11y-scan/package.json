@@ -1,0 +1,13 @@
+{
+  "name": "nm-a11y-scan",
+  "private": true,
+  "version": "1.0.0",
+  "description": "axe-core accessibility scan of the live Next Mission site",
+  "scripts": {
+    "scan": "node scan.js"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "playwright": "^1.62.1"
+  }
+}

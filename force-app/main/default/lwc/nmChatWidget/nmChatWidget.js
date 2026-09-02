@@ -112,6 +112,7 @@ export default class NmChatWidget extends LightningElement {
     @track inputText    = '';
     @track _stage       = 0;
     @track _suggestions = null;
+    @track announcement  = '';
 
     _sessionId = null;
     _sessionKey = null;
@@ -256,6 +257,7 @@ export default class NmChatWidget extends LightningElement {
 
         // Announced through the log region, which is already aria-live.
         this._appendMessage(RESTARTED, 'agent');
+        this._announce(RESTARTED);
         this._appendMessage(GREETING, 'agent');
 
         await this._startNewSession();
@@ -287,13 +289,16 @@ export default class NmChatWidget extends LightningElement {
             if (result.success) {
                 agentReply = result.replyText;
                 this._appendMessage(agentReply, 'agent');
+                this._announce(agentReply);
                 this._extractAgentData(agentReply);
                 this._suggestions = this._suggestFor(agentReply);
             } else {
                 this.errorMessage = ERROR_MSG;
+                this._announce(ERROR_MSG);
             }
         } catch (err) {
             this.errorMessage = ERROR_MSG;
+            this._announce(ERROR_MSG);
         } finally {
             this.isLoading = false;
             this._shouldFocus = true;   // keyboard users keep typing without tabbing back
@@ -529,6 +534,18 @@ export default class NmChatWidget extends LightningElement {
             // eslint-disable-next-line no-console
             console.error('NM logTurn failed', JSON.stringify(err && err.body ? err.body : err));
         });
+    }
+
+    /**
+     * Push text into the live region. Cleared first so an identical consecutive
+     * message still counts as a change; without that, screen readers say nothing
+     * when the same text arrives twice.
+     */
+    _announce(text) {
+        if (!text) { return; }
+        this.announcement = '';
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        setTimeout(() => { this.announcement = text; }, 60);
     }
 
     _scrollToBottom() {

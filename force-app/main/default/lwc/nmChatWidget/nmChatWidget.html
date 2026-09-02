@@ -9,7 +9,7 @@
                 </svg>
             </span>
             <span class="nm-headtext">
-                <span class="nm-title">{i18n.title}</span>
+                <h2 class="nm-title">{i18n.title}</h2>
                 <span class="nm-subtitle">{i18n.subtitle}</span>
             </span>
             <button
@@ -49,7 +49,6 @@
             role="log"
             aria-live="polite"
             aria-label={i18n.scrollRegionLabel}
-            aria-busy={isLoading}
             tabindex="0"
             lwc:ref="messageList"
         >
@@ -137,6 +136,11 @@
             </template>
         </div>
 
+        <!-- Screen-reader announcer. Always present so it is a live region
+             before content arrives, and holds only the newest reply so the
+             whole transcript is not re-read on every turn. -->
+        <div class="nm-sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+
         <template lwc:if={errorMessage}>
             <div class="nm-error" role="alert">
                 <span class="nm-error-mark" aria-hidden="true">!</span>
@@ -163,13 +167,12 @@
         </template>
 
         <div class="nm-composer">
-            <label for="nm-input" class="nm-sr-only">{i18n.inputLabel}</label>
+            <label for="nm-input" class="nm-sr-only">{i18n.inputAriaLabel}</label>
             <input
                 id="nm-input"
                 type="text"
                 class="nm-input"
                 placeholder={i18n.inputPlaceholder}
-                aria-label={i18n.inputAriaLabel}
                 maxlength="500"
                 autocomplete="off"
                 enterkeyhint="send"
