@@ -48,6 +48,31 @@
             </div>
         </section>
 
+        <section class="nm-sec" aria-labelledby="nm-a11y">
+            <h2 id="nm-a11y" class="nm-h2">Built to be used by everyone</h2>
+            <p class="nm-p nm-p--lead">
+                A service for veterans has to work for veterans with disabilities. This one is
+                tested for that, and the results are stated here rather than asserted.
+            </p>
+
+            <div class="nm-grid">
+                <template for:each={access} for:item="a">
+                    <article key={a.key} class="nm-card">
+                        <h3 class="nm-h3">{a.title}</h3>
+                        <p class="nm-p">{a.body}</p>
+                        <p class="nm-meta">{a.meta}</p>
+                    </article>
+                </template>
+            </div>
+
+            <p class="nm-p nm-note">
+                Automated tools catch roughly a third of accessibility problems, so a clean scan is
+                a floor and not a finish line. Reflow at high zoom and a full screen reader pass are
+                still outstanding, and we would rather say so than imply otherwise. If something here
+                does not work for you, that is a defect worth reporting.
+            </p>
+        </section>
+
         <section class="nm-sec" aria-labelledby="nm-rai">
             <h2 id="nm-rai" class="nm-h2">How we built it responsibly</h2>
             <ul class="nm-rai">

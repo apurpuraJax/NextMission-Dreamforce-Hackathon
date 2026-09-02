@@ -32,6 +32,30 @@ export default class NmAbout extends LightningElement {
           meta: 'Runs Sundays, verified against CronTrigger' }
     ];
 
+    // Every figure here is reproducible: scripts/a11y-scan for the axe results,
+    // scripts/check_contrast.py for the ratios. Do not change a number on this
+    // page without re-running the thing that produced it.
+    access = [
+        { key: 'a1', title: 'Scanned against the WCAG standard',
+          body: 'Checked with axe-core, the same engine behind Lighthouse, running against this live site in two states: the page as you first see it, and mid-conversation once results have loaded.',
+          meta: '0 violations, 53 checks passed, WCAG 2.0 A and AA plus WCAG 2.1 A and AA' },
+        { key: 'a2', title: 'Readable, and measured rather than guessed',
+          body: 'Every text and background pairing on the site was measured for contrast, not eyeballed. Nothing depends on colour alone to make sense, so the checkmarks, badges and error messages all carry a shape or a word as well.',
+          meta: '35 colour pairs measured, 0 below the AA threshold' },
+        { key: 'a3', title: 'Usable without a mouse',
+          body: 'Every control can be reached and operated with the Tab and Enter keys, each one shows a visible ring when focused, and you can always tab back out of the chat to the rest of the page.',
+          meta: 'Keyboard path confirmed by hand, no keyboard trap' },
+        { key: 'a4', title: 'Works with a screen reader',
+          body: 'Replies from the assistant are announced as they arrive rather than sitting silently on screen, the message box and buttons are properly named, and decorative graphics are hidden so they are not read aloud as noise.',
+          meta: 'Announcements verified with VoiceOver' },
+        { key: 'a5', title: 'Respects how you have set up your device',
+          body: 'If you have asked your system to reduce motion, the animations turn themselves off. Text is sized in relative units so it grows when you increase your browser or system text size.',
+          meta: 'prefers-reduced-motion honoured' },
+        { key: 'a6', title: 'Touch targets sized for real hands',
+          body: 'Buttons and suggestion chips are large enough to hit reliably on a phone, including with a tremor or limited fine motor control.',
+          meta: 'Minimum 44 by 44 pixels on every control' }
+    ];
+
     guardrails = [
         { key: 'g1', title: 'It never invents a salary. ',
           body: 'We hold no wage data, so it says so and points to the Bureau of Labor Statistics instead of guessing a number someone might plan a career around.' },
