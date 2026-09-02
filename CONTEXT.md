@@ -1094,6 +1094,69 @@ So the reload was a **label correction, not a data refresh**.
 between the crosswalk and the occupation set orphans mappings silently. Current:
 425 distinct O*NET codes referenced, **0 missing**, against 1,016 occupations.
 
+### The cluster DATA was wrong, not the classifier
+
+The single most useful thing learned fixing NMDH-34. Every reported "classifier
+mis-routes" finding traced to what the clusters CONTAINED, not to the
+classification:
+
+* **Engineering** held five construction roles and nothing mechanical, so a
+  nuclear reactor operator and a diesel mechanic both got construction.
+* **Aviation** listed Commercial Airline Pilot FIRST, so an avionics technician
+  was offered a pilot seat.
+* **Intelligence** had no geospatial roles, so an imagery analyst could not
+  reach Remote Sensing Scientists even though the rows existed.
+
+Avionics classified to Aviation and imagery to Intelligence perfectly well. The
+answers were wrong because the buckets were wrong.
+
+**Before changing a classifier prompt, print what the cluster actually
+contains.** Clusters now number 13: the original nine minus the Aviation split,
+plus Mechanical_Maintenance, Power_Systems, Food_Service, Emergency_Services and
+Aviation_Maintenance.
+
+The classifier reads its cluster list as a **dynamic input**, so a new CMDT
+record becomes selectable with no prompt edit at all.
+
+### When an instruction will not hold, use a mechanism
+
+Told plainly that nuclear outranks the job title, **both GPT-4o-mini and GPT-4o**
+classified "machinist mate on a nuclear submarine who ran the reactor plant" as
+mechanical maintenance. Upgrading the model changed nothing.
+
+`NM_ClassifyCluster_Flow` now has a deterministic decision after classification:
+if the description mentions a reactor or nuclear, force `Power_Systems`. Non
+nuclear machinists are untouched. That worked immediately where two rounds of
+prompt wording had not.
+
+Same lesson as the mentor subagent split. **An instruction is a preference; a
+subagent boundary, an action gate or a flow decision is a guarantee.**
+
+### Test suites, and the checks that were wrong
+
+* `scripts/broad_run.py` — 39 scenarios, every root cause covered
+* `scripts/triage_reports.py` — re-runs the reported repros, 12 of 12 fixed
+* `scripts/rc2_misroutes.py`, `rc4_fabrication.py`, `rc6_anaphora.py` — targeted
+
+**Six of my own checks were wrong before the agent was.** They flagged the
+refusal "I cannot say which role pays more" as a pay ranking, the reassurance
+"not a mistake on yours" as blame, the role title "Infantryman" as an offered
+civilian occupation, short "what is your email" re-prompts as repetition, and
+"Aviation Maintenance Technician" as fabricated when it is our own cluster data.
+
+**When a check fails, establish whether the agent or the check is wrong before
+changing anything.** Measure the actual value: a repetition flag was traced to
+0.01 to 0.12 similarity, proving the threshold was fine and the one failing run
+was a genuine outlier. Loosening the check would have hidden a real defect.
+
+### Fabrication: what counts as invented
+
+The legitimate set is **1,060 titles**: every `NM_Occupation__c` row plus every
+hand-authored cluster role. **44 of 68 cluster titles are not O*NET rows** and
+that is a deliberate design choice, so "Aviation Maintenance Technician" and
+"Flight Operations Coordinator" are OURS. The reports called them fabrications;
+they are not. Only a title in neither source is invented.
+
 ---
 
 ## Accessibility Standards

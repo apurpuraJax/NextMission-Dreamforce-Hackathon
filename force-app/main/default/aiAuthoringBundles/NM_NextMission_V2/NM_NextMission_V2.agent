@@ -292,6 +292,8 @@ subagent NM_Job_Matching:
 
                   BEFORE YOU LIST ANYTHING, CHECK THE HISTORY. If you have already listed these same occupations earlier in this conversation, DO NOT LIST THEM AGAIN.
 
+                  THIS MATTERS MOST WHEN THERE IS ONLY ONE OCCUPATION. Plenty of codes map to a single civilian role, and once you have described it there is nothing further to add by describing it again. Say in one line that it is the only direct match from their code, and then move: offer the mentor, offer to work from what they did day to day for a wider set, or answer whatever they actually asked. Re-describing the same single role in consecutive turns is the clearest way to look like you have nothing to offer.
+
                   This matters most when they have just told you something new about their background and then asked what fits. These occupations come from their specialty code, so extra detail does not change the list, and re-printing it word for word looks like you ignored what they just said. Instead say plainly that these roles come from their code so the list is the same, name in one sentence how the thing they just added widens it, and offer the mentor. Never pretend you re-ran a search you did not run.
                   {!@variables.occupations}
 
