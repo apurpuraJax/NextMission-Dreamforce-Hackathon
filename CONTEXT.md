@@ -1300,3 +1300,34 @@ Guardrail worth keeping: `NM_OccupationSupplementDataTest` asserts every
 adjacent SOC resolves to a real `NM_Occupation__c` row, and that none is 55-xx.
 A typo in the metadata would not throw. It would silently drop a role and show a
 shorter list, which reads as a thin mapping rather than as a bug.
+
+### Resume upload, and three things that cost real time (NMDH-31)
+
+The file is read in the BROWSER and only its text is sent. Someone asking a
+question about their resume should not have to hand us the document to get an
+answer. pdf.js ships as the `NM_PdfJs` static resource because Experience Cloud
+CSP blocks third-party script hosts.
+
+`sendResume` takes flat String parameters for the same reason `logTurnFlat`
+does: the webruntime endpoint rejects complex Apex parameter types.
+
+**getAll() vs SOQL on custom metadata is a guest-user trap.** Switching
+`NM_LookupOccupationAction` from `getAll()` to SOQL took the suite from 47/47 to
+37/47 with *every code lookup* failing, while the same Apex run as an admin was
+perfect. SOQL on a custom metadata type is subject to the running user's access
+and the Experience Cloud guest user has none on `NM_Occupation_Supplement__mdt`.
+`getAll()` bypasses that. The opposite is also true and equally sharp:
+`getAll()` does NOT populate Long Text Area fields on every type, which is why
+`NM_GetWagesAction` genuinely needs SOQL for `Job_Descriptions__c`. Verify the
+field actually arrives rather than assuming either way, and test as the guest.
+
+**An instruction the model can reach without the action is not a guardrail.**
+Navy NEC V25C failed 3 times in 5 while the Apex resolved it every time. The
+agent was skipping the lookup and writing the not-found line from its own
+judgement, because it did not recognise the code. Gating that script on a real
+`found=false` from the action took it to 0 failures in 6.
+
+**Anchor an edit on text unique to its target.** A consolidation pass matched
+`NM_Skills_Translation` instead of `NM_Job_Matching` because their opening lines
+are nearly identical, and deleted a subagent boundary. Check the subagent count
+before publishing.
