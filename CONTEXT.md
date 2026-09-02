@@ -1240,3 +1240,30 @@ The single most expensive lesson of 2026-08-31. Ten diagnostic cycles were spent
    - **Agent Script bundles** must be published, not just deployed. Deploying the `AiAuthoringBundle` puts the source in the org and changes nothing about the running agent. Confirm a new `GenAiPlannerDefinition` version exists after publishing.
    - **Scheduled Apex** must be explicitly scheduled via `System.schedule()` after the class is deployed — query `CronTrigger` to confirm the job is WAITING, not just that the class compiled.
    Mark a story done only after you have confirmed the active/published/scheduled state in the org directly.
+
+### A rejected match is a dead end you have to build a way out of
+
+Agent v71. A Coast Guard Boatswain's Mate maps to exactly one civilian
+occupation, and it needs a licence. When the veteran said they had no licence
+and did not want to be on the water, the agent restated the same role, the same
+licence and the same problem, twice. There was already an instruction forbidding
+exactly that, in capitals.
+
+The instruction could not be obeyed. `get_job_matches` was gated
+`available when @variables.occupations is None`, so once a code had been looked
+up the turn had no content available except the coded list. The agent repeated
+itself because repeating itself was the only thing it could do.
+
+The fix was to gate on `@variables.clusterKey is not None` instead and add a
+`broaden_beyond_code` binding, so a coded veteran who rules out their match gets
+placed into a career area from what they actually did and sees a real, different
+set of roles. The instruction stayed, but it stopped being the load-bearing part.
+
+Worth generalising: when an instruction forbids a behaviour and the behaviour
+keeps happening, check whether the model has any other option available to it.
+Often the instruction is not being ignored, it is being made impossible.
+
+Note that action definitions are scoped to the subagent that declares them.
+`@actions.classify_cluster` exists in NM_Describe_Background and is invisible in
+NM_Job_Matching; the compiler says `'classify_cluster' is not defined in actions`.
+Declare it again in the subagent that needs it.

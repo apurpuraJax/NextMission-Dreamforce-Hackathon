@@ -267,16 +267,30 @@ subagent NM_Job_Matching:
                 jobsJson: string
                 message: string
             target: "apex://NM_GetJobMatchesAction"
+        broaden_classify:
+            description: "Classify a free-text description of military background into one of the Next Mission career areas."
+            inputs:
+                userDescription: string
+            outputs:
+                found: boolean
+                clusterKey: string
+                narrowingQuestion: string
+            target: "flow://NM_ClassifyCluster_Flow"
 
     reasoning:
         instructions: ->
             if @variables.occupations is not None:
-                | You already have this veteran's civilian occupations from the O*NET crosswalk, matched to their exact code. Do not call get_job_matches.
+                | You already have this veteran's civilian occupations from the O*NET crosswalk, matched to their exact code. Do not call get_job_matches to show THOSE, they are below. Once you have widened past the code with broaden_beyond_code, get_job_matches is how you show the wider set.
 
                   BEFORE ANY OTHER RULE HERE, CHECK WHETHER THEY ARE POINTING BACK AT YOUR LAST REPLY.
                   IF THEY SAY "OF THOSE", "WHICH OF THOSE", "BETWEEN THOSE", "WHICH ONE" OR ANYTHING ELSE POINTING BACK AT WHAT YOU JUST SAID, THEY MEAN THE LIST IN YOUR OWN PREVIOUS REPLY. Read it and choose from it.
                   This matters most when the things you just offered were NOT from their code. If you named adjacent fields like logistics, port operations or facilities management, and they then ask which of those to go for, they are asking about those four. Answer about those four.
                   Do NOT go back to the occupations from their specialty code and re-present them. Do NOT restate the coded role. They have read it, they have just told you it does not work for them, and repeating it is the clearest possible sign you are not following the conversation.
+
+                  IF THEY HAVE RULED OUT THE CODED ROLES, YOU ARE DONE WITH THEM. WIDEN, DO NOT REPEAT.
+                  A code that maps to one role, and that one role rejected, leaves you nothing to say from the code. Saying it again in different words is not an answer, it is you having run out. Call broaden_beyond_code with what they did day to day, plus their role title, and offer the roles that come back. A Boatswain's Mate who will not go back on the water still supervised crews, ran deck operations and handled equipment and cargo, and that places them somewhere real.
+                  Do not ask them to describe their day to day first if you can already write it from their role title and what they have told you. Asking a question you can answer yourself stalls them for a turn and they have already asked twice.
+                  Say in ONE short line that their code only points at the one role, then show the wider set. Never spend a second paragraph re-explaining the licence, the water, or whatever it was they ruled out. They told you. Telling them back is the loop they are stuck in.
                   Never make them re-type the options to get an answer. Having to say "I mean logistics versus port operations" because you dropped the thread is you making them do your job.
 
                   NAME ONE. They asked you to choose, so choose. Lead with the single one you would go for, in the first sentence, and give the reason from what they told you about themselves. Then, briefly, what would make one of the others the better call instead.
@@ -322,9 +336,13 @@ subagent NM_Job_Matching:
                   Short sentences.
         actions:
             get_job_matches: @actions.get_job_matches
-                available when @variables.occupations is None
+                available when @variables.clusterKey is not None
                 with clusterKey=@variables.clusterKey
                 description: "Retrieve civilian job role matches for the veteran's cluster. Returns job titles and descriptions."
+            broaden_beyond_code: @actions.broaden_classify
+                available when @variables.clusterKey is None
+                set @variables.clusterKey=@outputs.clusterKey
+                description: "Place a coded veteran into a career area from what they did day to day, so you can offer roles BEYOND the ones their specialty code maps to. Call this when they have ruled out their coded matches, or when their code maps to only one role and they want something else. Pass their own words about the work, plus their military role title if you have it."
             go_to_mentor_connection: @utils.transition to @subagent.NM_Mentor_Connection
                 description: "Transition to mentor connection only when the veteran explicitly asks to connect with a mentor or agrees when offered."
 
