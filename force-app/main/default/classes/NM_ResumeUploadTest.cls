@@ -89,4 +89,75 @@ private class NM_ResumeUploadTest {
                 'Cleaning must not drop content the match depends on: ' + needle);
         }
     }
+
+    /* ---------------------------------------------------------------------
+     * The distress safety net. This exists because the PLATFORM refuses a
+     * veteran who says they are drinking too much, before our instructions are
+     * consulted. Measured 5 times in 5 with an explicit instruction forbidding
+     * exactly that reply. These tests guard the replacement.
+     * ------------------------------------------------------------------- */
+    @IsTest
+    static void distressIsRecognisedInTheVeteransOwnWords() {
+        for (String said : new List<String>{
+                'honestly I have been out two years and I cant hold a job, Im drinking too much',
+                'i am struggling since I got out and feel pretty hopeless',
+                'I can\'t cope with civilian life',
+                'nothing matters anymore' }) {
+            System.assert(NM_AgentController.signalsDistress(said),
+                'Must be recognised as distress: ' + said);
+        }
+    }
+
+    @IsTest
+    static void ordinaryCareerTalkIsNotTreatedAsDistress() {
+        // Firing on normal conversation would bury a real disclosure in noise
+        // and patronise everyone else.
+        for (String said : new List<String>{
+                'what jobs fit my background', 'the transition has been hard work',
+                'that job sounds stressful', 'I was a combat medic',
+                'which one pays the best?', null, '' }) {
+            System.assert(!NM_AgentController.signalsDistress(said),
+                'Must NOT be treated as distress: ' + said);
+        }
+    }
+
+    @IsTest
+    static void aPlatformRefusalIsReplaced() {
+        String refusal = 'Sorry, I can\'t assist with that. I can help you connect your '
+                       + 'military experience to civilian careers.';
+        String out = NM_AgentController.applyDistressNet('Im drinking too much', refusal);
+
+        System.assert(out.contains('988'), 'The crisis line must reach them');
+        System.assert(!out.containsIgnoreCase('assist with that'),
+            'The refusal must be REPLACED, not appended. An apostrophe-sensitive '
+          + 'match missed this once and shipped the refusal underneath the help.');
+    }
+
+    @IsTest
+    static void aCareerAnswerThatIgnoredThemGetsTheCrisisLineFirst() {
+        String ignored = 'Here are civilian roles that match your Army 11B background: '
+                       + 'Police Officer, Security Operations Manager.';
+        String out = NM_AgentController.applyDistressNet('I feel hopeless', ignored);
+
+        System.assert(out.startsWith('That sounds genuinely hard'),
+            'The person comes before the career answer');
+        System.assert(out.contains('Police Officer'),
+            'The career answer is kept, not thrown away');
+    }
+
+    @IsTest
+    static void anAgentThatAlreadyHandledItIsLeftAlone() {
+        String good = 'The Veterans Crisis Line is free and confidential, dial 988 then press 1.';
+        System.assertEquals(good,
+            NM_AgentController.applyDistressNet('I feel hopeless', good),
+            'Never double up on a reply that already did the right thing');
+    }
+
+    @IsTest
+    static void ordinaryRepliesArePassedThroughUntouched() {
+        String normal = 'Your Army 68W is Combat Medic Specialist.';
+        System.assertEquals(normal,
+            NM_AgentController.applyDistressNet('Army 68W', normal),
+            'The net must be invisible on every ordinary turn');
+    }
 }

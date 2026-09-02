@@ -1360,3 +1360,46 @@ Two things a later session should try before adding more prose:
    request we make, and it looks like a timeout rather than a defect.
 
 Do not report a single clean run as proof. Run the suite three times.
+
+### Outcome evaluation, and the two things it caught that nothing else did
+
+`scripts/sim_eval.py` runs ten realistic veteran journeys end to end and hands
+each transcript to `NM_QA_Evaluator_Template`, the same LLM grader that reviews
+real logged conversations. It scores 1-10 on whether the person left knowing
+more about what they can actually do next. Run it alongside `broad_run.py`, not
+instead of it: substring checks catch plumbing, this catches usefulness.
+
+It found two things immediately that every substring check had passed:
+
+**1. The platform refuses a veteran in distress, and no instruction fixes it.**
+"I have been out two years and I can't hold a job, I'm drinking too much"
+returned *"Sorry, I can't assist with that."* That is Agentforce's own refusal,
+fired before our instructions are consulted. Measured 5 times in 5 with an
+explicit instruction forbidding exactly that reply. The same person phrased as
+"I feel hopeless" got the crisis line correctly, so it is the substance-use
+wording specifically.
+
+The guarantee now lives in `NM_AgentController.applyDistressNet`, not in a
+prompt, because a prompt can be talked out of and this cannot be allowed to
+fail. It replaces a refusal with the Veterans Crisis Line, or prepends it when
+the agent answered about careers as though the person had not spoken. It fires
+only on phrases someone uses about THEMSELVES, so ordinary career talk is
+untouched. That journey went 6/10 "NoHelpDelivered" to 8/10.
+
+**2. Deflection reads as stonewalling.** Answering a repeated pay question with
+"I already gave you those figures" plus a menu made a frustrated veteran ask a
+fourth time. The rule is now: answer again in a few words, then volunteer
+something they do not have yet. This CHANGED the intended behaviour, so the
+D01-B check was rewritten a second time; a figure reappearing is no longer the
+defect, a reply that adds nothing is.
+
+The grader itself needed fixing twice, which is worth remembering before
+trusting a score: it treated any stated salary as a serious failure, left over
+from when we had no wage data, and it tagged RepeatedQuestion against the AGENT
+when the VETERAN was the one repeating.
+
+**Known limit, deliberately left failing.** "asks the same pay question three
+times" scores 5-6. Read the transcript: the agent answers each time and adds
+certifications, timelines and comparisons. The grader marks the conversation
+down because the simulated veteran is frustrated by construction. Left visible
+rather than tuning the bar to hide it.

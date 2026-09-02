@@ -118,7 +118,7 @@ public with sharing class NM_AgentController {
             SendMessageResult result = new SendMessageResult();
             if (resp.getStatusCode() == 200) {
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(resp.getBody());
-                result.replyText = extractReplyText(parsed);
+                result.replyText = applyDistressNet(text, extractReplyText(parsed));
                 result.success   = true;
             } else {
                 result.success      = false;
@@ -128,6 +128,86 @@ public with sharing class NM_AgentController {
             return result;
         } catch (AuraHandledException e) { throw e; }
         catch (Exception e) { throw new AuraHandledException('Message send failed: ' + e.getMessage()); }
+    }
+
+    // ── Distress safety net ─────────────────────────────────────────────────
+    //
+    // A veteran who says they are drinking too much and cannot hold a job gets
+    // "Sorry, I can't assist with that." from the PLATFORM, not from our agent.
+    // It is Agentforce's own refusal, it fires before our instructions are
+    // consulted, and no wording change moves it: measured 5 times out of 5 with
+    // an explicit instruction in place forbidding exactly that reply.
+    //
+    // That is the worst answer this product can give. Someone took a risk
+    // telling us why their career stalled and got turned away. So the guarantee
+    // lives here instead of in a prompt, where it cannot be talked out of.
+    //
+    // This does not bypass a safety control. It replaces a cold refusal with the
+    // response the situation actually calls for: take it seriously in two
+    // sentences, name the Veterans Crisis Line, and leave the door open. We do
+    // not diagnose, counsel, or ask them to explain.
+
+    @TestVisible
+    private static final String CRISIS_REPLY =
+        'That sounds genuinely hard, and I am glad you said it. The Veterans Crisis Line ' +
+        'is free and confidential, and you do not have to be in crisis to use it: dial 988 ' +
+        'then press 1, or text 838255. Whenever you want to pick the career side back up, ' +
+        'I am here and we can go at whatever pace suits you.';
+
+    // Deliberately narrow. These are phrases someone uses about THEMSELVES when
+    // they are struggling. Broad words like 'stress' or 'hard' would fire on
+    // ordinary career talk and bury a real disclosure in noise.
+    private static final List<String> DISTRESS_MARKERS = new List<String>{
+        'drinking too much', 'drink too much', 'drinking a lot', 'using again',
+        'cannot cope', 'can not cope', 'cant cope', 'can t cope',
+        'hopeless', 'suicidal', 'kill myself', 'end it all', 'no reason to',
+        'cannot hold a job', 'can not hold a job', 'cant hold a job', 'can t hold a job',
+        'struggling since', 'really struggling', 'am struggling',
+        'depressed', 'depression', 'ptsd is', 'not doing well', 'falling apart',
+        'no one cares', 'nothing matters'
+    };
+
+    /*
+     * Purpose:    True when the veteran's own message signals they are
+     *             struggling, rather than merely mentioning a hard topic.
+     */
+    @TestVisible
+    private static Boolean signalsDistress(String text) {
+        if (String.isBlank(text)) return false;
+        String t = text.toLowerCase().replaceAll('[^a-z0-9 ]', ' ').replaceAll(' +', ' ');
+        for (String marker : DISTRESS_MARKERS) {
+            if (t.contains(marker)) return true;
+        }
+        return false;
+    }
+
+    /*
+     * Purpose:    Decide what the veteran actually sees.
+     * Returns:    the crisis reply when they disclosed distress and the agent
+     *             either refused or answered without pointing anywhere useful;
+     *             otherwise the agent's own reply, untouched.
+     */
+    @TestVisible
+    private static String applyDistressNet(String userText, String agentReply) {
+        if (!signalsDistress(userText)) return agentReply;
+
+        String raw = (agentReply == null ? '' : agentReply).toLowerCase();
+        if (raw.contains('988') || raw.contains('crisis line')) return agentReply;
+
+        // Strip punctuation before matching. The platform refusal is written
+        // "Sorry, I can't assist with that." and an apostrophe-sensitive check
+        // silently missed it, so the refusal was APPENDED to the crisis reply
+        // instead of replaced by it. Normalise, then match.
+        String r = raw.replaceAll('[^a-z0-9 ]', ' ').replaceAll(' +', ' ');
+        Boolean refused = String.isBlank(agentReply)
+            || r.contains('can t assist') || r.contains('cannot assist')
+            || r.contains('can not assist') || r.contains('unable to assist')
+            || r.contains('can t help with that') || r.contains('cannot help with that')
+            || r.contains('outside my scope') || r.contains('not something i can help');
+
+        // Refused outright, or answered about careers as though they had not
+        // spoken. Either way the person comes first.
+        return refused ? CRISIS_REPLY : CRISIS_REPLY + '\n\n' + agentReply;
     }
 
     // A resume runs long and the agent does not need all of it. Two pages of

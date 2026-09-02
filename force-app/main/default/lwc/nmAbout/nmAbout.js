@@ -64,7 +64,11 @@ export default class NmAbout extends LightningElement {
 
     guardrails = [
         { key: 'g1', title: 'It never invents a salary. ',
-          body: 'We hold no wage data, so it says so and points to the Bureau of Labor Statistics instead of guessing a number someone might plan a career around.' },
+          body: 'Every pay figure is read from Bureau of Labor Statistics wage data we hold. It will not estimate, round from memory, or convert a figure itself, and where BLS publishes no median for a role it says so rather than implying the job pays nothing.' },
+        { key: 'g1b', title: 'It shows the numbers it ranked on. ',
+          body: 'If you ask which pays most it will tell you, and print what each one pays so you can see what the answer rests on. A ranking you cannot check is just an opinion with a number attached.' },
+        { key: 'g1c', title: 'Your resume stays on your machine. ',
+          body: 'A resume is read in your browser and only the text is sent. The file is never uploaded and never stored, because you should not have to hand over a document to ask a question about it.' },
         { key: 'g2', title: 'Introductions require consent. ',
           body: 'A mentor is only contacted after an explicit yes and an email address. Nothing is sent automatically, and a mentor email is never shown.' },
         { key: 'g3', title: 'Sensitive disclosures are not repeated. ',

@@ -1,4 +1,7 @@
 import re
+
+def _words(t):
+    return re.findall(r"[a-z]{4,}", (t or "").lower())
 """Re-run the reported repro steps against the CURRENTLY ACTIVE agent.
 
 The three Orchestrate reports were produced across v50-v53 and each says it
@@ -49,19 +52,19 @@ CASES = [
 
  ("D01-B","D01","Pay question repetition loop",
   ["Navy IT here","which one pays the best?","which one pays the best?","which one pays the best?"],
-  # REWRITTEN for NMDH-23. Both of this check's original premises are dead:
-  # the agent HAS wage data now, and ranking by pay is allowed because it can
-  # show the figures it ranked on. What must still never happen is the actual
-  # reported defect: answering the same question with the same numbers over and
-  # over. Nor may it claim it already answered when it has not.
+  # REWRITTEN AGAIN. The intended behaviour changed: on a repeat ask the agent
+  # must ANSWER AGAIN briefly and ADD SOMETHING NEW, because deflecting with
+  # "I already told you" is stonewalling and made a frustrated veteran ask a
+  # fourth time. So a figure reappearing is no longer the defect. The defect is
+  # a reply that carries nothing the veteran did not already have.
   lambda r: len(r)>3 and (
       # 1. The first ask must produce a real, sourced figure.
       not (re.search(r"\$\s?\d", r[1]) and
            ("bureau of labor" in r[1].lower() or "bls" in r[1].lower()))
-      # 2. Later asks must not reprint those figures.
-      or any(re.search(r"\$\s?\d", x) for x in r[2:4])
-      # 3. And must not claim a prior answer that never happened.
-      or "already" in r[1].lower())),
+      # 2. Never claim a prior answer that never happened.
+      or "already" in r[1].lower()
+      # 3. Each later reply must add words the previous one did not have.
+      or any(len(set(_words(r[k])) - set(_words(r[k-1]))) < 12 for k in (2, 3)))),
 
  ("D01-C","D01","Cook describe-path fallback loop",
   ["I was a cook feeding 500 troops a day","ok, what's next?",
