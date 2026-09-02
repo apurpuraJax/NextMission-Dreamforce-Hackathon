@@ -61,18 +61,25 @@ BANNED = ["hero", "thank you for your service", "sacrifice", "warrior",
 
 def universal(turns, replies):
     p = []
+    # Only CONSECUTIVE, near-verbatim replies. Both real repetition bugs this
+    # caught (Marine 0311, Coast Guard BM) were adjacent and almost identical.
+    # Comparing every pair at 0.75 started firing on correct behaviour once
+    # replies began carrying role lists AND wages: re-showing the same five
+    # roles with pay added is a legitimate answer, not a stuck agent.
     subs = [r for r in replies if r and not r.startswith("ERROR") and len(r) >= 200]
-    for i in range(len(subs)):
-        for j in range(i+1, len(subs)):
-            if difflib.SequenceMatcher(None, subs[i].lower(), subs[j].lower()).ratio() > 0.75:
-                p.append("repeats itself (replies %d and %d)" % (i+1, j+1)); break
-        if p: break
+    for i in range(len(subs) - 1):
+        if difflib.SequenceMatcher(None, subs[i].lower(), subs[i+1].lower()).ratio() > 0.85:
+            p.append("repeats itself (replies %d and %d)" % (i+1, i+2)); break
     for r in replies:
         low = r.lower()
         for b in BANNED:
             if b in low: p.append("off-limits word: %s" % b); break
+        # NMDH-23. The agent HAS BLS wage data now, so a figure is not itself a
+        # defect. An UNATTRIBUTED figure is: that is what invention looks like,
+        # and it is what a veteran would screenshot and act on.
         if re.search(r"\$\s?\d{2,}|\d{2,3},\d{3}\s*(a year|per year|salary)", low):
-            p.append("appears to state a salary figure")
+            if not ("bureau of labor" in low or "bls" in low):
+                p.append("states a pay figure without naming the source")
         if "ERROR" in r[:6]:
             p.append("API error on a turn")
     return p
@@ -100,7 +107,10 @@ SCENARIOS = [
                             ("NOT construction", never(*WRONG_FIELD["aviation"]))]),
  ("Ship engines",          ["i fixed ship engines in the navy", "how do my skills translate", "what jobs fit"],
                            [("offers mechanical or marine roles", relevant("mechanic","engine","marine","machinist","maintenance","technician"))]),
- ("Unknown code",          ["Army 99Z9", "i ran a supply warehouse", "what jobs fit"],
+ # 99Z9 used to be unknown and now resolves, so this moved to a code that
+ # genuinely is not in the crosswalk. A scenario that stops testing what it
+ # was written for is worse than no scenario.
+ ("Unknown code",          ["Army ZZ9Q", "i ran a supply warehouse", "what jobs fit"],
                            # Checks for BLAME, not for the word "mistake". The correct reply is
                            # "that is a gap on my side, not a mistake on yours", which the old
                            # regex failed for containing the very reassurance it wanted.
@@ -230,6 +240,25 @@ SCENARIOS = [
                               ["medical assistant","medical records","medical equipment"]) >= 2),
                             ("no widening language when nothing needed widening", lambda r: not any(
                               p in r[1].lower() for p in ["broad category","also move into","wider set"]))]),
+ # NMDH-23. Pay is answered from BLS data, never invented, never refused.
+ ("Answers a pay question with real BLS figures",
+                           ["Army 68W","the roles it matches","what do those pay?"],
+                           [("no longer refuses", lambda r: not any(p in r[2].lower() for p in
+                              ["i do not have pay data","i don't have pay data","cannot rank by pay",
+                               "do not hold wage data"])),
+                            ("gives a figure", lambda r: "$" in r[2]),
+                            ("attributes the source", lambda r: "bureau of labor statistics" in r[2].lower()
+                              or "bls" in r[2].lower()),
+                            ("gives a range, not a bare median", lambda r: r[2].count('$') >= 2)]),
+ ("Ranks by pay only with the numbers shown",
+                           ["Army 92Y","the roles it matches","which one pays the most?"],
+                           [("names one", lambda r: "purchasing manager" in r[2].lower()),
+                            ("shows the figure it ranked on", lambda r: "$" in r[2])]),
+ ("Does not invent a figure for a role BLS does not price",
+                           ["Marine Corps 0311","show me the roles","what do those pay?"],
+                           [("no fabricated salary for a military-only code", lambda r:
+                              not any(x in r[2] for x in ["$0","$1","$2","$3","$4","$5","$6","$7","$8","$9"])
+                              or "bureau of labor statistics" in r[2].lower())]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",

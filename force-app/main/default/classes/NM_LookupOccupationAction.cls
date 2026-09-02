@@ -237,6 +237,34 @@ public with sharing class NM_LookupOccupationAction {
                 res.occupationCount = 0;
                 res.roleTitle      = mc.Role_Title__c;
                 res.message        = MILITARY_ONLY_MSG;
+
+                // NMDH-33 stopped us passing a 55-xx SOC off as a civilian job.
+                // It did not give the veteran anywhere to go, and the agent
+                // stalled: it asked them to describe a job it had just named,
+                // then repeated itself when they pushed. Adjacent civilian roles
+                // give it something true to say. These are never presented as
+                // what the code maps to, which is the distinction that matters.
+                if (String.isNotBlank(mc.ONET_Codes__c)) {
+                    NM_Occupation_Supplement__mdt msup = null;
+                    for (String c : mc.ONET_Codes__c.split(';')) {
+                        msup = supByKey.get(c.trim().toUpperCase());
+                        if (msup != null) break;
+                    }
+                    if (msup != null) {
+                        List<String> madj = new List<String>();
+                        for (String c : splitCodes(msup.Adjacent_ONET_Codes__c)) {
+                            if (madj.size() >= MAX_OCCUPATIONS) break;
+                            NM_Occupation__c o = occByCode.get(c);
+                            if (o == null || isMilitaryOnlyONET(o.ONET_Code__c)) continue;
+                            madj.add(o.Name + ' :: ' +
+                                (o.Description__c == null ? '' : o.Description__c));
+                        }
+                        if (!madj.isEmpty()) {
+                            res.adjacentOccupations = String.join(madj, '\n\n');
+                            res.adjacentCount = madj.size();
+                        }
+                    }
+                }
             } else if (parts.isEmpty()) {
                 res.found = false;
                 res.militaryOnly = false;

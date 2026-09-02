@@ -277,11 +277,16 @@ private class NM_LookupOccupationActionTest {
             NM_LookupOccupationAction.lookupOccupations(
                 new List<NM_LookupOccupationAction.Request>{r})[0];
 
-        // NMDH-33 owns this path. Supplementing it would smuggle civilian roles
-        // back in through a door that ticket deliberately closed.
+        // Superseded. NMDH-33 stopped a 55-xx SOC being passed off as a civilian
+        // job, and that still holds: occupationCount stays 0 and the military SOC
+        // never appears as a match. But leaving the veteran with nothing made the
+        // agent stall and repeat itself, so adjacent civilian roles are now
+        // offered here, clearly separated from the (empty) direct match.
         System.assert(res.militaryOnly, 'Sanity: still the military-only path');
-        System.assertEquals(0, res.adjacentCount,
-            'The military-only path must not gain occupations via a supplement');
+        System.assertEquals(0, res.occupationCount,
+            'A military SOC must never be offered as the civilian match');
+        System.assert(res.occupations == null || !res.occupations.contains('Infantry'),
+            'The military SOC itself must never surface');
     }
 
     @IsTest

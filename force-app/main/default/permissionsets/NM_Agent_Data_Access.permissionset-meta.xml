@@ -48,6 +48,10 @@
         <apexClass>NM_TranslateSkillsAction</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>NM_GetWagesAction</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
 
     <!-- External Credential Principal Access — NMDH-17.                                    -->
     <!-- Grants this permset's holders (agent user + Experience Cloud guest user) the right  -->
@@ -118,6 +122,15 @@
         <modifyAllRecords>false</modifyAllRecords>
         <object>NM_Mentor_Introduction__c</object>
         <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>NM_Wage__c</object>
+        <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
 
     <!-- NM_Conversation__c field permissions — operational + QA fields (NMDH-19 deployed) -->
@@ -293,6 +306,41 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>NM_Mentor_Introduction__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Median_Annual__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Pct10_Annual__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Pct90_Annual__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Total_Employment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Wage_SOC_Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Is_Broad_Group__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>NM_Wage__c.Source__c</field>
         <readable>true</readable>
     </fieldPermissions>
 

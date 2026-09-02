@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Wage_SOC_Code__c</fullName>
+    <label>Wage SOC Code</label>
+    <description>The SOC code the figure is actually reported for, which may be broader than the O*NET code.</description>
+    <type>Text</type><length>20</length>
+</CustomField>

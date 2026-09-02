@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Broad_Group__c</fullName>
+    <label>Is Broad Group</label>
+    <description>True when BLS publishes no figure for this exact occupation and the wage is for a wider group. Must be disclosed to the veteran.</description>
+    <type>Checkbox</type><defaultValue>false</defaultValue>
+</CustomField>

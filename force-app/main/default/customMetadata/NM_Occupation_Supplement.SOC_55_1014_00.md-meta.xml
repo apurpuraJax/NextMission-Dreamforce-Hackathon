@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>55-1014.00</label>
+    <protected>false</protected>
+    <values>
+        <field>Match_Key__c</field>
+        <value xsi:type="xsd:string">55-1014.00</value>
+    </values>
+    <values>
+        <field>Adjacent_ONET_Codes__c</field>
+        <value xsi:type="xsd:string">11-1021.00;11-3051.00;17-2112.00;13-1082.00;11-9161.00</value>
+    </values>
+    <values>
+        <field>Basis__c</field>
+        <value xsi:type="xsd:string">Curated. This is a military-only SOC with no civilian equivalent in the crosswalk, so without these the agent has nothing to offer and stalls asking the veteran to describe a job it just named. These are the civilian destinations for that background.</value>
+    </values>
+</CustomMetadata>

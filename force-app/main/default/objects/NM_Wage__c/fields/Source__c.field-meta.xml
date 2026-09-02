@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source__c</fullName>
+    <label>Source</label>
+    <description>Release this came from, so a stale figure is visible rather than silent.</description>
+    <type>Text</type><length>60</length>
+</CustomField>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ONET_Code__c</fullName>
+    <label>ONET Code</label>
+    <description>O*NET code this figure is attached to. External id for the load.</description>
+    <type>Text</type><length>20</length><externalId>true</externalId><unique>true</unique><required>true</required>
+</CustomField>

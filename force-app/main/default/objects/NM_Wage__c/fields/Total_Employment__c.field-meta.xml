@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_Employment__c</fullName>
+    <label>Total Employment</label>
+    <description>How many people hold this job nationally. Signals whether the path is realistic, not just well paid.</description>
+    <type>Number</type><precision>9</precision><scale>0</scale>
+</CustomField>

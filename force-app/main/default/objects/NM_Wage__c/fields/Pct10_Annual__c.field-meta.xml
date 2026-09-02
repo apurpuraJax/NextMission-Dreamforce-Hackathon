@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pct10_Annual__c</fullName>
+    <label>10th Percentile Annual</label>
+    <description>Annual wage at the 10th percentile. The honest floor for someone entering the field.</description>
+    <type>Number</type><precision>9</precision><scale>0</scale>
+</CustomField>

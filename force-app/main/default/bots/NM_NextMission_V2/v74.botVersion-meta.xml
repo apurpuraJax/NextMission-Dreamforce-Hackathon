@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v74</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Hi, I&apos;m NextMission. I help veterans connect their military experience to civilian careers. What&apos;s your branch and specialty code, MOS, AFSC, Rating, or NEC? Or just describe what you did and I&apos;ll work from there.</message>
+                <messageIdentifier>70f0bf93-a09f-4326-92a0-9aa1048a2835</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>d6863d64-7fec-491d-b067-9f783d5f68e9</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>ec8249c1-7971-433b-bed3-c184383d953f</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Something went wrong on my end. Let&apos;s try again, what were you working on?</message>
+                <messageIdentifier>cff2a838-6c1d-4ecd-b190-04a92c9044da</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>c2284ee0-70f5-499f-b6e5-353ba2f7c853</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>23c69191-1a31-432a-8979-a2da31d9eb6a</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Rich_Content_Error_Handling</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <conversationSystemMessage>
+                <type>Transfer</type>
+            </conversationSystemMessage>
+            <stepIdentifier>dc52dd24-8499-43c4-a8c5-36d0a2caa471</stepIdentifier>
+            <type>SystemMessage</type>
+        </botSteps>
+        <developerName>Transfer_To_Agent</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Transfer To Agent</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <conversationDefinitionPlanners>
+        <genAiPlannerName>NM_NextMission_V2_v74</genAiPlannerName>
+    </conversationDefinitionPlanners>
+    <conversationSystemDialogs>
+        <dialog>Rich_Content_Error_Handling</dialog>
+        <type>ErrorHandling</type>
+    </conversationSystemDialogs>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The veteran&apos;s military role title, e.g. Combat Medic Specialist, returned by look_up_occupations. Null when they described their background instead of giving a code.</description>
+        <developerName>roleTitle</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Role Title</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Email address the veteran supplied for a mentor introduction. Set ONLY after they explicitly agree to an introduction. Its presence is the consent signal.</description>
+        <developerName>requesterEmail</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Requester Email</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Grounded occupations ADJACENT to the direct crosswalk match, set by look_up_occupations when the code&apos;s row is thin. Present verbatim and ALWAYS as a wider set, never as what the code maps to.</description>
+        <developerName>adjacentOccupations</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Adjacent Occupations</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The agent instructions</description>
+        <developerName>AgentScriptInternal_agent_instructions</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Agent Instructions</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Result message from request_mentor_intro once the introduction has actually been created. Prevents sending twice.</description>
+        <developerName>introSent</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Intro Sent</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Boolean</dataType>
+        <description>Runtime condition evaluation for if statements</description>
+        <developerName>AgentScriptInternal_condition_1</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Runtime Condition 1</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Civilian occupations this veteran&apos;s specialty code maps to, from the O*NET military crosswalk. Set by look_up_occupations in the greeting. Each entry is Title :: Description. Present verbatim, never invent entries.</description>
+        <developerName>occupations</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Occupations</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The veteran&apos;s own description of their military background. Collected in NM_Greeting_And_Background. Passed as userPrompt to get_cluster_data.</description>
+        <developerName>userDescription</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>User Description</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Record Id of the mentor returned by find_mentor, as a string. Passed to request_mentor_intro. Never surfaced to the veteran.</description>
+        <developerName>mentorId</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Mentor Id</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>Military branch as stated by the veteran, normalised to one of the six service names.</description>
+        <developerName>branch</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Branch</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>One of the nine Next Mission clusters. Set by classify_cluster. Used only for mentor matching now; job and skills content comes from the O*NET occupations instead.</description>
+        <developerName>clusterKey</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Cluster Key</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <description>The next topic to be visited</description>
+        <developerName>AgentScriptInternal_next_topic</developerName>
+        <includeInPrompt>false</includeInPrompt>
+        <label>Next Topic</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <defaultStdObjForContactIdFltrEnabled>false</defaultStdObjForContactIdFltrEnabled>
+    <entryDialog>Welcome</entryDialog>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <isScriptCompatibleAgent>true</isScriptCompatibleAgent>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <staticPromptsEnabled>false</staticPromptsEnabled>
+    <stopRecPrompts>false</stopRecPrompts>
+    <stopWelcomePrompts>false</stopWelcomePrompts>
+    <surfacesEnabled>false</surfacesEnabled>
+    <toneType>Casual</toneType>
+</BotVersion>
