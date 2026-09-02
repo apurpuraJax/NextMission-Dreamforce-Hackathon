@@ -1403,3 +1403,66 @@ times" scores 5-6. Read the transcript: the agent answers each time and adds
 certifications, timelines and comparisons. The grader marks the conversation
 down because the simulated veteran is frustrated by construction. Left visible
 rather than tuning the bar to hide it.
+
+## Pay, resumes, and the evaluation that actually catches things (2026-09-02)
+
+### Substring checks are not evaluation
+
+`broad_run.py` asserts that a reply contains the word "diesel". That tells you
+the plumbing works and nothing about whether a veteran was helped. Every
+regression that mattered this month passed a substring check first.
+
+`scripts/sim_eval.py` is the answer to that. It runs whole veteran journeys and
+hands each transcript to `NM_QA_Evaluator_Template`, the same LLM grader used on
+real logged conversations, which scores 1-10 and tags what went wrong. Run it
+before believing the agent is in good shape.
+
+**On its first run it found something no substring check would have.** A veteran
+saying *"I've been out two years and I can't hold a job, I'm drinking too much"*
+received **"Sorry, I can't assist with that."** That is Agentforce's own
+platform refusal, fired before our instructions are consulted. An explicit
+instruction forbidding exactly that reply changed nothing: measured 5 times out
+of 5. It is the worst answer this product can give and it was invisible to 47
+passing conversation tests.
+
+The guarantee now lives in `NM_AgentController.applyDistressNet`, where it
+cannot be talked out of. Detect distress in the veteran's own words, and if the
+reply is a refusal or ignores them, lead with the Veterans Crisis Line. Narrow
+markers on purpose; firing on "that job sounds stressful" would bury a real
+disclosure in noise.
+
+**Generalise this:** when a guardrail matters, ask whether the platform can
+override you. If it can, the guardrail does not belong in a prompt.
+
+### Pay (NMDH-23)
+
+BLS OEWS May 2024, 968 records, 95.3% coverage, in its own `NM_Wage__c` object so
+an O*NET reload cannot wipe it. Median leads, range always accompanies it,
+broad-group figures are disclosed. Ranking by pay is allowed now **because** the
+figures can be shown.
+
+BLS returns **403 to a default User-Agent**; it needs contact details. Bulk
+upsert needs **LF** line endings on macOS.
+
+### Resumes (NMDH-31)
+
+Read in the browser with pdf.js from a static resource, so the file never
+reaches Salesforce and only text is sent. The agent both **uses** the resume as
+the background description and **rewrites** it: NCOIC becomes "supervised a
+12-person maintenance team", PMCS becomes "preventive maintenance and
+inspection", battalion becomes "a 500 to 1,000 person organisation". It may
+never add a number, tool or credential the veteran did not state; an invented
+figure on a resume gets asked about in an interview.
+
+### Two traps worth remembering
+
+**`getAll()` versus SOQL on custom metadata.** SOQL is subject to the running
+user's access and the Experience Cloud **guest** user has none on
+`NM_Occupation_Supplement__mdt`, so every coded lookup failed for real visitors
+while working perfectly as an admin. `getAll()` bypasses that. Test as guest.
+
+**Anchor edits on text unique to the target.** `NM_Skills_Translation` and
+`NM_Job_Matching` open with nearly identical lines; a slice anchored on the
+shared text deleted a subagent boundary. Check the subagent count before
+publishing.
+

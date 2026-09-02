@@ -329,4 +329,11 @@
         <shortDescription>NM_Chat_ResumeFailed</shortDescription>
         <value>I could not read that file. You can paste the text of your resume into the message box instead.</value>
     </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_ResumeHelp</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_ResumeHelp</shortDescription>
+        <value>Rewrite my resume in civilian terms</value>
+    </labels>
 </CustomLabels>

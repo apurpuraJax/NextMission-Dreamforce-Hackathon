@@ -24,6 +24,7 @@ import SCROLL_LABEL  from '@salesforce/label/c.NM_Chat_ScrollRegionLabel';
 import STARTERS_LBL  from '@salesforce/label/c.NM_Chat_StartersLabel';
 import SUGGEST_LBL   from '@salesforce/label/c.NM_Chat_SuggestionsLabel';
 import SUG_PAY       from '@salesforce/label/c.NM_Chat_Sug_Pay';
+import SUG_RESUME    from '@salesforce/label/c.NM_Chat_Sug_ResumeHelp';
 import ATTACH_ARIA   from '@salesforce/label/c.NM_Chat_AttachAria';
 import RES_READING   from '@salesforce/label/c.NM_Chat_ResumeReading';
 import RES_SENT      from '@salesforce/label/c.NM_Chat_ResumeSent';
@@ -568,8 +569,10 @@ export default class NmChatWidget extends LightningElement {
         if (/introduction request on your behalf/.test(t)) { return [SUG_YES, SUG_NO]; }
         if (/connect with a mentor|talk to a mentor/.test(t)) { return [SUG_YES, SUG_SKILLS]; }
         if (/which (do|would) you (want|like)/.test(t)) { return [SUG_SKILLS, SUG_ROLES]; }
+        // Right after a skills translation is when resume help lands best: they
+        // have just seen their own work described in civilian words.
         if (/sound right|sounds right|resonate|anything you want to add/.test(t)) {
-            return [SUG_RIGHT, SUG_ADD, SUG_MENTOR];
+            return [SUG_RIGHT, SUG_RESUME, SUG_MENTOR];
         }
         // Once a figure is on screen, offering to fetch pay again is noise.
         const hasPay = /\$\s?\d/.test(reply);

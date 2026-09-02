@@ -84,6 +84,11 @@ JOURNEYS = [
         "what do those pay?",
         "which one should I go for?",
     ]),
+    ("mechanic wants his resume made legible", [
+        ("resume", RESUME_91B, "caldwell_resume.pdf"),
+        "can you help me fix my resume so a civilian recruiter gets it?",
+        "what jobs fit",
+    ]),
     ("military spouse who needs portability", [
         ("resume", RESUME_SPOUSE, "okonkwo.pdf"),
         "we move every two years so it has to come with me",
@@ -199,7 +204,15 @@ def main():
         results = list(ex.map(run_journey, journeys))
 
     print("Grading on outcome with NM_QA_Evaluator_Template...\n")
-    grades = grade(results)
+    # Grade in small batches. Anonymous Apex has a body size limit and a whole
+    # suite of transcripts silently blows it, which comes back as every journey
+    # scoring nothing rather than as an error.
+    grades = {}
+    BATCH = 3
+    for off in range(0, len(results), BATCH):
+        chunk = results[off:off + BATCH]
+        for k, v in grade(chunk).items():
+            grades[off + k] = v
 
     bad = 0
     print("=" * 78)
