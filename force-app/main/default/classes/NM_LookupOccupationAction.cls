@@ -108,6 +108,7 @@ public with sharing class NM_LookupOccupationAction {
             if (b != null) keys.add(b);
             String n = baseNavyRatingKey(req.branch, req.code);
             if (n != null) keys.add(n);
+            for (String x : afscSkillLevelKeys(req.branch, req.code)) keys.add(x);
         }
 
         // --- Query 1: the military codes ------------------------------------
@@ -150,6 +151,12 @@ public with sharing class NM_LookupOccupationAction {
                 String fallback = baseArmyKey(req.branch, req.code);
                 if (fallback == null || !codeByKey.containsKey(fallback)) {
                     fallback = baseNavyRatingKey(req.branch, req.code);
+                }
+                if (fallback == null || !codeByKey.containsKey(fallback)) {
+                    fallback = null;
+                    for (String x : afscSkillLevelKeys(req.branch, req.code)) {
+                        if (codeByKey.containsKey(x)) { fallback = x; break; }
+                    }
                 }
                 if (fallback != null && codeByKey.containsKey(fallback)) key = fallback;
             }
@@ -223,10 +230,42 @@ public with sharing class NM_LookupOccupationAction {
      */
     private static String baseNavyRatingKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
-        if (branch.trim().toUpperCase() != 'NAVY') return null;
+        String b = branch.trim().toUpperCase();
+        // The Coast Guard uses the same rating plus paygrade convention as the
+        // Navy, so ME2, BM2 and MK1 were all missing until this included it.
+        if (b != 'NAVY' && b != 'COAST GUARD') return null;
         String c = code.trim().toUpperCase();
         if (!Pattern.matches('^[A-Z]{2,3}[1-9]$', c)) return null;
-        return 'NAVY|' + c.substring(0, c.length() - 1);
+        return b + '|' + c.substring(0, c.length() - 1);
+    }
+
+    /*
+     * Purpose:    Air Force specialty codes are conventionally WRITTEN with an X
+     *             standing in for the skill level, as in 1B4X1, but the crosswalk
+     *             stores the concrete levels (1B431, 1B451, 1B471). Almost every
+     *             Air Force veteran types the X form, so without this the largest
+     *             branch in our data missed on its most common input.
+     * Returns:    candidate keys, journeyman (5) first because it is the most
+     *             commonly held level, then craftsman, apprentice, helper, chief.
+     * Note:       Space Force is included because the USSF adopted the Air Force
+     *             specialty code system, and we hold no Space Force rows at all.
+     *             A Guardian typing their code otherwise gets nothing.
+     */
+    private static List<String> afscSkillLevelKeys(String branch, String code) {
+        List<String> out = new List<String>();
+        if (String.isBlank(branch) || String.isBlank(code)) return out;
+        String b = branch.trim().toUpperCase();
+        if (b != 'AIR FORCE' && b != 'SPACE FORCE') return out;
+        String c = code.trim().toUpperCase();
+        String prefix = 'AIR FORCE|';      // Space Force resolves against AF codes
+        if (c.contains('X')) {
+            for (String lvl : new List<String>{'5','7','3','1','9'}) {
+                out.add(prefix + c.replace('X', lvl));
+            }
+        } else if (b == 'SPACE FORCE') {
+            out.add(prefix + c);
+        }
+        return out;
     }
 
     private static String baseArmyKey(String branch, String code) {
