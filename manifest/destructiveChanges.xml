@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The platform-event writer built for conversation logging and then abandoned.
+  Events published successfully but the trigger never produced a record or a
+  log, so delivery was never confirmed, and logging went to insert-per-turn
+  instead. The trigger has since sat at 0% coverage and BLOCKS any validation
+  deploy that runs tests.
+-->
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>NM_ConversationTurnTrigger</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>NM_Conversation_Turn__e</members>
+        <name>CustomObject</name>
+    </types>
+    <version>62.0</version>
+</Package>

@@ -36,7 +36,7 @@ Transcript:
             <required>true</required>
         </inputs>
         <isCitationEnabled>false</isCitationEnabled>
-        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4Omni</primaryModel>
         <status>Published</status>
         <templateFormat>FormulaExpression</templateFormat>
         <versionIdentifier>lH0eJ+3CyZNKDyBAHiFqMG16WRBkAkupsvbjufIEaC0=_4</versionIdentifier>
