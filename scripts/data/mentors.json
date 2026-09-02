@@ -1,0 +1,562 @@
+[
+ {
+  "name": "Priya N.",
+  "branch": "Army",
+  "cluster": "Healthcare",
+  "role": "Paramedic",
+  "employer": "Ridgeline County EMS",
+  "years": 3,
+  "military": "68W Combat Medic",
+  "bio": "Priya ran treatment lanes as a 68W and now works 12-hour shifts on a county ambulance. Priya can explain how to get NREMT certified using military training and what the pay cut looks like in year one."
+ },
+ {
+  "name": "Tomas R.",
+  "branch": "Navy",
+  "cluster": "Healthcare",
+  "role": "Surgical Technologist",
+  "employer": "St. Auberon Medical Center",
+  "years": 5,
+  "military": "Hospital Corpsman",
+  "bio": "Tomas worked shipboard sick call and a field surgical team before moving into a civilian operating room. Tomas is blunt about which corpsman skills transfer directly and which need a certificate first."
+ },
+ {
+  "name": "Wren D.",
+  "branch": "Air Force",
+  "cluster": "Healthcare",
+  "role": "Respiratory Therapist",
+  "employer": "Mercy Valley Health",
+  "years": 2,
+  "military": "4H0X1 Cardiopulmonary",
+  "bio": "Wren moved from Air Force cardiopulmonary work into a hospital respiratory therapy department. Wren went back for an associate degree while still on active duty and can walk through how that was funded."
+ },
+ {
+  "name": "Idris K.",
+  "branch": "Army",
+  "cluster": "Healthcare",
+  "role": "Medical Records Specialist",
+  "employer": "Northgate Clinic Group",
+  "years": 4,
+  "military": "68G Patient Administration",
+  "bio": "Idris handled patient administration in a combat support hospital and now manages records and coding. Idris is a good person to ask if the clinical roles do not appeal but healthcare still does."
+ },
+ {
+  "name": "Sana P.",
+  "branch": "Navy",
+  "cluster": "Healthcare",
+  "role": "Clinical Research Coordinator",
+  "employer": "Bayfront Research Institute",
+  "years": 6,
+  "military": "Hospital Corpsman, Lab Tech",
+  "bio": "Sana ran a shipboard lab and moved into clinical trials coordination. Sana can explain how to talk about protocol discipline in a way that research managers recognise."
+ },
+ {
+  "name": "Della M.",
+  "branch": "Military Spouse",
+  "cluster": "Healthcare",
+  "role": "Medical Biller",
+  "employer": "Remote, Cardinal Health Partners",
+  "years": 3,
+  "military": "Spouse, 4 PCS moves",
+  "bio": "Della built a billing and coding career that survived four moves by going fully remote. Della is the person to talk to about work that travels with you."
+ },
+ {
+  "name": "Riley K.",
+  "branch": "Air Force",
+  "cluster": "Communications_IT",
+  "role": "Cloud Infrastructure Engineer",
+  "employer": "Meridian Cloud Partners",
+  "years": 4,
+  "military": "3D0X2 Cyber Systems",
+  "bio": "Riley ran base network operations and moved into civilian cloud infrastructure. Riley used AWS certifications to bridge the gap and can say which ones actually mattered in interviews."
+ },
+ {
+  "name": "Obi A.",
+  "branch": "Army",
+  "cluster": "Communications_IT",
+  "role": "Network Administrator",
+  "employer": "Halden Logistics Group",
+  "years": 3,
+  "military": "25B Information Technology Specialist",
+  "bio": "Obi maintained tactical networks in the field and now runs a corporate network team. Obi can explain how to translate signal work into language a hiring manager understands."
+ },
+ {
+  "name": "Nadia F.",
+  "branch": "Navy",
+  "cluster": "Communications_IT",
+  "role": "Cybersecurity Analyst",
+  "employer": "Portside Financial",
+  "years": 5,
+  "military": "Information Systems Technician",
+  "bio": "Nadia moved from shipboard IT into a bank security operations centre. Nadia holds a clearance and can explain when that is worth money and when it is not."
+ },
+ {
+  "name": "Grant B.",
+  "branch": "Marine Corps",
+  "cluster": "Communications_IT",
+  "role": "Systems Administrator",
+  "employer": "Ferro Manufacturing",
+  "years": 7,
+  "military": "0651 Cyber Network Operator",
+  "bio": "Grant went from Marine network operations to running IT for a mid-size manufacturer. Grant is candid that the first civilian job was a step down in title and not in pay."
+ },
+ {
+  "name": "Zoe T.",
+  "branch": "Space Force",
+  "cluster": "Communications_IT",
+  "role": "Satellite Operations Engineer",
+  "employer": "Orbital Ridge Systems",
+  "years": 2,
+  "military": "5C0X1 Space Systems Operations",
+  "bio": "Zoe operated satellite payloads and moved into a commercial space operations centre. Zoe is one of the few people who can talk about the Space Force to civilian transition first hand."
+ },
+ {
+  "name": "Marcus O.",
+  "branch": "Coast Guard",
+  "cluster": "Communications_IT",
+  "role": "IT Support Manager",
+  "employer": "Harborline Shipping",
+  "years": 4,
+  "military": "Information Systems Technician",
+  "bio": "Marcus supported Coast Guard cutters and shore stations and now leads a support desk for a shipping company. Marcus knows the maritime industry hires Coast Guard veterans readily."
+ },
+ {
+  "name": "Kavi L.",
+  "branch": "Military Spouse",
+  "cluster": "Communications_IT",
+  "role": "Software QA Analyst",
+  "employer": "Remote, Brightpath Software",
+  "years": 2,
+  "military": "Spouse, 3 PCS moves",
+  "bio": "Kavi retrained into software testing specifically because it could be done from anywhere. Kavi can describe the bootcamp route honestly, including what it did not deliver."
+ },
+ {
+  "name": "Reese H.",
+  "branch": "Marine Corps",
+  "cluster": "Logistics",
+  "role": "Operations Director",
+  "employer": "Pacific Freight Alliance",
+  "years": 6,
+  "military": "0411 Maintenance Management",
+  "bio": "Reese managed 24-hour maintenance cycles and large asset inventories in the Marines and moved into freight and distribution operations. Reese helps veterans map military projects onto a civilian resume."
+ },
+ {
+  "name": "Jun P.",
+  "branch": "Army",
+  "cluster": "Logistics",
+  "role": "Supply Chain Analyst",
+  "employer": "Verity Retail Group",
+  "years": 3,
+  "military": "92A Automated Logistical Specialist",
+  "bio": "Jun ran a supply support activity and now forecasts inventory for a retail chain. Jun can explain which logistics software civilian employers actually use."
+ },
+ {
+  "name": "Hollis W.",
+  "branch": "Navy",
+  "cluster": "Logistics",
+  "role": "Warehouse Operations Manager",
+  "employer": "Tidewater Distribution",
+  "years": 8,
+  "military": "Logistics Specialist",
+  "bio": "Hollis ran shipboard storerooms and now manages a distribution centre floor. Hollis started as a shift supervisor and can describe that climb realistically."
+ },
+ {
+  "name": "Ariel S.",
+  "branch": "Air Force",
+  "cluster": "Logistics",
+  "role": "Transportation Coordinator",
+  "employer": "Copperline Carriers",
+  "years": 4,
+  "military": "2T2X1 Air Transportation",
+  "bio": "Ariel loaded and scheduled air cargo and moved into civilian freight coordination. Ariel can explain how air transportation experience reads to a logistics recruiter."
+ },
+ {
+  "name": "Bo N.",
+  "branch": "Army",
+  "cluster": "Logistics",
+  "role": "Heavy Truck Driver",
+  "employer": "Continental Freightways",
+  "years": 2,
+  "military": "88M Motor Transport Operator",
+  "bio": "Bo drove convoys and now runs regional routes with a commercial licence. Bo can explain how to convert military driving experience into a CDL without starting over."
+ },
+ {
+  "name": "Freya C.",
+  "branch": "Coast Guard",
+  "cluster": "Logistics",
+  "role": "Port Operations Supervisor",
+  "employer": "Gulfstream Terminals",
+  "years": 5,
+  "military": "Boatswain's Mate",
+  "bio": "Freya ran deck operations and small boat crews and now supervises a container terminal. Freya knows the port sector well and where it hires."
+ },
+ {
+  "name": "Cassian V.",
+  "branch": "Navy",
+  "cluster": "Engineering",
+  "role": "Marine Engineer",
+  "employer": "Delta Marine Services",
+  "years": 4,
+  "military": "Machinist's Mate",
+  "bio": "Cassian maintained shipboard propulsion and now works on commercial vessel engines. Cassian can explain which Coast Guard endorsements are worth pursuing."
+ },
+ {
+  "name": "Tobin E.",
+  "branch": "Army",
+  "cluster": "Engineering",
+  "role": "Construction Project Manager",
+  "employer": "Vantage Civil Group",
+  "years": 6,
+  "military": "12B Combat Engineer",
+  "bio": "Tobin ran engineer squads on construction and demolition tasks and moved into civilian project management. Tobin can help you describe military projects in terms a construction manager recognises."
+ },
+ {
+  "name": "Imani G.",
+  "branch": "Air Force",
+  "cluster": "Engineering",
+  "role": "Facilities Manager",
+  "employer": "Northline Properties",
+  "years": 5,
+  "military": "3E4X1 Water and Fuel Systems",
+  "bio": "Imani maintained base utility systems and now manages facilities for a property group. Imani can explain the licensing landscape for trades work by state."
+ },
+ {
+  "name": "Rafe D.",
+  "branch": "Marine Corps",
+  "cluster": "Engineering",
+  "role": "Diesel Mechanic",
+  "employer": "Ironwood Equipment",
+  "years": 3,
+  "military": "1341 Engineer Equipment Mechanic",
+  "bio": "Rafe kept heavy engineer equipment running and now services construction fleets. Rafe is direct that the trade pays well and the hours are long."
+ },
+ {
+  "name": "Lena Q.",
+  "branch": "Navy",
+  "cluster": "Engineering",
+  "role": "Nuclear Plant Operator",
+  "employer": "Riverbend Energy",
+  "years": 7,
+  "military": "Machinist's Mate Nuclear",
+  "bio": "Lena operated naval reactors and moved into commercial power generation. Lena can explain the licensing path and why the industry actively recruits from the Navy nuclear pipeline."
+ },
+ {
+  "name": "Soren A.",
+  "branch": "Coast Guard",
+  "cluster": "Engineering",
+  "role": "HVAC Technician",
+  "employer": "Beacon Mechanical",
+  "years": 2,
+  "military": "Machinery Technician",
+  "bio": "Soren maintained cutter machinery and now works commercial HVAC. Soren went through an apprenticeship and can say whether it was worth it."
+ },
+ {
+  "name": "Blake V.",
+  "branch": "Army",
+  "cluster": "Aviation",
+  "role": "Helicopter EMS Pilot",
+  "employer": "Heartland Air Medical",
+  "years": 5,
+  "military": "15W Aviation Operations",
+  "bio": "Blake flew Army rotary wing and now flies medical evacuation for a civilian air ambulance. Blake can explain the hours and ratings required to make that jump."
+ },
+ {
+  "name": "Devon S.",
+  "branch": "Navy",
+  "cluster": "Aviation",
+  "role": "Airline First Officer",
+  "employer": "Cascade Regional Airways",
+  "years": 4,
+  "military": "Naval Aviator, P-8",
+  "bio": "Devon flew maritime patrol and moved to a regional airline. Devon knows the Restricted ATP rules for military pilots and where the hour requirements bite."
+ },
+ {
+  "name": "Amara J.",
+  "branch": "Air Force",
+  "cluster": "Aviation",
+  "role": "Aircraft Mechanic",
+  "employer": "Skybridge Aviation Services",
+  "years": 3,
+  "military": "2A5X1 Aircraft Maintenance",
+  "bio": "Amara maintained airframes and powerplants and now holds an FAA A&P certificate. Amara used the JSAMTCC route and can walk through the paperwork."
+ },
+ {
+  "name": "Nikhil B.",
+  "branch": "Marine Corps",
+  "cluster": "Aviation",
+  "role": "Avionics Technician",
+  "employer": "Coastal Jet Systems",
+  "years": 6,
+  "military": "6314 Avionics",
+  "bio": "Nikhil worked aircraft avionics and moved into business jet maintenance. Nikhil can explain which civilian shops value military avionics experience most."
+ },
+ {
+  "name": "Teagan M.",
+  "branch": "Air Force",
+  "cluster": "Aviation",
+  "role": "Flight Operations Coordinator",
+  "employer": "Highpoint Charter",
+  "years": 2,
+  "military": "1C1X1 Air Traffic Control",
+  "bio": "Teagan controlled airfield traffic and now coordinates charter flight operations. Teagan is honest about the FAA controller age limits and what to do if you are past them."
+ },
+ {
+  "name": "Wes F.",
+  "branch": "Coast Guard",
+  "cluster": "Aviation",
+  "role": "Aviation Maintenance Technician",
+  "employer": "Seabird Rotorcraft",
+  "years": 4,
+  "military": "Aviation Maintenance Technician",
+  "bio": "Wes maintained Coast Guard helicopters and now services civil rotorcraft. Wes can explain how search and rescue maintenance experience reads to civilian employers."
+ },
+ {
+  "name": "Sloane R.",
+  "branch": "Army",
+  "cluster": "Intelligence",
+  "role": "Intelligence Analyst",
+  "employer": "Fedline Analytics",
+  "years": 4,
+  "military": "35F Intelligence Analyst",
+  "bio": "Sloane produced all-source intelligence and now works analysis for a government contractor. Sloane can explain how to describe classified work without saying anything you should not."
+ },
+ {
+  "name": "Emeka T.",
+  "branch": "Air Force",
+  "cluster": "Intelligence",
+  "role": "Data Analyst",
+  "employer": "Northstar Insurance",
+  "years": 5,
+  "military": "1N0X1 Operations Intelligence",
+  "bio": "Emeka moved from intelligence briefing into commercial data analysis. Emeka argues the briefing skill is the most undervalued thing veterans bring."
+ },
+ {
+  "name": "Yara H.",
+  "branch": "Navy",
+  "cluster": "Intelligence",
+  "role": "Threat Intelligence Lead",
+  "employer": "Portside Financial",
+  "years": 6,
+  "military": "Intelligence Specialist",
+  "bio": "Yara ran maritime intelligence watch floors and now leads a threat intelligence team at a bank. Yara can explain how clearance transfers work in practice."
+ },
+ {
+  "name": "Callum P.",
+  "branch": "Marine Corps",
+  "cluster": "Intelligence",
+  "role": "Geospatial Analyst",
+  "employer": "Terrafirma Mapping",
+  "years": 3,
+  "military": "0261 Geographic Intelligence",
+  "bio": "Callum did geospatial intelligence and moved into commercial mapping. Callum can point at which GIS certifications employers actually check for."
+ },
+ {
+  "name": "Noor S.",
+  "branch": "Army",
+  "cluster": "Intelligence",
+  "role": "Compliance Investigator",
+  "employer": "Halden Logistics Group",
+  "years": 7,
+  "military": "35M Human Intelligence",
+  "bio": "Noor conducted interviews and reporting in the Army and now runs internal investigations. Noor can explain how interviewing experience translates outside of law enforcement."
+ },
+ {
+  "name": "Dominic L.",
+  "branch": "Army",
+  "cluster": "LawEnforcement_Security",
+  "role": "Police Officer",
+  "employer": "Clairmont City Police",
+  "years": 5,
+  "military": "31B Military Police",
+  "bio": "Dominic served as military police and now works municipal patrol. Dominic can walk through academy requirements and what military service does and does not shortcut."
+ },
+ {
+  "name": "Petra Z.",
+  "branch": "Air Force",
+  "cluster": "LawEnforcement_Security",
+  "role": "Corporate Security Manager",
+  "employer": "Ferro Manufacturing",
+  "years": 6,
+  "military": "3P0X1 Security Forces",
+  "bio": "Petra led base security and now manages corporate site security. Petra can explain how to move into the corporate side rather than straight to patrol."
+ },
+ {
+  "name": "Anders K.",
+  "branch": "Coast Guard",
+  "cluster": "LawEnforcement_Security",
+  "role": "Federal Investigator",
+  "employer": "Maritime Enforcement Bureau",
+  "years": 4,
+  "military": "Maritime Enforcement Specialist",
+  "bio": "Anders did boardings and law enforcement at sea and moved into federal investigation. Anders knows the federal hiring process and veterans preference well."
+ },
+ {
+  "name": "Rosa D.",
+  "branch": "Marine Corps",
+  "cluster": "LawEnforcement_Security",
+  "role": "Loss Prevention Manager",
+  "employer": "Verity Retail Group",
+  "years": 3,
+  "military": "5811 Military Police",
+  "bio": "Rosa moved from Marine military police into retail loss prevention. Rosa is candid that the work is less dramatic and the hours are far better."
+ },
+ {
+  "name": "Kai W.",
+  "branch": "Navy",
+  "cluster": "LawEnforcement_Security",
+  "role": "Security Operations Supervisor",
+  "employer": "Bayfront Research Institute",
+  "years": 2,
+  "military": "Master-at-Arms",
+  "bio": "Kai ran security watches afloat and now supervises site security at a research campus. Kai can explain how to get past the entry-level guard tier quickly."
+ },
+ {
+  "name": "Odalys M.",
+  "branch": "Army",
+  "cluster": "FinanceAdmin",
+  "role": "Payroll Manager",
+  "employer": "Northgate Clinic Group",
+  "years": 5,
+  "military": "36B Financial Management",
+  "bio": "Odalys ran military pay operations and now manages civilian payroll. Odalys can explain which finance certifications are worth the money."
+ },
+ {
+  "name": "Bennett C.",
+  "branch": "Navy",
+  "cluster": "FinanceAdmin",
+  "role": "Staff Accountant",
+  "employer": "Tidewater Distribution",
+  "years": 3,
+  "military": "Yeoman",
+  "bio": "Bennett handled administration and disbursing afloat and moved into corporate accounting. Bennett finished a degree part time and can describe how that was managed."
+ },
+ {
+  "name": "Simone A.",
+  "branch": "Air Force",
+  "cluster": "FinanceAdmin",
+  "role": "HR Business Partner",
+  "employer": "Meridian Cloud Partners",
+  "years": 6,
+  "military": "3F0X1 Personnel",
+  "bio": "Simone did Air Force personnel work and now partners with engineering teams on hiring. Simone is a useful person to ask how hiring managers actually read a military resume."
+ },
+ {
+  "name": "Theo R.",
+  "branch": "Marine Corps",
+  "cluster": "FinanceAdmin",
+  "role": "Contract Administrator",
+  "employer": "Vantage Civil Group",
+  "years": 4,
+  "military": "3451 Financial Management",
+  "bio": "Theo managed unit budgets and now administers construction contracts. Theo can explain how procurement experience maps to civilian contracting roles."
+ },
+ {
+  "name": "Halle J.",
+  "branch": "Military Spouse",
+  "cluster": "FinanceAdmin",
+  "role": "Bookkeeper",
+  "employer": "Remote, Anchor Small Business Services",
+  "years": 4,
+  "military": "Spouse, 5 PCS moves",
+  "bio": "Halle built a remote bookkeeping practice that moves with the family. Halle can explain how to find employers who genuinely support relocating spouses."
+ },
+ {
+  "name": "Marcus E.",
+  "branch": "Army",
+  "cluster": "CombatArms",
+  "role": "Emergency Management Specialist",
+  "employer": "Clairmont County Emergency Services",
+  "years": 4,
+  "military": "11B Infantryman",
+  "bio": "Marcus led infantry squads and moved into county emergency management. Marcus argues that planning under pressure is the most transferable thing infantry offers."
+ },
+ {
+  "name": "Solomon B.",
+  "branch": "Marine Corps",
+  "cluster": "CombatArms",
+  "role": "Operations Manager",
+  "employer": "Ironwood Equipment",
+  "years": 7,
+  "military": "0311 Rifleman",
+  "bio": "Solomon led Marine rifle squads and now runs operations for an equipment dealer. Solomon can explain how to describe leadership without leaning on rank."
+ },
+ {
+  "name": "Dara V.",
+  "branch": "Army",
+  "cluster": "CombatArms",
+  "role": "Firefighter",
+  "employer": "Ridgeline County Fire",
+  "years": 3,
+  "military": "11C Indirect Fire Infantryman",
+  "bio": "Dara moved from infantry into a county fire service. Dara can walk through the testing process and how to prepare for it while still serving."
+ },
+ {
+  "name": "Ilya N.",
+  "branch": "Army",
+  "cluster": "CombatArms",
+  "role": "Wind Turbine Technician",
+  "employer": "Riverbend Energy",
+  "years": 2,
+  "military": "19D Cavalry Scout",
+  "bio": "Ilya moved from cavalry scout work into renewable energy field service. Ilya took a short technical course and can say exactly which one."
+ },
+ {
+  "name": "Quincy F.",
+  "branch": "Marine Corps",
+  "cluster": "CombatArms",
+  "role": "Training Manager",
+  "employer": "Brightpath Software",
+  "years": 5,
+  "military": "0369 Infantry Unit Leader",
+  "bio": "Quincy ran unit training and now builds employee training programmes at a software company. Quincy can explain how instructor experience converts to corporate learning roles."
+ },
+ {
+  "name": "Vega C.",
+  "branch": "Space Force",
+  "cluster": "Intelligence",
+  "role": "Space Domain Analyst",
+  "employer": "Orbital Ridge Systems",
+  "years": 2,
+  "military": "5I0X1 Space Systems Intelligence",
+  "bio": "Vega analysed orbital activity and moved into commercial space situational awareness. Vega transferred in from the Air Force and can explain how that history reads on a resume."
+ },
+ {
+  "name": "Rune D.",
+  "branch": "Space Force",
+  "cluster": "Engineering",
+  "role": "Test Engineer",
+  "employer": "Apex Launch Systems",
+  "years": 3,
+  "military": "5S0X1 Space Systems Operations",
+  "bio": "Rune worked launch and range systems and now supports commercial launch testing. Rune can explain which contractors hire Guardians directly."
+ },
+ {
+  "name": "Marisol E.",
+  "branch": "Military Spouse",
+  "cluster": "Logistics",
+  "role": "Operations Coordinator",
+  "employer": "Remote, Copperline Carriers",
+  "years": 3,
+  "military": "Spouse, 4 PCS moves",
+  "bio": "Marisol coordinates freight remotely and has kept the same employer through two moves. Marisol can explain how to negotiate remote work before you need it."
+ },
+ {
+  "name": "Jonah K.",
+  "branch": "Military Spouse",
+  "cluster": "LawEnforcement_Security",
+  "role": "Compliance Analyst",
+  "employer": "Remote, Portside Financial",
+  "years": 5,
+  "military": "Spouse, 6 PCS moves",
+  "bio": "Jonah moved into compliance work after several stalled job searches at new duty stations. Jonah is realistic about the years it took and what finally worked."
+ },
+ {
+  "name": "Solene B.",
+  "branch": "Coast Guard",
+  "cluster": "Healthcare",
+  "role": "Health Services Administrator",
+  "employer": "Mercy Valley Health",
+  "years": 4,
+  "military": "Health Services Technician",
+  "bio": "Solene ran clinic operations at Coast Guard units and now administers a hospital department. Solene knows the smaller-service transition is lonelier and has advice on that."
+ }
+]

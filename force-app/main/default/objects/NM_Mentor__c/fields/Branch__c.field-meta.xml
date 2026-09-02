@@ -40,6 +40,11 @@
                 <default>false</default>
                 <label>Space Force</label>
             </value>
+            <value>
+                <fullName>Military Spouse</fullName>
+                <default>false</default>
+                <label>Military Spouse</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
