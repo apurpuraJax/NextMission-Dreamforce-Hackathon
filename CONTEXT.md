@@ -973,6 +973,34 @@ the check is wrong** before changing anything: two of these failures were bad
 assertions, including one that failed the agent for correctly saying "I have
 taken Commercial Airline Pilot off the list".
 
+### Accessibility: what is measured, what a human confirmed, what is open
+
+**Measured** (`python3 scripts/check_contrast.py`, plus the page pairs):
+19 widget pairs and 16 hero/about pairs, **0 failing**. Body copy 7.70:1 to
+15.85:1, headings 9.11:1, focus ring 7.14:1 on white and 6.56:1 on cream.
+
+Two greens exist on purpose. `#14532D` pine is the only green used for text,
+at 9.11:1. `#3F9142` signal green is **3.93:1 and must never carry text** — it
+is for rules, card edges and typing dots, where 3:1 for non-text applies.
+No red appears in the page components, so green never conveys meaning against
+red for the ~8% of men with red/green colour blindness.
+
+**Confirmed by hand on the published site (2026-09-01):**
+* Tab moves through the controls in order.
+* **No keyboard trap.** Tabbing past the widget reaches the page and then the
+  browser address bar. This is the failure that actually strands people.
+
+**Verified in code:** the LWR theme stylesheets, branding set and both theme
+layouts contain **zero** `outline: none`, so theme controls keep the browser
+default ring. Our five focus rules all ADD a 3px ring, none remove one, and
+they use `:focus-visible` so the ring appears on keyboard focus but not on
+mouse click.
+
+**Still open, and should not be claimed as done:**
+* Reflow at 200% and 400% zoom.
+* A real screen reader pass. Structure and contrast are verifiable from a
+  terminal; announcement order is not.
+
 ---
 
 ## Accessibility Standards
