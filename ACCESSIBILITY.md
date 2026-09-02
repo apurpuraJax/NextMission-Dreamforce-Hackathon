@@ -8,6 +8,10 @@
 > rendered. Ruleset: **WCAG 2.0 Level A and AA plus WCAG 2.1 Level A and AA**.
 >
 > **Result: 0 violations. 53 checks passed.**
+>
+> Re-run 2026-09-02 after adding resume upload, which introduced a file input:
+> still **0 violations**. The attach control was verified separately on the live
+> site as a 44x44 target, correctly labelled, and reachable by keyboard.
 
 Reproduce it:
 

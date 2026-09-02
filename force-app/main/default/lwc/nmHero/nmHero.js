@@ -6,6 +6,7 @@ export default class NmHero extends LightningElement {
     stats = [
         { key: 'codes', num: '8,179', label: 'military specialty codes' },
         { key: 'occs',  num: '1,016', label: 'civilian occupations' },
+        { key: 'wage',  num: '968',   label: 'occupations with federal wage data' },
         { key: 'br',    num: '6',     label: 'service branches' }
     ];
 }
