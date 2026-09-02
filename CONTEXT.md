@@ -1063,6 +1063,37 @@ This class of bug is invisible to `broad_run.py` and `triage_reports.py`, since
 both open a fresh session per conversation. It only appears to someone using the
 widget across page loads.
 
+### O*NET releases: the monitor compares LABELS, not content
+
+`NM_ONETReleaseMonitor` flagged the data as stale at `db_29_1` against a
+published `db_31_0`. Checked properly on 2026-09-01, the data was **already
+current**:
+
+* All **1,016 occupations hash identical** between the org and a fresh
+  `db_31_0` download. 263,541 characters, same hash, zero differing titles or
+  descriptions.
+* We only load `Occupation Data.txt`, which did not change between those
+  releases. O*NET releases mostly revise the ratings and skills files we do not
+  use.
+
+So the reload was a **label correction, not a data refresh**.
+`Loaded_ONET_Release__c` is now `db_31_0` and `Refresh_Needed__c` is false.
+
+**Two things worth knowing before acting on that alert again:**
+
+1. The monitor comparing release labels will keep raising alerts that have no
+   practical effect on us, because our subset of the database is far more stable
+   than the release cadence. **Verify content before reloading.** The hash
+   comparison above is the cheap way to do it.
+2. **The military crosswalk is not versioned with the database at all.** It comes
+   from a fixed URL (`military_crosswalk.zip`, currently `milx0724.csv`, July
+   2024) and the monitor does not track it. Our 8,179 military codes could go
+   stale with no alert whatsoever. That gap belongs in NMDH-32.
+
+**Always re-run mapping integrity after any real reload.** A version mismatch
+between the crosswalk and the occupation set orphans mappings silently. Current:
+425 distinct O*NET codes referenced, **0 missing**, against 1,016 occupations.
+
 ---
 
 ## Accessibility Standards
