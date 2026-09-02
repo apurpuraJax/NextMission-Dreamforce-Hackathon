@@ -1001,6 +1001,45 @@ mouse click.
 * A real screen reader pass. Structure and contrast are verifiable from a
   terminal; announcement order is not.
 
+### Current live state (update this whenever you deploy)
+
+* **Agent: v58.** Publishing does not activate. Check what is actually live
+  before testing, and put the version in anything you report.
+* **Mentors: 70 active**, including Coast Guard (6) and Military Spouse (5),
+  both of which were zero before 2026-09-01.
+* **Prompt templates:** `NM_QA_Evaluator_Template` runs `DefaultOpenAIGPT4Omni`;
+  the other three run `DefaultOpenAIGPT4OmniMini`. See
+  `MODEL-REVIEW-2026-09-01.md`.
+* **The platform-event logging path is DELETED, not parked.**
+  `NM_ConversationTurnTrigger` and `NM_Conversation_Turn__e` are gone. Do not
+  revive them expecting delivery to work; it was never confirmed, and the
+  trigger sat at 0% coverage blocking every validation deploy.
+
+### The mentor shortlist is capped. Do not undo it.
+
+`NM_FindMentor_Flow` used to pass the ENTIRE active roster into the prompt. At
+70 mentors that is ~6,000 tokens and turns the task into "pick one of 70",
+which is what small models handle worst.
+
+`NM_MentorCorpusAction` now returns at most 15: up to 10 from the veteran's
+career area, then the rest ranked by **word overlap with what the veteran
+actually said**. Cluster stays a tie-breaker, never a hard filter, so a match
+outside their field is still reachable. That was the point of NMDH-24.
+
+**The ranking is not optional.** Without it the "others" pool filled in Name
+order, and because `clusterKey` is blank on the coded path, the shortlist became
+the first 15 alphabetically. A combat medic matched a supply chain manager
+because Alex sorts before Cameron, and Navy IT matched nothing. Two cases that
+worked before the cap were worse after it. `NM_MentorCorpusActionTest` has a
+test that fails if the shortlist reverts to alphabetical order.
+
+Measured after the fix, 6 of 6 exact: avionics to Avionics Technician, medic to
+Paramedic, Navy IT to Cybersecurity Analyst, truck driver to Heavy Truck Driver,
+spouse to Medical Biller, boatswain to Port Operations Supervisor.
+
+Re-run `scripts/data/mentor_match_test.apex` after any change to the roster,
+the flow, or that action.
+
 ---
 
 ## Accessibility Standards
