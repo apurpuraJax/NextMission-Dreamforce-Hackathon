@@ -37,8 +37,13 @@ public with sharing class NM_MentorCorpusAction {
     public class Request {
         @InvocableVariable(
             label='Cluster Key'
-            description='The veteran career area to prioritise. Safe to leave blank; the shortlist is then drawn from the whole roster.')
+            description='The veteran career area to prioritise. Often blank on the coded path.')
         public String clusterKey;
+
+        @InvocableVariable(
+            label='Description'
+            description='What the veteran said about their work. Used to rank the shortlist when no cluster is known.')
+        public String description;
     }
 
     public class Response {
@@ -53,6 +58,48 @@ public with sharing class NM_MentorCorpusAction {
         @InvocableVariable(label='Roster Size'
             description='How many active mentors exist in total, for observability.')
         public Integer rosterSize;
+    }
+
+    /* Words too common to signal anything about a career field. */
+    private static final Set<String> STOP = new Set<String>{
+        'the','and','a','an','of','in','on','for','with','to','was','were','i','my',
+        'is','are','at','as','it','that','this','from','years','year','work','worked',
+        'job','jobs','role','roles','civilian','military','wants','want','experience'
+    };
+
+    /*
+     * Purpose:    Order mentors by how many meaningful words their role, cluster
+     *             and bio share with the veteran's own description.
+     * Note:       Deliberately crude. It is a PRE-FILTER whose only job is to put
+     *             plausible candidates in front of the model, which then does the
+     *             actual judgement. Ties keep their existing order, so the result
+     *             stays deterministic and a defect reproduces.
+     */
+    private static List<NM_Mentor__c> rankByOverlap(List<NM_Mentor__c> pool, String description) {
+        if (String.isBlank(description) || pool.isEmpty()) return pool;
+
+        Set<String> want = new Set<String>();
+        for (String w : description.toLowerCase().split('[^a-z0-9]+')) {
+            if (w.length() > 2 && !STOP.contains(w)) want.add(w);
+        }
+        if (want.isEmpty()) return pool;
+
+        Map<Integer, List<NM_Mentor__c>> byScore = new Map<Integer, List<NM_Mentor__c>>();
+        for (NM_Mentor__c m : pool) {
+            String hay = ((m.Civilian_Role__c == null ? '' : m.Civilian_Role__c) + ' ' +
+                          (m.Specialty_Cluster__c == null ? '' : m.Specialty_Cluster__c) + ' ' +
+                          (m.Bio__c == null ? '' : m.Bio__c)).toLowerCase();
+            Integer score = 0;
+            for (String w : want) { if (hay.contains(w)) score++; }
+            if (!byScore.containsKey(score)) byScore.put(score, new List<NM_Mentor__c>());
+            byScore.get(score).add(m);
+        }
+
+        List<Integer> scores = new List<Integer>(byScore.keySet());
+        scores.sort();
+        List<NM_Mentor__c> out = new List<NM_Mentor__c>();
+        for (Integer i = scores.size() - 1; i >= 0; i--) out.addAll(byScore.get(scores[i]));
+        return out;
     }
 
     /*
@@ -88,13 +135,18 @@ public with sharing class NM_MentorCorpusAction {
                 }
             }
 
+            // Rank the non-cluster pool by word overlap with what the veteran
+            // actually said. Without this the "others" fill was just the first
+            // N by Name, so a combat medic got a supply chain manager purely
+            // because Alex sorts before Cameron. clusterKey is blank on the
+            // coded path, which is exactly when this matters most.
+            others = rankByOverlap(others, req.description);
+
             List<NM_Mentor__c> shortlist = new List<NM_Mentor__c>();
             for (NM_Mentor__c m : inCluster) {
                 if (shortlist.size() >= MAX_IN_CLUSTER) break;
                 shortlist.add(m);
             }
-            // Always leave room for other areas. A veteran whose best match sits
-            // outside their own field must still be able to reach them.
             for (NM_Mentor__c m : others) {
                 if (shortlist.size() >= MAX_TOTAL) break;
                 shortlist.add(m);

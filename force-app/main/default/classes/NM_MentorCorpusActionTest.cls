@@ -37,8 +37,13 @@ private class NM_MentorCorpusActionTest {
     }
 
     private static NM_MentorCorpusAction.Response run(String key) {
+        return run(key, null);
+    }
+
+    private static NM_MentorCorpusAction.Response run(String key, String description) {
         NM_MentorCorpusAction.Request r = new NM_MentorCorpusAction.Request();
         r.clusterKey = key;
+        r.description = description;
         return NM_MentorCorpusAction.buildCorpus(
             new List<NM_MentorCorpusAction.Request>{ r })[0];
     }
@@ -92,6 +97,39 @@ private class NM_MentorCorpusActionTest {
         Test.stopTest();
         System.assertEquals(15, res.candidateCount,
             'A veteran with no cluster still gets a shortlist, drawn from the whole roster');
+    }
+
+    /*
+     * The regression this was written for: with a BLANK clusterKey every mentor
+     * falls into the "others" pool, and before ranking that pool was filled in
+     * Name order. A combat medic was matched to a supply chain manager purely
+     * because Alex sorts before Cameron. The shortlist must be driven by what
+     * the veteran said, not by the alphabet.
+     */
+    @isTest
+    static void testBlankClusterRanksByWhatTheVeteranSaid() {
+        insert new NM_Mentor__c(Name = 'Zulu Last', Branch__c = 'Navy',
+            Specialty_Cluster__c = 'Healthcare', Civilian_Role__c = 'Paramedic',
+            Employer__c = 'County EMS', Active__c = true,
+            Bio__c = 'Ran emergency medical care and trauma response on ambulances.');
+
+        Test.startTest();
+        NM_MentorCorpusAction.Response res =
+            run(null, 'combat medic, emergency trauma care, wants paramedic work');
+        Test.stopTest();
+
+        // Sorts dead last by Name, so it can only appear if ranking put it there.
+        System.assert(res.corpus.contains('Zulu Last'),
+            'The relevant mentor must make the shortlist even when it sorts last alphabetically');
+    }
+
+    @isTest
+    static void testDescriptionOfOnlyStopwordsDoesNotBreakRanking() {
+        Test.startTest();
+        NM_MentorCorpusAction.Response res = run(null, 'i was in the and of a');
+        Test.stopTest();
+        System.assertEquals(15, res.candidateCount,
+            'A description carrying no real words must fall back to an unranked shortlist, not fail');
     }
 
     @isTest

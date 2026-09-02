@@ -20,6 +20,12 @@
                 <elementReference>clusterKey</elementReference>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>description</name>
+            <value>
+                <elementReference>description</elementReference>
+            </value>
+        </inputParameters>
         <outputParameters>
             <assignToReference>varT_MentorCorpus</assignToReference>
             <name>corpus</name>
