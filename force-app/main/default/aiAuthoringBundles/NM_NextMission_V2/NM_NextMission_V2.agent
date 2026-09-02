@@ -62,6 +62,8 @@ start_agent NM_Router:
                   Otherwise route on their latest message:
                   Asking to talk to a mentor, a person, or someone who has been through it: go_to_mentor.
                   Asking about jobs, roles, what work fits, or a specific job title: go_to_jobs.
+                  Asking which role to pick, which one to go for, what you would recommend, which is the best fit, or where they should start: go_to_jobs. That is a question about the ROLES, not a request for a mentor, and sending it to mentor matching answers a question they did not ask.
+                  Ruling a role out, saying one does not apply to them, or correcting something you said about their background: go_to_jobs.
                   Asking how their experience translates, what their skills mean, or adding detail about what they did: go_to_skills.
                   Giving a new specialty code or a different military background: go_to_greeting.
 
@@ -255,8 +257,16 @@ subagent NM_Job_Matching:
 
             if @variables.occupations is None:
                 | Call get_job_matches using clusterKey from the session.
-                  Present the returned job titles and descriptions exactly, do not add, rank, or editorialize.
-                  Do not claim one role is better than another.
+                  Present the returned job titles and descriptions accurately. Never invent a role, never invent a requirement, and never promise anyone will be hired.
+
+                  LISTEN TO WHAT THEY TELL YOU, AND ACT ON IT THE FIRST TIME. If the veteran says a role does not apply, or tells you something that rules one out, DROP IT from that turn onward. Say in one short sentence that you have taken it off, then show only what is left. Re-printing a role they have just ruled out is the fastest way to prove you are not listening. An avionics technician who says they never flew must never see Commercial Airline Pilot again, and someone past a cutoff you yourself quoted must never see that role again.
+
+                  ONE EXCEPTION, AND IT OVERRIDES THE ABOVE. If what they told you is a discharge type, a disability rating, VA status, mental health history or legal history, act on it WITHOUT REPEATING IT BACK. Never write the number, never name the discharge, never summarise it. A brief human beat such as 'understood' and then carry on with the roles. Saying 'your 70% disability rating does not change which roles match' restates it and is exactly what this forbids, even though it is meant kindly.
+
+                  DO NOT RE-PRINT THE WHOLE LIST TO ANSWER A QUESTION. If they have already seen these roles, answer what they actually asked. Only re-list if they ask you to.
+
+                  IF THEY ASK WHICH ONE TO GO FOR, ANSWER THEM. That is a fair question and ducking it is not neutrality, it is being useless. Name the closest match and say why, grounded in what THEY told you about their work and in what the role involves. Say what would make the others realistic instead. Be clear it is their call and that you are going on what they have told you so far.
+                  Do not invent a fact to justify the pick, do not claim they will be hired, and do not compare on pay, which you have no data for.
                   After presenting job matches, ask if the veteran would like to connect with a mentor who made a similar transition.
                   If they say yes or ask about mentorship: call go_to_mentor_connection.
                   If they have questions about the roles, answer from the returned data only.

@@ -938,6 +938,41 @@ is decoration.
   variable nothing writes is a recurring failure in this file. Before adding
   `with x=@variables.y`, confirm something actually sets `y`.
 
+### Read the conversation as a person. Assertions inherit your blind spots.
+
+The scenario and the assertion get written from the same mental model, so when
+that model is wrong the test passes anyway. Every sweep was green while an
+avionics technician was offered Commercial Airline Pilot, because the checks
+asked "is this well formed" and never "is this right".
+
+`scripts/live.py` keeps ONE session open across invocations so a conversation
+can be driven turn by turn, reading each reply before choosing the next
+message. Use it. Talking to the agent for five minutes found four defects that
+29 scripted conversations did not:
+
+* **It ignored disqualifying information.** Told twice "I'm not a pilot" and
+  "I'm 41, you said the cutoff is 35", it re-printed the identical five roles
+  including both. It only adapted on the third try.
+* **It would not answer "which one should I go for".** An old instruction said
+  never rank or editorialise, which was meant to prevent fabrication and
+  instead made it useless at the one question a career coach exists to answer.
+  It may now recommend, grounded in what the veteran said and what the role
+  involves, while still never inventing a fact, promising a hire, or comparing
+  on pay.
+* **"Which one should I go for" routed to the MENTOR subagent**, which then
+  offered a pilot mentor to someone who had just said they never flew. A
+  question about the roles is not a request for a mentor.
+* **Fixing the first one caused a guardrail regression.** "Act on what they
+  tell you" collided with the sensitive-details rule and it replied "your 70%
+  disability rating does not change which roles match", restating the number.
+  The carve-out is now explicit and overrides the listening instruction.
+
+Two lessons worth keeping. **A green suite means the checks passed, not that
+the agent is good.** And **when an assertion fails, decide whether the agent or
+the check is wrong** before changing anything: two of these failures were bad
+assertions, including one that failed the agent for correctly saying "I have
+taken Commercial Airline Pilot off the list".
+
 ---
 
 ## Accessibility Standards

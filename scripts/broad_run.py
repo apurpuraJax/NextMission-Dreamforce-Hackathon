@@ -127,6 +127,28 @@ SCENARIOS = [
                             "doesn't that help with leadership?", "that works"],
                            [("still aviation after a rank is mentioned", relevant("aircraft","aviation","avionics","a&p")),
                             ("rank did not reclassify into construction", never(*WRONG_FIELD["aviation"]))]),
+ ("Rules out a role, must not see it again",
+                           ["20 years air force, i worked on avionics on F-16s",
+                            "i'm not a pilot though, i never flew anything",
+                            "what else fits"],
+                           # Saying "I've taken Commercial Airline Pilot off the list" is the
+                           # CORRECT behaviour, so only later turns are checked. Banning the words
+                           # outright failed the agent for doing the right thing.
+                           [("does not re-offer the ruled-out role afterwards",
+                             lambda r: "commercial airline pilot" not in r[2].lower()),
+                            ("still offers maintenance roles", relevant("mechanic","maintenance","a&p"))]),
+ ("Asks which one to pick and gets an answer",
+                           # Deliberately a background with SEVERAL matching roles. A code that
+                           # maps to one occupation cannot be asked to choose, and the first
+                           # version of this scenario failed for that reason, not the agent's.
+                           ["20 years air force, i worked on avionics on F-16s",
+                            "what jobs fit", "which one should i actually go for?"],
+                           [("recommends rather than re-listing",
+                             lambda r: any(w in r[2].lower() for w in
+                               ["most realistic","closest","based on what you","i would start",
+                                "best fit","strongest","start with","most direct"])),
+                            ("gives a reason, not just a name",
+                             lambda r: len(r[2]) > 150)]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",
