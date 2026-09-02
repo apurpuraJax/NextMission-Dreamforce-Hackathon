@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Food Service</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Food_Service</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You fed large numbers of people on schedule, in conditions and at volumes most civilian kitchens never face. That is production planning, inventory and ordering, food safety, and running a team through a shift that cannot slip. Those are the same skills a civilian kitchen or dining operation is hiring for.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{&quot;title&quot;: &quot;Chefs and Head Cooks&quot;, &quot;description&quot;: &quot;You direct food preparation, plan menus, and oversee the kitchen and its staff.&quot;}, {&quot;title&quot;: &quot;Food Service Managers&quot;, &quot;description&quot;: &quot;You plan, direct and coordinate the operation of a restaurant or food service facility, including budget, ordering, staffing and compliance.&quot;}, {&quot;title&quot;: &quot;First-Line Supervisors of Food Preparation and Serving Workers&quot;, &quot;description&quot;: &quot;You directly supervise and coordinate the people preparing and serving food, running the shift and the standards.&quot;}, {&quot;title&quot;: &quot;Cooks, Institution and Cafeteria&quot;, &quot;description&quot;: &quot;You prepare and cook large quantities of food for institutions such as schools, hospitals and cafeterias. The closest match to running a dining facility.&quot;}]</value>
+    </values>
+</CustomMetadata>

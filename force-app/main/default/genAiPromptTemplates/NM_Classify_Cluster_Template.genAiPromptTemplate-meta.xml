@@ -19,7 +19,18 @@ Rules:
 - Do not return a label, a description, a sentence, or any other text.
 - Do not add punctuation, quotes, or whitespace around the key.
 - If none of the keys are a reasonable match for the description, return the single word: NONE
-- Do not invent a key that is not in the list.</content>
+- Do not invent a key that is not in the list.
+
+Check this FIRST, before anything else. If the description mentions a reactor, nuclear propulsion, or nuclear power in any form, classify it as power generation, even when the veteran's job title is machinist, mechanic or engineer. "Machinist mate on a nuclear submarine who ran the reactor plant" is power generation, not mechanical maintenance. Nuclear is the rarer and more valuable signal and the job title is the more generic one, so nuclear wins.
+
+Disambiguation. These are the confusions that have actually happened, so read them before choosing:
+- Reactor, nuclear propulsion, power plant, turbines, boilers: this is power generation, not general mechanical repair and not construction.
+- Diesel engines, pumps, hydraulics, machinery repair: this is mechanical maintenance. Repairing machines is not the same as operating them and is not construction.
+- Avionics, aircraft electronics, radar or instrument systems, airframe and powerplant work: this is aviation MAINTENANCE. Only classify as aviation operations if the veteran actually flew or controlled aircraft.
+- Search and rescue, rescue swimmer, first aid, pulling people from the water: this is emergency services, not law enforcement. Rescuing people is not enforcing laws.
+- Cook, culinary, dining facility, kitchen, food supply: this is food service.
+- Satellite or drone imagery, mapping, targeting, geospatial: this is intelligence, and the geospatial roles within it.
+Judge on the WORK the veteran describes, not on their branch or their rank.</content>
         <inputs>
             <apiName>User_Description</apiName>
             <definition>primitive://String</definition>
@@ -35,7 +46,7 @@ Rules:
             <required>true</required>
         </inputs>
         <isCitationEnabled>false</isCitationEnabled>
-        <primaryModel>sfdc_ai__DefaultOpenAIGPT4OmniMini</primaryModel>
+        <primaryModel>sfdc_ai__DefaultOpenAIGPT4Omni</primaryModel>
         <status>Published</status>
         <versionIdentifier>uRPIo5AHuoShpzOJPvwVdsvCeNNTcmaVJK7+i4kyaGE=_1</versionIdentifier>
     </templateVersions>

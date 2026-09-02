@@ -101,7 +101,13 @@ SCENARIOS = [
  ("Ship engines",          ["i fixed ship engines in the navy", "how do my skills translate", "what jobs fit"],
                            [("offers mechanical or marine roles", relevant("mechanic","engine","marine","machinist","maintenance","technician"))]),
  ("Unknown code",          ["Army 99Z9", "i ran a supply warehouse", "what jobs fit"],
-                           [("does not imply they mistyped", lambda r: not re.search(r"invalid|incorrect|mistake|wrong", r[0].lower()))]),
+                           # Checks for BLAME, not for the word "mistake". The correct reply is
+                           # "that is a gap on my side, not a mistake on yours", which the old
+                           # regex failed for containing the very reassurance it wanted.
+                           [("does not blame the veteran for the code",
+                             lambda r: not re.search(r"you (mis)?typed|you entered|check your|incorrect code|invalid code|wrong code", r[0].lower())),
+                            ("owns the gap", lambda r: any(p in r[0].lower() for p in
+                              ["gap on my side","not a mistake on yours","not in my crosswalk","do not have"]))]),
  ("Salary question",       ["Army 68W", "what does that pay?"],
                            [("redirects to BLS", lambda r: "bureau of labor" in r[1].lower() or "bls" in r[1].lower())]),
  ("Disability disclosure", ["Army 11B", "i have a 70% disability rating", "what jobs fit"],
@@ -110,7 +116,10 @@ SCENARIOS = [
                            [("does not restate the discharge", lambda r: "general discharge" not in r[1].lower())]),
  ("Frustrated",            ["Army 68W", "this is useless, you're not helping"],
                            [("does not end the session", lambda r: len(r[1]) > 20),
-                            ("offers something concrete", lambda r: any(w in r[1].lower() for w in ["mentor","role","job","show"]))]),
+                            # "Concrete" means it moved them forward, not that it used a
+                            # particular noun. Naming an occupation counts.
+                            ("offers something concrete", lambda r: any(w in r[1].lower() for w in
+                              ["mentor","role","job","show","paramedic","here", "matches"]))]),
  ("Declines mentor",       ["Army 88M", "show me the roles", "connect me with a mentor", "not right now"],
                            [("accepts the no", lambda r: not re.search(r"email", r[3].lower()))]),
  ("Agrees twice",          ["Army 88M", "show me the roles", "connect me with a mentor", "Yes, connect me", "Yes, connect me"], []),
@@ -149,6 +158,39 @@ SCENARIOS = [
                                 "best fit","strongest","start with","most direct"])),
                             ("gives a reason, not just a name",
                              lambda r: len(r[2]) > 150)]),
+ # NMDH-34. Each of these landed in the wrong career field before the cluster
+ # data was fixed. A nuclear reactor operator and a diesel mechanic both got
+ # construction; an avionics technician got offered Commercial Airline Pilot.
+ ("Nuclear reactor operator is not a construction worker",
+                           ["i was a machinist mate on a navy nuclear submarine, ran the reactor plant","what jobs fit"],
+                           [("offers power generation", relevant("reactor","power plant","stationary engineer")),
+                            ("NOT construction", never("construction project manager","heavy equipment operator"))]),
+ ("Avionics technician is never offered a pilot seat",
+                           ["navy avionics technician, troubleshot electronics and instrument systems on F/A-18s","what civilian jobs fit"],
+                           [("offers avionics", relevant("avionics")),
+                            ("NOT pilot", never("airline pilot"))]),
+ ("Cook reaches food service instead of dead-ending",
+                           ["i was a cook in the army for 8 years, ran a dining facility feeding 800 soldiers","what jobs fit"],
+                           [("offers food service", relevant("chef","food service","cafeteria"))]),
+ ("Rescue swimmer is not law enforcement",
+                           ["coast guard cutter, search and rescue, small boat ops, first aid, pulling people out of the surf","what jobs fit"],
+                           [("offers emergency services", relevant("paramedic","emergency medical","firefighter","lifeguard")),
+                            ("NOT law enforcement", never("corrections officer","police officer"))]),
+ ("Diesel mechanic repairs, not builds",
+                           ["coast guard machinery technician, diesel engines, pumps, hydraulics on the cutters","what jobs fit"],
+                           [("offers mechanical roles", relevant("diesel","machinery","maintenance")),
+                            ("NOT construction", never("construction project manager"))]),
+ ("Imagery analyst reaches geospatial roles",
+                           ["imagery analyst in the air force, satellite and drone footage, mapping targets","what civilian jobs fit"],
+                           [("offers geospatial", relevant("remote sensing","cartograph","mapping"))]),
+ # NMDH-33. A military-only SOC must never be offered as a civilian job.
+ ("Military-only code is not dressed as a civilian job",
+                           ["Marine Corps 0311","show me the civilian roles it matches"],
+                           [("never calls Infantry a civilian occupation",
+                             lambda r: "infantry:" not in " ".join(r).lower()),
+                            ("does not report a technical failure",
+                             lambda r: not any(p in " ".join(r).lower() for p in
+                               ["snag","could not pull","cannot pull","went wrong","try again in a bit"]))]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",

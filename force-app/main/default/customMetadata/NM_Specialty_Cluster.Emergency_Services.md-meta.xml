@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Emergency Services</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Emergency_Services</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You gave emergency care and pulled people out of danger, often in poor conditions with whatever was to hand. Civilian emergency services value that directly, and the certification routes are well trodden for people coming out of the military.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{&quot;title&quot;: &quot;Paramedics&quot;, &quot;description&quot;: &quot;You administer advanced emergency medical care, assess injuries and illnesses, and treat patients en route to hospital. Requires state paramedic certification.&quot;}, {&quot;title&quot;: &quot;Emergency Medical Technicians&quot;, &quot;description&quot;: &quot;You assess injuries and illnesses and give basic emergency medical care and transport. The usual first certification step and a faster route in than paramedic.&quot;}, {&quot;title&quot;: &quot;Firefighters&quot;, &quot;description&quot;: &quot;You control and extinguish fires, respond to emergencies, and often provide emergency medical response as part of the role.&quot;}, {&quot;title&quot;: &quot;Lifeguards, Ski Patrol, and Other Recreational Protective Service Workers&quot;, &quot;description&quot;: &quot;You monitor for safety, rescue people in difficulty, and give first aid. Water rescue and small boat experience maps directly.&quot;}, {&quot;title&quot;: &quot;Ambulance Drivers and Attendants, Except Emergency Medical Technicians&quot;, &quot;description&quot;: &quot;You transport patients and assist with their care in transit. An entry point while certifications are in progress.&quot;}]</value>
+    </values>
+</CustomMetadata>

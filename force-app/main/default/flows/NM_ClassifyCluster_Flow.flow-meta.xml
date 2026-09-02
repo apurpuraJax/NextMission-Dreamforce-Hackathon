@@ -32,6 +32,22 @@
         </outputParameters>
     </actionCalls>
     <assignments>
+        <name>Force_Power_Systems</name>
+        <label>Force Power Systems</label>
+        <locationX>700</locationX>
+        <locationY>500</locationY>
+        <assignmentItems>
+            <assignToReference>varT_ClassifiedKey</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Power_Systems</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_NONE_Response</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Append_Cluster_Line</name>
         <label>Append Cluster Line</label>
         <locationX>440</locationX>
@@ -107,7 +123,7 @@
         <locationX>176</locationX>
         <locationY>570</locationY>
         <connector>
-            <targetReference>Check_NONE_Response</targetReference>
+            <targetReference>Check_Nuclear_Override</targetReference>
         </connector>
         <assignmentItems>
             <assignToReference>varT_ClassifiedKey</assignToReference>
@@ -117,6 +133,38 @@
             </value>
         </assignmentItems>
     </assignments>
+    <decisions>
+        <name>Check_Nuclear_Override</name>
+        <label>Check Nuclear Override</label>
+        <locationX>500</locationX>
+        <locationY>500</locationY>
+        <defaultConnector>
+            <targetReference>Check_NONE_Response</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No nuclear signal</defaultConnectorLabel>
+        <rules>
+            <name>Description_Mentions_Nuclear</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>userDescription</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>reactor</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>userDescription</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>nuclear</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Force_Power_Systems</targetReference>
+            </connector>
+            <label>Description Mentions Nuclear</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Check_NONE_Response</name>
         <label>Check NONE Response</label>

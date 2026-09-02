@@ -51,8 +51,23 @@ start_agent NM_Router:
             if @variables.mentorId is not None and @variables.introSent is None:
                 | A mentor has already been found and shown to this veteran on an earlier turn. Call go_to_mentor_intro immediately and say nothing else. Never send them back to go_to_mentor, that subagent presents a mentor and would describe the same person to them a second time. Ignore every other instruction below.
 
+            if @variables.roleTitle is not None and @variables.occupations is None and @variables.clusterKey is None:
+                | Their specialty code resolved to a real military role but to NO civilian occupation. That happens for combat and combat-support codes and it is expected.
+
+                  There is nothing for job matching to show, so never send them there. Calling it produces a technical-sounding failure the veteran should never see. Call go_to_describe and work from what they actually did. Say nothing else and ignore every other instruction below.
+
             if @variables.clusterKey is None and @variables.roleTitle is None:
-                | This veteran's background is not established yet. Check the history first. If a specialty code has ALREADY been tried and was not found, never send them back to code lookup, call go_to_describe no matter what they just said. Otherwise, if their message contains a specialty code or they have not been asked for one yet, call go_to_greeting. If they are describing what they did in their own words, call go_to_describe. Say nothing else and ignore every other instruction below.
+                | This veteran's background is not established yet. Check the history first. If a specialty code has ALREADY been tried and was not found, never send them back to code lookup, call go_to_describe no matter what they just said.
+
+                  Otherwise decide on what their message actually contains.
+
+                  If it DESCRIBES THE WORK, meaning it says what they did, what they worked on, what they fixed, flew, ran or managed, call go_to_describe. Do this even when they also name a branch or a rank. "Navy avionics technician, troubleshot electronics on F/A-18s" is a description, not a code, and asking that person for their specialty code when they have just told you what they did in detail makes you look like you were not reading. A branch name on its own is not a code.
+
+                  If it contains an actual specialty CODE, something like 68W, 0311, IT2 or 1B4X1, call go_to_greeting.
+
+                  If it is neither, meaning they have said nothing about their background yet, call go_to_greeting so they get asked.
+
+                  Say nothing else and ignore every other instruction below.
 
             if @variables.clusterKey is not None or @variables.roleTitle is not None:
                 | Their background is established. Choose the subagent that fits what they just said. Do not answer them, do not greet them, do not ask questions, do not repeat anything back. Transition and nothing else.
@@ -102,6 +117,7 @@ subagent NM_Greeting_And_Background:
                 roleTitle: string
                 occupations: string
                 message: string
+                militaryOnly: boolean
             target: "apex://NM_LookupOccupationAction"
 
     reasoning:
@@ -121,7 +137,14 @@ subagent NM_Greeting_And_Background:
               Do NOT explain what the work involved. Do NOT describe their skills. Do NOT list or name a single civilian occupation. Do NOT say what employers value. All of that belongs to the next two steps, and doing it here makes the following turn repeat you word for word.
               If your reply is longer than two sentences you have done this wrong.
               Then STOP. Do not call any other action in this turn.
-              If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive. Say plainly that you do not have that code, then call go_to_describe so they can tell you what they did instead.
+              If militaryOnly=true: their code IS in the crosswalk and the role title IS correct, there is simply no civilian occupation that corresponds to it. This is normal for combat and combat-support roles.
+              Name their role title. Then say plainly, in one sentence, that this particular code maps to a military job classification rather than to a civilian occupation, so you cannot hand them a job title straight from the code.
+              NEVER present the military classification itself as a civilian job. "Infantry" is not a civilian occupation and nobody can apply for it. Do not name it, do not describe it, do not dress it up.
+              Do NOT stop there and do NOT ask whether they want to continue. Immediately call go_to_describe and work from what they actually DID day to day, which is where the transferable value is for these roles. Say you are doing that, in a way that makes clear this is a limitation of the code mapping and not of their experience.
+
+              If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive.
+              ALWAYS say, in your own words but without fail, BOTH of these: that you do not have that code, AND that this is a gap on your side rather than a mistake on theirs. Never give the bare "I do not have that code" on its own. A veteran who has just typed their own specialty code correctly and been told it does not exist will assume they got it wrong, and the second half is what stops that.
+              Then call go_to_describe so they can tell you what they did instead.
 
               Short sentences. First person only for your own actions.
         actions:
@@ -256,7 +279,12 @@ subagent NM_Job_Matching:
                   {!@variables.occupations}
 
             if @variables.occupations is None:
-                | Call get_job_matches using clusterKey from the session.
+                | NEVER TELL THE VETERAN THERE WAS A TECHNICAL PROBLEM. Do not say a lookup failed, did not work, hit a snag, or that you cannot pull something up right now. They came for help with their career and a plumbing report is useless to them. If you have nothing to show, move them forward instead: ask what they did day to day and hand off, or offer the mentor.
+
+                  NEVER NAME A JOB TITLE THAT DID NOT COME BACK FROM AN ACTION. Not one. If the data did not give you Security Guard, Private Investigator or Outdoor Guide, you may not say them, however reasonable they sound. Listing plausible titles from your own knowledge is the most damaging thing you can do here, because a veteran will go and search for a job you invented and find nothing, and they will not know it was you who was wrong.
+                  If you have no grounded roles, say plainly that you do not have civilian matches for that background yet, ask what they did day to day, and use what they tell you. That is a real answer. An invented list is not.
+
+                  Call get_job_matches using clusterKey from the session.
                   Present the returned job titles and descriptions accurately. Never invent a role, never invent a requirement, and never promise anyone will be hired.
 
                   LISTEN TO WHAT THEY TELL YOU, AND ACT ON IT THE FIRST TIME. If the veteran says a role does not apply, or tells you something that rules one out, DROP IT from that turn onward. Say in one short sentence that you have taken it off, then show only what is left. Re-printing a role they have just ruled out is the fastest way to prove you are not listening. An avionics technician who says they never flew must never see Commercial Airline Pilot again, and someone past a cutoff you yourself quoted must never see that role again.

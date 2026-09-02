@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Mechanical Maintenance</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Mechanical_Maintenance</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You kept engines, pumps, hydraulics and heavy machinery running in conditions where failure was not an option. That is diagnostic work: finding the fault, fixing it with what you have, and documenting it. Civilian employers hire for exactly that, and the equipment is usually easier to work on than what you were used to.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{&quot;title&quot;: &quot;Bus and Truck Mechanics and Diesel Engine Specialists&quot;, &quot;description&quot;: &quot;You diagnose, adjust, repair, and overhaul buses, trucks, and any vehicle running a diesel engine. This is the closest civilian match for most military diesel and engine maintenance work.&quot;}, {&quot;title&quot;: &quot;Industrial Machinery Mechanics&quot;, &quot;description&quot;: &quot;You repair and maintain the machinery in factories and plants, working from schematics and diagnostics to keep production running.&quot;}, {&quot;title&quot;: &quot;Maintenance Workers, Machinery&quot;, &quot;description&quot;: &quot;You lubricate, clean, adjust and repair machinery, and record what was done. Hydraulics and pump work map directly here.&quot;}, {&quot;title&quot;: &quot;Mobile Heavy Equipment Mechanics, Except Engines&quot;, &quot;description&quot;: &quot;You service and repair heavy equipment such as cranes, bulldozers and excavators. Note this is repairing the machines, not operating them.&quot;}, {&quot;title&quot;: &quot;Millwrights&quot;, &quot;description&quot;: &quot;You install, dismantle, reassemble and move machinery in plants and construction sites, working to fine tolerances.&quot;}, {&quot;title&quot;: &quot;Maintenance and Repair Workers, General&quot;, &quot;description&quot;: &quot;You handle a broad mix of repair work across buildings and equipment. A common entry point that pays reasonably and opens into the specialised trades.&quot;}]</value>
+    </values>
+</CustomMetadata>

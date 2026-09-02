@@ -72,14 +72,27 @@ public with sharing class NM_LookupOccupationAction {
 
         @InvocableVariable(
             label='Message'
-            description='Populated only when found=false. Surface it as context, never as an accusation that the veteran got their code wrong.')
+            description='Populated when found=false or militaryOnly=true. Surface it as context, never as an accusation that the veteran got their code wrong.')
         public String message;
+
+        @InvocableVariable(
+            label='Military Only'
+            description='True when the code resolves ONLY to military-specific SOC codes with no civilian equivalent. The role title is still valid; there is simply no civilian occupation to name. Never present the military role as a civilian job.')
+        public Boolean militaryOnly;
     }
 
     // Surfaced when a code is not in the crosswalk. The crosswalk is large but
     // not exhaustive, so a miss is usually our gap, not the veteran's error.
     private static final String NOT_FOUND_MSG =
         'That code is not in the crosswalk I have. That is a gap on my side, not a mistake on yours.';
+
+    // 1,001 of 8,179 codes map ONLY to the 55-xx military SOC family. Those are
+    // military job classifications, not civilian occupations. Returning
+    // "Infantry: operate weapons and equipment in ground combat operations" as
+    // somebody's civilian match is worse than returning nothing, because it
+    // reads as an answer and cannot be applied for anywhere.
+    private static final String MILITARY_ONLY_MSG =
+        'That code maps only to a military job classification, so there is no single civilian occupation to point at. That is normal for combat roles and it does not mean the experience does not transfer. Work from what they actually did instead.';
 
     /*
      * Purpose:    Bulk-safe entry point. Resolves one or many (branch, code)
@@ -163,6 +176,7 @@ public with sharing class NM_LookupOccupationAction {
 
             if (key == null || !codeByKey.containsKey(key)) {
                 res.found = false;
+                res.militaryOnly = false;
                 res.occupationCount = 0;
                 res.message = NOT_FOUND_MSG;
                 results.add(res);
@@ -171,23 +185,36 @@ public with sharing class NM_LookupOccupationAction {
 
             NM_Military_Code_V2__c mc = codeByKey.get(key);
             List<String> parts = new List<String>();
+            Boolean sawMilitaryOnly = false;
             if (String.isNotBlank(mc.ONET_Codes__c)) {
                 for (String c : mc.ONET_Codes__c.split(';')) {
                     if (parts.size() >= MAX_OCCUPATIONS) break;
                     NM_Occupation__c o = occByCode.get(c.trim());
-                    if (o != null) {
-                        parts.add(o.Name + ' :: ' + (o.Description__c == null ? '' : o.Description__c));
-                    }
+                    if (o == null) continue;
+                    // Never surface a military SOC as a civilian occupation.
+                    if (isMilitaryOnlyONET(o.ONET_Code__c)) { sawMilitaryOnly = true; continue; }
+                    parts.add(o.Name + ' :: ' + (o.Description__c == null ? '' : o.Description__c));
                 }
             }
 
-            if (parts.isEmpty()) {
+            if (parts.isEmpty() && sawMilitaryOnly) {
+                // The code IS in the crosswalk and the role title is real. There
+                // is simply no civilian occupation to name. This is a different
+                // situation from an unknown code and must not be reported as one.
+                res.found          = true;
+                res.militaryOnly   = true;
+                res.occupationCount = 0;
+                res.roleTitle      = mc.Role_Title__c;
+                res.message        = MILITARY_ONLY_MSG;
+            } else if (parts.isEmpty()) {
                 res.found = false;
+                res.militaryOnly = false;
                 res.occupationCount = 0;
                 res.roleTitle = mc.Role_Title__c;
                 res.message = NOT_FOUND_MSG;
             } else {
                 res.found = true;
+                res.militaryOnly = false;
                 res.roleTitle = mc.Role_Title__c;
                 res.occupations = String.join(parts, '\n\n');
                 res.occupationCount = parts.size();
@@ -266,6 +293,18 @@ public with sharing class NM_LookupOccupationAction {
             out.add(prefix + c);
         }
         return out;
+    }
+
+    /*
+     * Purpose:    Is this O*NET code a military-only classification?
+     * Note:       The 55-xx SOC family is military job classifications, not
+     *             civilian occupations. 19 such rows are loaded and 1,001 of the
+     *             8,179 military codes map to nothing else, so this is 12% of
+     *             coded lookups, not an edge case.
+     */
+    @TestVisible
+    private static Boolean isMilitaryOnlyONET(String onetCode) {
+        return String.isNotBlank(onetCode) && onetCode.startsWith('55-');
     }
 
     private static String baseArmyKey(String branch, String code) {

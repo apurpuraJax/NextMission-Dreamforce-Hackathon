@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Aviation Maintenance</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Aviation_Maintenance</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You maintained aircraft to a standard where a missed fault costs lives, working from technical data with your work signed off and traceable. Civilian aviation runs on the same discipline and the FAA recognises military maintenance experience toward certification.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{&quot;title&quot;: &quot;Avionics Technicians&quot;, &quot;description&quot;: &quot;You install, inspect, test, adjust and repair aircraft electronics: radar, navigation, communications and instrument systems. This is the exact civilian match for military avionics work and it is a distinct trade from airframe and powerplant.&quot;}, {&quot;title&quot;: &quot;Aircraft Mechanic (A&amp;P)&quot;, &quot;description&quot;: &quot;You inspect, repair, and maintain aircraft airframes and powerplants, sign off on maintenance records, and ensure the aircraft is airworthy. Military aviation maintenance experience counts toward FAA A&amp;P certification under 14 CFR § 65.77. The JSAMTCC (Joint Service Aviation Maintenance Technician Certification Council) program documents and verifies your military training for the FAA, making it a practical first step in the certification process.&quot;}, {&quot;title&quot;: &quot;Aircraft Structure, Surfaces, Rigging, and Systems Assemblers&quot;, &quot;description&quot;: &quot;You assemble, fit and rig aircraft structures and systems. A route in that uses airframe experience without requiring the A&amp;P certificate first.&quot;}, {&quot;title&quot;: &quot;Aviation Maintenance Technician&quot;, &quot;description&quot;: &quot;You perform scheduled and unscheduled maintenance on aircraft systems, troubleshoot issues, and document all work. This covers avionics, hydraulics, landing gear, and engines depending on your specialty.&quot;}]</value>
+    </values>
+</CustomMetadata>

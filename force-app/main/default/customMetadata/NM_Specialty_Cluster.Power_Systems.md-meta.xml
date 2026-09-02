@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Power Systems</label>
+    <protected>false</protected>
+    <values>
+        <field>Cluster_Key__c</field>
+        <value xsi:type="xsd:string">Power_Systems</value>
+    </values>
+    <values>
+        <field>Civilian_Skill_Summary__c</field>
+        <value xsi:type="xsd:string">You operated and maintained power generation and distribution plant under strict procedure, with continuous monitoring and a low tolerance for error. Civilian power generation runs on the same discipline, and the industry actively recruits from military propulsion and engineering programmes.</value>
+    </values>
+    <values>
+        <field>Job_Descriptions__c</field>
+        <value xsi:type="xsd:string">[{&quot;title&quot;: &quot;Nuclear Power Reactor Operators&quot;, &quot;description&quot;: &quot;You operate or control nuclear reactors, adjust control rods, monitor instrumentation, and implement procedures during startup, shutdown and emergencies. Navy nuclear operators are the single most directly recruited group for this work.&quot;}, {&quot;title&quot;: &quot;Power Plant Operators&quot;, &quot;description&quot;: &quot;You control, operate and maintain machinery that generates electric power, monitoring instruments and adjusting output to demand.&quot;}, {&quot;title&quot;: &quot;Power Distributors and Dispatchers&quot;, &quot;description&quot;: &quot;You coordinate and regulate the flow of electricity across the grid from generating stations to substations and users.&quot;}, {&quot;title&quot;: &quot;Stationary Engineers and Boiler Operators&quot;, &quot;description&quot;: &quot;You operate and maintain boilers, turbines, generators and related equipment that supply power, heat and steam to buildings and plants.&quot;}]</value>
+    </values>
+</CustomMetadata>
