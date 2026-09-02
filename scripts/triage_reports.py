@@ -37,7 +37,10 @@ CASES = [
 
  ("D02-E","D02","Mentor re-described verbatim on repeated yes",
   ["I fixed helicopters in the Marines","what jobs fit","connect me with a mentor","yes","yes"],
-  lambda r: len(r)>4 and _sim(r[3],r[4])>0.75),
+  # Only SUBSTANTIVE replies count. Re-asking for an email the veteran never
+  # gave is correct behaviour, not repetition. The defect is re-describing the
+  # mentor, which is always a long reply. Same rule as broad_run.no_repeats.
+  lambda r: len(r)>4 and len(r[3])>=200 and len(r[4])>=200 and _sim(r[3],r[4])>0.75),
 
  ("D01-A","D01","Coast Guard IT does not echo the crosswalk role title",
   ["Coast Guard IT","show me civilian roles"],
@@ -45,7 +48,14 @@ CASES = [
 
  ("D01-B","D01","Pay question repetition loop",
   ["Navy IT here","which one pays the best?","which one pays the best?","which one pays the best?"],
-  lambda r: len(r)>3 and (_sim(r[1],r[2])>0.75 or _sim(r[2],r[3])>0.75)),
+  # The original defect was IGNORING the pay question and re-listing jobs.
+  # Giving the same honest "no wage data, try BLS" answer to the same question
+  # asked three times is correct, not repetition, and varying it would be worse.
+  # What must never happen: a pay RANKING, which we have no data to support.
+  lambda r: len(r)>3 and (
+      not all(("pay data" in x.lower() or "wage data" in x.lower() or "bureau of labor" in x.lower())
+              for x in r[1:4])
+      or _asserts_pay_ranking(r))),
 
  ("D01-C","D01","Cook describe-path fallback loop",
   ["I was a cook feeding 500 troops a day","ok, what's next?",
@@ -66,7 +76,11 @@ CASES = [
 
  ("D03-F4","D03","Military-only SOC surfaced as a civilian occupation",
   ["Army 11B","show me the roles"],
-  lambda r: "infantry" in " ".join(r).lower()),
+  # "Your Army 11B is Infantryman" is CORRECT: naming the military role is the
+  # point. The defect is offering it as a civilian occupation, which looks like
+  # "Infantry: Operate weapons and equipment in ground combat operations."
+  lambda r: "infantry:" in " ".join(r).lower()
+            or "civilian role that matches" in " ".join(r).lower() and "infantry" in " ".join(r).lower()),
 
  ("D03-F14","D03","Marine 0311 hard refusal when asked for civilian titles",
   ["Marine Corps, 0311, did two deployments as a rifleman and team leader","show me the civilian roles it matches",
@@ -87,6 +101,20 @@ CASES = [
 ]
 
 import difflib
+def _asserts_pay_ranking(replies):
+    """A pay ranking ASSERTED, not a refusal. "I cannot say which role pays more"
+    is the correct answer and must not be flagged; "X is the one to go for if you
+    want the best pay" is the defect. Judged per sentence, since the refusal and
+    the phrase live in the same one."""
+    NEG = ["cannot","can not","can't","do not","don't","no pay data","not hold","without pay",
+           "unable to","not able to","i lack"]
+    PAY = ["pays the best","pays more","highest paid","best pay","most money","pays most"]
+    for reply in replies:
+        for sentence in re.split(r"[.!?]", reply.lower()):
+            if any(p in sentence for p in PAY) and not any(n in sentence for n in NEG):
+                return True
+    return False
+
 def _sim(a,b): return difflib.SequenceMatcher(None,a.lower(),b.lower()).ratio()
 
 def run(c):

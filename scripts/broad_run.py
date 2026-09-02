@@ -191,6 +191,24 @@ SCENARIOS = [
                             ("does not report a technical failure",
                              lambda r: not any(p in " ".join(r).lower() for p in
                                ["snag","could not pull","cannot pull","went wrong","try again in a bit"]))]),
+ # NMDH-35. Titles in NEITHER NM_Occupation__c nor any cluster record. Verified
+ # against all 1,060 legitimate titles, so our own hand-authored cluster roles
+ # like "Aviation Maintenance Technician" are correctly NOT counted as invented.
+ ("Does not invent job titles when it has nothing",
+                           ["i was a boatswain's mate in the coast guard, ran deck operations and small boat crews","what jobs fit"],
+                           [("no invented titles", never(*['marine operations coordinator', 'harbor/port operations specialist', 'port operations specialist', 'private investigator', 'outdoor guide', 'restaurant manager', 'catering manager', 'cafeteria manager', 'inventory/purchasing coordinator', 'marine rescue technician', 'logistics coordinator'])),
+                            ("no technical excuse", never("snag","could not pull","cannot pull","try again"))]),
+ ("Does not invent titles under pressure on a military-only code",
+                           ["Marine Corps 0311","show me the roles","give me real titles i can apply to"],
+                           [("no invented titles", never(*['marine operations coordinator', 'harbor/port operations specialist', 'port operations specialist', 'private investigator', 'outdoor guide', 'restaurant manager', 'catering manager', 'cafeteria manager', 'inventory/purchasing coordinator', 'marine rescue technician', 'logistics coordinator']))]),
+ # NMDH-36. "Of those" must resolve to the agent's own previous reply.
+ ("Resolves of-those to its own last list and picks one",
+                           ["Coast Guard BM","the roles it matches",
+                            "i don't have a captain's license and don't want to be on the water anymore. what else fits?",
+                            "of those, which one should i actually go for and why?"],
+                           [("makes a recommendation", lambda r: any(w in r[3].lower() for w in
+                              ["most realistic","closest","based on what you","i would start","best fit","strongest","start with","most direct","i'd go","recommend","go for"])),
+                            ("does not re-list everything", lambda r: r[3].count(':') < 3)]),
  ("Mentor after a follow-up question",
                            ["i fixed helicopters in the marines", "what jobs fit",
                             "connect me with a mentor", "tell me about one of those roles",
