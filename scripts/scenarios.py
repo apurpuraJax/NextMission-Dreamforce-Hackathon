@@ -1,5 +1,10 @@
 """Scenario suite for Next Mission. Asserts, rather than printing for a human to
-eyeball. Every scenario runs against the LIVE public site as an anonymous guest."""
+eyeball. Every scenario runs against the LIVE public site as an anonymous guest.
+
+Reusable: importing this module has NO side effects (the suite only runs under
+the __main__ guard), so a parallel stress harness can `import scenarios` and
+reuse call/run/no_repeats/contains/lacks without triggering the smoke gate.
+Run the smoke gate directly with:  python3 scripts/scenarios.py"""
 import json, urllib.request, urllib.error, sys, re, difflib, textwrap
 
 BASE = "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
@@ -72,13 +77,6 @@ def contains(idx, *words):
 def lacks(idx, *words):
     return lambda r: not any(w.lower() in r[idx].lower() for w in words)
 
-ok = True
-
-ok &= run("Navy IT2 resolves through the crosswalk, not the describe path",
-    ["Navy IT2"],
-    [("names Information Systems Technician", contains(0, "Information Systems Technician")),
-     ("does not claim the code is unknown", lacks(0, "do not have", "don't have", "not have a direct match"))])
-
 def names_a_mentor(idx):
     """A capitalised name plus a role/employer. Consent to an introduction is not
     meaningful unless the veteran has been told who the person is."""
@@ -87,28 +85,41 @@ def names_a_mentor(idx):
         return bool(re.search(r"\b[A-Z][a-z]+ [A-Z]\.", r)) and (" at " in r or "is a " in r or "is an " in r)
     return f
 
-ok &= run("A mentor is named BEFORE any email address is requested",
-    ["Army 88M", "show me the roles", "connect me with a mentor"],
-    [("names the mentor with role and employer", names_a_mentor(2)),
-     ("does not ask for an email before naming anyone", lacks(2, "email address", "your email"))],
-    repeat=3)
+def run_suite():
+    """Run the full smoke gate. Returns True only if every scenario passes.
+    Behind a function + __main__ guard so importing this module is side-effect free."""
+    ok = True
 
-ok &= run("Mentor consent does not loop when the veteran agrees twice",
-    ["Army 88M", "show me the roles", "connect me with a mentor", "Yes, connect me", "Yes, connect me"],
-    [("no two replies are near-identical", no_repeats()),
-     ("asks for an email once the mentor is known", contains(3, "email")),
-     ("does not re-describe the mentor on the repeat", lacks(4, "employer", "started as", "moved into"))],
-    repeat=3)
+    ok &= run("Navy IT2 resolves through the crosswalk, not the describe path",
+        ["Navy IT2"],
+        [("names Information Systems Technician", contains(0, "Information Systems Technician")),
+         ("does not claim the code is unknown", lacks(0, "do not have", "don't have", "not have a direct match"))])
 
-ok &= run("Describe path does not repeat the same framing",
-    ["i fixed ship engines", "Let me add something", "i was a marksman", "How do my skills translate?"],
-    [("no two replies are near-identical", no_repeats())])
+    ok &= run("A mentor is named BEFORE any email address is requested",
+        ["Army 88M", "show me the roles", "connect me with a mentor"],
+        [("names the mentor with role and employer", names_a_mentor(2)),
+         ("does not ask for an email before naming anyone", lacks(2, "email address", "your email"))],
+        repeat=3)
 
-ok &= run("Full journey to a real introduction",
-    ["Army 68W", "show me the roles", "connect me with a mentor", "yes please",
-     "scenario.test@example.com"],
-    [("no two replies are near-identical", no_repeats()),
-     ("confirms the introduction was sent", contains(4, "sent", "introduction"))])
+    ok &= run("Mentor consent does not loop when the veteran agrees twice",
+        ["Army 88M", "show me the roles", "connect me with a mentor", "Yes, connect me", "Yes, connect me"],
+        [("no two replies are near-identical", no_repeats()),
+         ("asks for an email once the mentor is known", contains(3, "email")),
+         ("does not re-describe the mentor on the repeat", lacks(4, "employer", "started as", "moved into"))],
+        repeat=3)
 
-print("\nSUITE " + ("PASSED" if ok else "FAILED"))
-sys.exit(0 if ok else 1)
+    ok &= run("Describe path does not repeat the same framing",
+        ["i fixed ship engines", "Let me add something", "i was a marksman", "How do my skills translate?"],
+        [("no two replies are near-identical", no_repeats())])
+
+    ok &= run("Full journey to a real introduction",
+        ["Army 68W", "show me the roles", "connect me with a mentor", "yes please",
+         "scenario.test@example.com"],
+        [("no two replies are near-identical", no_repeats()),
+         ("confirms the introduction was sent", contains(4, "sent", "introduction"))])
+
+    print("\nSUITE " + ("PASSED" if ok else "FAILED"))
+    return ok
+
+if __name__ == "__main__":
+    sys.exit(0 if run_suite() else 1)
