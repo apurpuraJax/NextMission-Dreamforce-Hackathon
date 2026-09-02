@@ -168,12 +168,28 @@ export default class NmChatWidget extends LightningElement {
 
     connectedCallback() {
         this._sourceUrl = window.location.href;
-        // Greet immediately. The panel is never empty, and this does not wait on the network.
+
+        // Greet immediately so the panel is never empty and this does not wait
+        // on the network.
         this._appendMessage(GREETING, 'agent');
-        const id  = sessionStorage.getItem(SK_SESSION_ID);
-        const key = sessionStorage.getItem(SK_SESSION_KEY);
-        if (id && key) { this._sessionId = id; this._sessionKey = key; }
-        else { this._startNewSession(); }
+
+        // ALWAYS start a new agent session. Do not restore a stored one.
+        //
+        // The widget renders a fresh greeting on every load, so restoring the
+        // previous session put the screen and the agent into different states:
+        // the visitor saw a blank conversation while the agent still held their
+        // previous background. Someone who had been looking at construction
+        // roles, reloaded, and typed "Army 88M" got construction jobs back,
+        // because the router still saw an established cluster and skipped the
+        // code lookup entirely. The reply looked confident and was wrong.
+        //
+        // Whatever is on screen and whatever the agent remembers must be the
+        // same conversation. A reload starts over, which is what the greeting
+        // already implies.
+        sessionStorage.removeItem(SK_SESSION_ID);
+        sessionStorage.removeItem(SK_SESSION_KEY);
+        this._startNewSession();
+
         this._shouldFocus = true;
         this._shouldScroll = true;
     }

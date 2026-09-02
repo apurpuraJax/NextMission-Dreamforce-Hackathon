@@ -1040,6 +1040,29 @@ spouse to Medical Biller, boatswain to Port Operations Supervisor.
 Re-run `scripts/data/mentor_match_test.apex` after any change to the roster,
 the flow, or that action.
 
+### The screen and the agent session must be the same conversation
+
+`nmChatWidget` renders the greeting locally on every load. It used to also
+RESTORE a stored agent session, which put the two out of step: the visitor saw a
+blank conversation while the agent still held everything from the previous one.
+
+Caught live during a demo. Someone had been looking at construction roles,
+reloaded, saw a fresh greeting, typed **Army 88M**, and got construction jobs
+back. The router still saw an established cluster, skipped the code lookup
+entirely, and answered confidently with the wrong career field. Nothing in the
+UI hinted that the agent remembered anything.
+
+The widget now **always starts a new session on load** and clears any stored
+one. A reload starts over, which is what showing a greeting already implies.
+
+**Rule: never render conversation state the agent session does not share.** If
+the transcript is ever persisted across reloads, the agent session has to be
+restored with it, or neither should be.
+
+This class of bug is invisible to `broad_run.py` and `triage_reports.py`, since
+both open a fresh session per conversation. It only appears to someone using the
+widget across page loads.
+
 ---
 
 ## Accessibility Standards
