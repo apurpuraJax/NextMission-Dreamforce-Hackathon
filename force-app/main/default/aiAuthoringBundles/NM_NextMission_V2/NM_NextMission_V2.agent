@@ -92,7 +92,7 @@ start_agent NM_Router:
                   Asking which role to pick, which one to go for, what you would recommend, which is the best fit, or where they should start: go_to_jobs. That is a question about the ROLES, not a request for a mentor, and sending it to mentor matching answers a question they did not ask.
                   Ruling a role out, saying one does not apply to them, or correcting something you said about their background: go_to_jobs.
                   Asking how their experience translates, what their skills mean, or adding detail about what they did: go_to_skills.
-                  Giving a new specialty code or a different military background: go_to_greeting.
+                  Giving a new specialty code or a different military background: go_to_greeting. THIS IS THE ONLY ROUTE TO go_to_greeting ONCE A CODE HAS BEEN RESOLVED, and it requires an ACTUAL NEW CODE or branch in their latest message. "What civilian jobs fit", "show me the roles" and anything else about what comes next are NOT new backgrounds. Sending those to the greeting makes it resolve the same code and say the same paragraph a second time, which is the single most common way this conversation looks broken. When in doubt, go_to_jobs.
 
                   If their message is a bare yes, sure, ok, please, or go ahead, it answers the question the agent asked at the end of the previous turn. Read that question in the history and route to whichever subagent owns it.
 
@@ -130,12 +130,20 @@ subagent NM_Greeting_And_Background:
                 occupations: string
                 adjacentOccupations: string
                 adjacentCount: number
+                suggestedCluster: string
                 message: string
                 militaryOnly: boolean
             target: "apex://NM_LookupOccupationAction"
 
     reasoning:
         instructions: ->
+            if @variables.roleTitle is not None:
+                | THIS VETERAN'S CODE HAS ALREADY BEEN RESOLVED. Their role title is below.
+                  READ YOUR OWN EARLIER REPLIES BEFORE YOU WRITE. If one of them already tells this veteran what their code resolves to, YOU HAVE SAID IT AND YOU MAY NOT SAY IT AGAIN. Not reworded, not shortened, not as a lead-in to something else. They read it the first time.
+                  Whatever they just sent was not a request to hear it twice. If they asked for roles, hand off to job matching. If they told you something personal, take it in one short beat and carry on. If you genuinely have nothing new, say one short honest line and offer a concrete next step. Any of those beats repeating yourself.
+                  ONLY state the resolution when this is the FIRST time you are telling them.
+                  {!@variables.roleTitle}
+
             | The veteran has given, or is being asked for, a military specialty code.
 
               If you do not yet have both a branch and a code, ask for them in one short question. MOS, AFSC, Rating or NEC.
@@ -172,12 +180,17 @@ subagent NM_Greeting_And_Background:
               Short sentences. First person only for your own actions.
         actions:
             look_up_occupations: @actions.look_up_occupations
+                available when @variables.roleTitle is None
                 set @variables.occupations=@outputs.occupations
                 set @variables.adjacentOccupations=@outputs.adjacentOccupations
+                set @variables.clusterKey=@outputs.suggestedCluster
                 set @variables.roleTitle=@outputs.roleTitle
                 description: "THE lookup for a specialty code. Covers 8,179 codes from the O*NET military crosswalk. Returns their exact role title and the specific civilian occupations that code maps to."
             go_to_describe: @utils.transition to @subagent.NM_Describe_Background
                 description: "Go here when the veteran has no code, or the code was not in the crosswalk."
+            go_to_jobs_already_resolved: @utils.transition to @subagent.NM_Job_Matching
+                available when @variables.roleTitle is not None
+                description: "Their code is already resolved and they have already been told what it is. You have nothing left to add here, so hand off. Use this for anything about roles, jobs, pay or what comes next." 
 
 subagent NM_Describe_Background:
     label: "Describe Background"

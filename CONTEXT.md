@@ -1331,3 +1331,32 @@ judgement, because it did not recognise the code. Gating that script on a real
 `NM_Skills_Translation` instead of `NM_Job_Matching` because their opening lines
 are nearly identical, and deleted a subagent boundary. Check the subagent count
 before publishing.
+
+### Residual non-determinism, stated honestly
+
+As of agent v96 the suites run **44 to 47 clean out of 47**, not a reliable 47.
+The residual is almost entirely one failure mode, repetition, and it is worth
+recording what did and did not move it.
+
+Measured on the Marine 0311 military-only path, "does turn 2 repeat turn 1":
+
+| change | rate |
+| --- | --- |
+| before any fix | frequent |
+| instruction: check your own history | 1 in 6 |
+| instruction: narrow the route back to the greeting | 2 in 8 |
+| **mechanism: gate look_up_occupations on roleTitle being empty** | **1 in 8** |
+
+Instructions moved it barely at all. The action gate helped most, which is the
+same lesson as everywhere else in this file, but none of it reached zero.
+
+Two things a later session should try before adding more prose:
+1. The global instruction block is ~8.4k characters and NM_Job_Matching is
+   ~14.7k. Every fix today added text and nothing removed any. Consolidating is
+   the most likely remaining lever, but it must be done with edits anchored on
+   text unique to the target subagent.
+2. `Resume then pay, end to end` fails intermittently with an API error rather
+   than a wrong answer. A 12k-character resume plus a wage lookup is the longest
+   request we make, and it looks like a timeout rather than a defect.
+
+Do not report a single clean run as proof. Run the suite three times.

@@ -71,6 +71,11 @@ public with sharing class NM_LookupOccupationAction {
         public String adjacentOccupations;
 
         @InvocableVariable(
+            label='Suggested Cluster'
+            description='Career area to place this veteran in when their code maps only to a military occupation. Set it on the session. Without it the conversation has a role title and nothing else, and the agent falls back to the greeting and repeats what it just said.')
+        public String suggestedCluster;
+
+        @InvocableVariable(
             label='Adjacent Count'
             description='How many adjacent occupations were returned. Zero when the direct match is already rich enough.')
         public Integer adjacentCount;
@@ -269,6 +274,10 @@ public with sharing class NM_LookupOccupationAction {
                             res.adjacentOccupations = String.join(madj, '\n\n');
                             res.adjacentCount = madj.size();
                         }
+                        // Place them. Set ONLY on the military-only path; a coded
+                        // veteran with real occupations must keep an empty cluster
+                        // so job matching shows their coded roles, not a cluster's.
+                        res.suggestedCluster = msup.Cluster_Key__c;
                         // Place them. A military-only code otherwise leaves the
                         // session with a role title and nothing else, and the
                         // router can fall back to the greeting and repeat itself.
