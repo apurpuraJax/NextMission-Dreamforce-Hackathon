@@ -1,5 +1,5 @@
 """NMDH-36. "Of those, which one" must resolve to the list just offered."""
-import json, urllib.request, textwrap, re
+import re, json, urllib.request, textwrap, re
 from concurrent.futures import ThreadPoolExecutor
 BASE="https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
 def call(m,p):
@@ -23,8 +23,12 @@ CASES=[
 def run(c):
     n,t=c; r=conv(t); last=r[-1].lower()
     picks=[p for p in PICK if p in last]
-    # a re-list is the failure mode: many roles named again instead of choosing
-    relist = last.count(':') >= 3
+    # A re-list is the failure mode: printing the roster again instead of
+    # choosing. Count LINES shaped like "Title: description", not bare colons —
+    # a prose answer that characterises each alternative is a good answer, and
+    # wage lines put colons everywhere, so counting colons flagged both.
+    relist = sum(1 for ln in r[-1].split('\n')
+                 if re.match(r'^\s*[A-Z][^:\n]{3,60}:\s+\S', ln)) >= 4
     return n,r,picks,relist
 with ThreadPoolExecutor(max_workers=3) as ex: res=list(ex.map(run,CASES))
 ok=True

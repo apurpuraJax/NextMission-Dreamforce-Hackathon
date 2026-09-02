@@ -241,15 +241,18 @@ SCENARIOS = [
                             ("no widening language when nothing needed widening", lambda r: not any(
                               p in r[1].lower() for p in ["broad category","also move into","wider set"]))]),
  # NMDH-23. Pay is answered from BLS data, never invented, never refused.
+ # Look across BOTH turns. The agent often volunteers pay when it lists the
+ # roles, which is better behaviour, and then correctly declines to repeat the
+ # same numbers when asked. Checking only the final turn punished both.
  ("Answers a pay question with real BLS figures",
                            ["Army 68W","the roles it matches","what do those pay?"],
-                           [("no longer refuses", lambda r: not any(p in r[2].lower() for p in
+                           [("no longer refuses", lambda r: not any(p in " ".join(r[1:3]).lower() for p in
                               ["i do not have pay data","i don't have pay data","cannot rank by pay",
                                "do not hold wage data"])),
-                            ("gives a figure", lambda r: "$" in r[2]),
-                            ("attributes the source", lambda r: "bureau of labor statistics" in r[2].lower()
-                              or "bls" in r[2].lower()),
-                            ("gives a range, not a bare median", lambda r: r[2].count('$') >= 2)]),
+                            ("gives a figure", lambda r: "$" in " ".join(r[1:3])),
+                            ("attributes the source", lambda r: "bureau of labor statistics" in " ".join(r[1:3]).lower()
+                              or "bls" in " ".join(r[1:3]).lower()),
+                            ("gives a range, not a bare median", lambda r: " ".join(r[1:3]).count('$') >= 2)]),
  ("Ranks by pay only with the numbers shown",
                            ["Army 92Y","the roles it matches","which one pays the most?"],
                            [("names one", lambda r: "purchasing manager" in r[2].lower()),

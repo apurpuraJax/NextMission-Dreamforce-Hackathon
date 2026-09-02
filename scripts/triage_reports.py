@@ -1,3 +1,4 @@
+import re
 """Re-run the reported repro steps against the CURRENTLY ACTIVE agent.
 
 The three Orchestrate reports were produced across v50-v53 and each says it
@@ -48,14 +49,19 @@ CASES = [
 
  ("D01-B","D01","Pay question repetition loop",
   ["Navy IT here","which one pays the best?","which one pays the best?","which one pays the best?"],
-  # The original defect was IGNORING the pay question and re-listing jobs.
-  # Giving the same honest "no wage data, try BLS" answer to the same question
-  # asked three times is correct, not repetition, and varying it would be worse.
-  # What must never happen: a pay RANKING, which we have no data to support.
+  # REWRITTEN for NMDH-23. Both of this check's original premises are dead:
+  # the agent HAS wage data now, and ranking by pay is allowed because it can
+  # show the figures it ranked on. What must still never happen is the actual
+  # reported defect: answering the same question with the same numbers over and
+  # over. Nor may it claim it already answered when it has not.
   lambda r: len(r)>3 and (
-      not all(("pay data" in x.lower() or "wage data" in x.lower() or "bureau of labor" in x.lower())
-              for x in r[1:4])
-      or _asserts_pay_ranking(r))),
+      # 1. The first ask must produce a real, sourced figure.
+      not (re.search(r"\$\s?\d", r[1]) and
+           ("bureau of labor" in r[1].lower() or "bls" in r[1].lower()))
+      # 2. Later asks must not reprint those figures.
+      or any(re.search(r"\$\s?\d", x) for x in r[2:4])
+      # 3. And must not claim a prior answer that never happened.
+      or "already" in r[1].lower())),
 
  ("D01-C","D01","Cook describe-path fallback loop",
   ["I was a cook feeding 500 troops a day","ok, what's next?",
