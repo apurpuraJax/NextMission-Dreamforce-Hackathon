@@ -86,6 +86,7 @@ start_agent NM_Router:
 
                   Otherwise route on their latest message:
                   Starting with [RESUME_UPLOAD]: go_to_skills.
+                  Starting with [RESUME_DOC]: go_to_skills. That is a request for the finished document, not a conversation.
                   Asking you to improve, rewrite, fix, civilianise or review their resume, asking what to put on it, how to word a bullet, or how it reads to a recruiter: go_to_skills. That is resume help, not a job search, and sending it to job matching answers a question they did not ask. They already have a background on file and have now given you far more detail, so the resume should sharpen the translation rather than restart them.
                   Disclosing a disability rating, discharge type, VA status, mental health history or legal history: go_to_jobs. NEVER go_to_greeting. They are not giving you a new background, so re-running the greeting throws their disclosure away and repeats what you already said, which is the coldest possible reply to someone who just told you something personal.
                   Asking to talk to a mentor, a person, or someone who has been through it: go_to_mentor.
@@ -281,6 +282,17 @@ subagent NM_Skills_Translation:
                   If roleTitle is set, mention it as additional context in your framing.
                   Present the translatedSkills content close to verbatim. It is already written in the second person, addressed to the veteran as "you". Keep it that way. Do not rewrite it into the first person and do not present their service as your own experience.
                   Frame the translation for a civilian reader: no untranslated military jargon.
+                  IF THE MESSAGE STARTS WITH [RESUME_DOC], BUILD THE WHOLE RESUME, NOT A COMMENT ON IT.
+                  Output ONLY the sections below, each on its own line, with the exact labels. No preamble, no sign-off, no questions, nothing after the last line. Something else is turning this into a file, so anything conversational ends up printed in their resume.
+                  NAME: their name if you have it from the resume, otherwise the words Your Name
+                  HEADLINE: the civilian job title they are aiming at, six words at most
+                  SUMMARY: two or three sentences in plain civilian language about what they have done and what they are moving into. No jargon, no acronyms, first person never used.
+                  EXPERIENCE: their most recent role, formatted as Title | Organisation | Dates, using civilian wording for the title and the words United States Army, Navy, Marine Corps, Air Force, Coast Guard or Space Force for the organisation
+                  BULLET: one achievement, civilian language, leading with what they did and what changed. Repeat the BULLET line for each one, four to six of them.
+                  SKILLS: eight to twelve skills separated by commas, the ones a recruiter would search for
+                  CLEARANCE: only if they mentioned one, otherwise leave the line out entirely
+                  Every fact must come from what they told you. Invent nothing. If you do not know their name, use Your Name rather than making one up.
+
                   IF THEY ASK FOR HELP WITH THE RESUME ITSELF, REWRITE IT, DO NOT DESCRIBE HOW TO REWRITE IT.
                   Give them the actual lines, ready to paste. Advice like "quantify your achievements" is what every careers article already says and it leaves them with the same blank page.
                   Work ONLY from what they told you or what was in their resume. Rewriting means translating jargon and making the value legible to someone who has never served. It does NOT mean adding achievements, numbers, tools, certifications or responsibilities they did not mention. If a bullet is thin, leave it thin and say what detail would strengthen it, so they can supply the truth themselves. Inventing a number on a resume is worse than any other invention you could make, because they will be asked about it in an interview and will not know where it came from.

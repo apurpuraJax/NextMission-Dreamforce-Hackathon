@@ -180,7 +180,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>NM_Chat_Greeting</shortDescription>
-        <value>Hi, I'm Next Mission. I help veterans and military spouses turn service experience into civilian careers. Tell me your branch and specialty code, MOS, AFSC, Rating or NEC, or just describe what you did. I can show you the civilian roles that match, what they pay, and connect you with someone who made the same move.</value>
+        <value>Hi, I'm Next Mission. I help veterans and military spouses turn service experience into civilian careers. Tell me your branch and specialty code, MOS, AFSC, Rating or NEC, describe what you did, or attach your resume with the paperclip and I will work from that. I can show you the civilian roles that match, what they pay, rewrite your resume in words a civilian recruiter understands, and connect you with someone who made the same move.</value>
     </labels>
     <labels>
         <fullName>NM_Chat_TypingAria</fullName>
@@ -285,7 +285,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>NM_Chat_AttachAria</shortDescription>
-        <value>Attach your resume. PDF or plain text.</value>
+        <value>Attach your resume, PDF or plain text</value>
     </labels>
     <labels>
         <fullName>NM_Chat_ResumeReading</fullName>
@@ -335,5 +335,33 @@
         <protected>false</protected>
         <shortDescription>NM_Chat_Sug_ResumeHelp</shortDescription>
         <value>Rewrite my resume in civilian terms</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeDownload</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeDownload</shortDescription>
+        <value>Download my resume</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeBuilding</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeBuilding</shortDescription>
+        <value>Building your resume document...</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeReady</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeReady</shortDescription>
+        <value>Your resume has downloaded. Open it in Word, Google Docs or Pages, check every line, and change anything that is not exactly how you would say it.</value>
+    </labels>
+    <labels>
+        <fullName>NM_Chat_ResumeDocFailed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_ResumeDocFailed</shortDescription>
+        <value>I could not build the document. The wording above is still yours to copy.</value>
     </labels>
 </CustomLabels>

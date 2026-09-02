@@ -9,7 +9,9 @@ export default class NmAbout extends LightningElement {
           body: 'It names the civilian occupations your code actually maps to, with what the work involves and any licence or certification you would need. Where a code maps to only one role, or to a catch-all category, it also shows the wider set people with that background move into, kept clearly separate from the direct match.' },
         { key: 's3', n: '3', title: 'Find out what they pay',
           body: 'Ask what any of them pay and it gives the national median, the range most people earn, and how many hold the job, from the Bureau of Labor Statistics. It will not estimate a figure it does not hold, and it says so when none is published.' },
-        { key: 's4', n: '4', title: 'Talk to someone who did it',
+        { key: 's3b', n: '4', title: 'Get your resume rewritten',
+          body: 'Attach the resume you already have. It is read in your browser and never uploaded. Next Mission turns NCOIC into supervised a 12-person team, PMCS into preventive maintenance and inspection, and hands you back a Word document you can edit and send.' },
+        { key: 's4', n: '5', title: 'Talk to someone who did it',
           body: 'It matches you to a mentor who made a similar move, and sends an introduction only after you say yes and give an email address.' }
     ];
 

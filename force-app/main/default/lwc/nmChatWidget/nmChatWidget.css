@@ -385,3 +385,38 @@
 }
 .nm-file:disabled + .nm-attach,
 .nm-attach[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+
+/* Resume download. Sits above the composer so it reads as an outcome of the
+   conversation rather than another thing to type. */
+.nm-resume-dl {
+    padding: 0 var(--nm-pad, 1rem) 0.5rem;
+}
+.nm-resume-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--nm-on-accent, #fff);
+    background: var(--nm-accent, #1b4dc1);
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+}
+.nm-resume-dl-btn:hover { background: var(--nm-accent-strong, #14399a); }
+.nm-resume-dl-btn:focus-visible {
+    outline: 3px solid var(--nm-focus, #1b4dc1);
+    outline-offset: 2px;
+}
+.nm-dl-icon svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}

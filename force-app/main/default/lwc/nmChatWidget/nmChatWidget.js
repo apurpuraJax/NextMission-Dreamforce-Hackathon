@@ -25,6 +25,10 @@ import STARTERS_LBL  from '@salesforce/label/c.NM_Chat_StartersLabel';
 import SUGGEST_LBL   from '@salesforce/label/c.NM_Chat_SuggestionsLabel';
 import SUG_PAY       from '@salesforce/label/c.NM_Chat_Sug_Pay';
 import SUG_RESUME    from '@salesforce/label/c.NM_Chat_Sug_ResumeHelp';
+import DL_LABEL      from '@salesforce/label/c.NM_Chat_ResumeDownload';
+import DL_BUILDING   from '@salesforce/label/c.NM_Chat_ResumeBuilding';
+import DL_READY      from '@salesforce/label/c.NM_Chat_ResumeReady';
+import DL_FAILED     from '@salesforce/label/c.NM_Chat_ResumeDocFailed';
 import ATTACH_ARIA   from '@salesforce/label/c.NM_Chat_AttachAria';
 import RES_READING   from '@salesforce/label/c.NM_Chat_ResumeReading';
 import RES_SENT      from '@salesforce/label/c.NM_Chat_ResumeSent';
@@ -107,6 +111,7 @@ export default class NmChatWidget extends LightningElement {
         inputAriaLabel: INPUT_ARIA,
         inputPlaceholder: INPUT_PH,
         attachAria: ATTACH_ARIA,
+        downloadLabel: DL_LABEL,
         sendAriaLabel: SEND_ARIA,
         sendLabel: SEND_LABEL,
         agentLabel: AGENT_LABEL,
@@ -337,6 +342,130 @@ export default class NmChatWidget extends LightningElement {
         if (wasAtBottom) { this._scrollToBottom(); }
     }
 
+    // ── Resume document ─────────────────────────────────────────────────────
+
+    // The button appears only once there is something to build a resume FROM.
+    // Offering it before that produces an empty document and wastes their time.
+    @track _canBuildResume = false;
+
+    get showResumeDownload() {
+        return this._canBuildResume && !this.isLoading;
+    }
+
+    /*
+     * Ask the agent for the resume in a strict labelled format, turn it into a
+     * Word-compatible document and hand it over.
+     *
+     * Word, not PDF. A resume they cannot edit is not much use: they will want
+     * to fix a word, add a job, tailor it per application. Word-flavoured HTML
+     * opens cleanly in Word, Google Docs and Pages and stays editable.
+     */
+    async handleDownloadResume() {
+        if (this.isLoading || !this._sessionId) { return; }
+        this.errorMessage = null;
+        this.isLoading = true;
+        this._announce(DL_BUILDING);
+        try {
+            const result = await sendMessage({
+                sessionId: this._sessionId,
+                text: '[RESUME_DOC] Build the complete resume now.',
+                sourceUrl: this._sourceUrl
+            });
+            const parsed = result && result.success
+                ? this._parseResume(result.replyText) : null;
+            if (!parsed || !parsed.bullets.length) {
+                this.errorMessage = DL_FAILED;
+                this._announce(DL_FAILED);
+                return;
+            }
+            this._downloadDoc(parsed);
+            // Say it downloaded AND that they must check it. This is their name
+            // on a document going to employers; it is not ours to finalise.
+            this._appendMessage(DL_READY, 'agent');
+            this._announce(DL_READY);
+        } catch (err) {
+            this.errorMessage = DL_FAILED;
+            this._announce(DL_FAILED);
+        } finally {
+            this.isLoading = false;
+            this._shouldFocus = true;
+            this._scrollToBottom();
+        }
+    }
+
+    _parseResume(text) {
+        if (!text) { return null; }
+        const out = { name: 'Your Name', headline: '', summary: '',
+                      experience: '', bullets: [], skills: '', clearance: '' };
+        for (const raw of text.split('\n')) {
+            const line = raw.trim();
+            const m = /^([A-Z]+):\s*(.+)$/.exec(line);
+            if (!m) { continue; }
+            const value = m[2].trim();
+            switch (m[1]) {
+                case 'NAME':       out.name = value; break;
+                case 'HEADLINE':   out.headline = value; break;
+                case 'SUMMARY':    out.summary = value; break;
+                case 'EXPERIENCE': out.experience = value; break;
+                case 'BULLET':     out.bullets.push(value); break;
+                case 'SKILLS':     out.skills = value; break;
+                case 'CLEARANCE':  out.clearance = value; break;
+                default: break;
+            }
+        }
+        return out;
+    }
+
+    _esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    _downloadDoc(r) {
+        const section = (title, inner) => inner
+            ? '<h2 style="font-size:11pt;text-transform:uppercase;letter-spacing:1px;'
+            + 'border-bottom:1px solid #999;padding-bottom:2pt;margin:14pt 0 6pt;">'
+            + this._esc(title) + '</h2>' + inner : '';
+
+        const html =
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+          + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
+          + 'xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8">'
+          + '<title>' + this._esc(r.name) + '</title></head>'
+          + '<body style="font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#000;">'
+          + '<h1 style="font-size:20pt;margin:0;">' + this._esc(r.name) + '</h1>'
+          + (r.headline ? '<p style="margin:2pt 0 0;font-size:12pt;color:#333;">'
+              + this._esc(r.headline) + '</p>' : '')
+          + section('Summary', r.summary
+              ? '<p style="margin:0;">' + this._esc(r.summary) + '</p>' : '')
+          + section('Experience', r.experience
+              ? '<p style="margin:0 0 4pt;font-weight:bold;">'
+                + this._esc(r.experience) + '</p>'
+                + '<ul style="margin:0 0 0 18pt;padding:0;">'
+                + r.bullets.map(b => '<li style="margin-bottom:3pt;">'
+                    + this._esc(b) + '</li>').join('')
+                + '</ul>'
+              : '<ul style="margin:0 0 0 18pt;padding:0;">'
+                + r.bullets.map(b => '<li>' + this._esc(b) + '</li>').join('') + '</ul>')
+          + section('Skills', r.skills
+              ? '<p style="margin:0;">' + this._esc(r.skills) + '</p>' : '')
+          + section('Clearance', r.clearance
+              ? '<p style="margin:0;">' + this._esc(r.clearance) + '</p>' : '')
+          + '</body></html>';
+
+        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url;
+        a.download = (r.name || 'resume').replace(/[^A-Za-z0-9]+/g, '_') + '_Resume.doc';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // Revoke on the next tick; revoking immediately cancels the download in
+        // some browsers before it has started reading the blob.
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+
     // ── Resume upload ───────────────────────────────────────────────────────
 
     /*
@@ -376,6 +505,7 @@ export default class NmChatWidget extends LightningElement {
         try {
             const text = isPdf ? await this._pdfText(file) : await file.text();
             if (!text || !text.trim()) { this._resumeError(RES_NOTEXT); return; }
+            this._canBuildResume = true;
 
             const result = await sendResume({
                 sessionId: this._sessionId,
