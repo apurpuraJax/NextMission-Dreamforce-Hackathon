@@ -59,8 +59,46 @@
                         <template for:each={msg.blocks} for:item="b">
                             <div key={b.key} class="nm-block">
 
+                                <!-- Occupation cards as a real list. A screen
+                                     reader gets its own "list, 5 items" count,
+                                     and each card also speaks "Role 2 of 5"
+                                     because that list count is not reliable
+                                     across every browser and AT pairing. -->
+                                <template lwc:if={b.isCardList}>
+                                    <ul class="nm-cards">
+                                        <template for:each={b.cards} for:item="c">
+                                            <li key={c.key} class="nm-card-li" hidden={c.hidden}>
+                                                <article class="nm-card">
+                                                    <span class="nm-card-icon" aria-hidden="true">
+                                                        <svg viewBox="0 0 24 24" focusable="false">
+                                                            <path d={c.iconPath}/>
+                                                        </svg>
+                                                    </span>
+                                                    <h3 class="nm-card-title">
+                                                        <span class="nm-sr-only">{c.position}. </span>{c.title}
+                                                    </h3>
+                                                    <p class="nm-card-body">{c.body}</p>
+                                                    <template lwc:if={c.hasBadge}>
+                                                        <p class="nm-badge">
+                                                            <span class="nm-badge-dot" aria-hidden="true"></span>{c.badge}
+                                                        </p>
+                                                    </template>
+                                                </article>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                    <template lwc:if={b.collapsible}>
+                                        <button
+                                            type="button"
+                                            class="nm-show-all"
+                                            data-key={b.key}
+                                            onclick={handleShowAllCards}
+                                        >{b.showAllLabel}</button>
+                                    </template>
+                                </template>
+
                                 <!-- Occupation card -->
-                                <template lwc:if={b.isCard}>
+                                <template lwc:elseif={b.isCard}>
                                     <article class="nm-card">
                                         <span class="nm-card-icon" aria-hidden="true">
                                             <svg viewBox="0 0 24 24" focusable="false">

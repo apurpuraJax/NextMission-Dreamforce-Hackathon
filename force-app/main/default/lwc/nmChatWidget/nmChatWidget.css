@@ -420,3 +420,25 @@
     stroke-linecap: round;
     stroke-linejoin: round;
 }
+
+/* Role cards as a list. The list itself carries no visual styling; the cards
+   already read as separate objects, so a bullet or rule would be noise. */
+.nm-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.nm-card-li { margin: 0; }
+
+/* Reveal the rest of a long role list. Sits with the cards, not with the
+   composer, because it belongs to that reply. */
+.nm-show-all {
+    margin-top: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.9rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--nm-accent, #1b4dc1);
+    background: transparent;
+    border: 1px solid var(--nm-rule, #cbd5e1);
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+.nm-show-all:hover { background: var(--nm-surface-2, #eef2f7); }
+.nm-show-all:focus-visible { outline: 3px solid var(--nm-focus, #1b4dc1); outline-offset: 2px; }

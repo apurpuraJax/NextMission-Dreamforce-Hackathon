@@ -1001,10 +1001,25 @@ mouse click.
 * A real screen reader pass. Structure and contrast are verifiable from a
   terminal; announcement order is not.
 
-### Current live state (update this whenever you deploy)
+### Current live state — DO NOT TRUST THIS SECTION, QUERY THE ORG
 
-* **Agent: v58.** Publishing does not activate. Check what is actually live
-  before testing, and put the version in anything you report.
+This section said "Agent: v58" for two days while the live agent was at v106.
+That is the point: **anything that changes on every deploy will be stale here,
+and a stale fact is worse than no fact** because it reads as authoritative.
+
+Query it instead, every time:
+
+```
+sf data query --target-org dreamforce-hackathon \
+  -q "SELECT VersionNumber, Status FROM BotVersion \
+      WHERE BotDefinition.DeveloperName='NM_NextMission_V2' AND Status='Active'"
+```
+
+Publishing does not activate. Check what is actually live before testing, and
+put the version in anything you report.
+
+What follows is durable enough to write down, because it is a decision rather
+than a number:
 * **Mentors: 70 active**, including Coast Guard (6) and Military Spouse (5),
   both of which were zero before 2026-09-01.
 * **Prompt templates:** `NM_QA_Evaluator_Template` runs `DefaultOpenAIGPT4Omni`;

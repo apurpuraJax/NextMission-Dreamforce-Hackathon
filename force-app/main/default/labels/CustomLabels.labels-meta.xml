@@ -364,4 +364,11 @@
         <shortDescription>NM_Chat_ResumeDocFailed</shortDescription>
         <value>I could not build the document. The wording above is still yours to copy.</value>
     </labels>
+    <labels>
+        <fullName>NM_Chat_Sug_Recap</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_Sug_Recap</shortDescription>
+        <value>What have we covered?</value>
+    </labels>
 </CustomLabels>

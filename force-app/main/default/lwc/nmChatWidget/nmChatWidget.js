@@ -23,6 +23,7 @@ import STARTERS_LBL  from '@salesforce/label/c.NM_Chat_StartersLabel';
 import SUGGEST_LBL   from '@salesforce/label/c.NM_Chat_SuggestionsLabel';
 import SUG_PAY       from '@salesforce/label/c.NM_Chat_Sug_Pay';
 import SUG_RESUME    from '@salesforce/label/c.NM_Chat_Sug_ResumeHelp';
+import SUG_RECAP     from '@salesforce/label/c.NM_Chat_Sug_Recap';
 import DL_LABEL      from '@salesforce/label/c.NM_Chat_ResumeDownload';
 import DL_BUILDING   from '@salesforce/label/c.NM_Chat_ResumeBuilding';
 import DL_READY      from '@salesforce/label/c.NM_Chat_ResumeReady';
@@ -86,6 +87,10 @@ const ICON_RULES = [
     [/mechanic|repair|technician|maint|electric|weld/i,   'trade']
 ];
 const LICENSE_RE = /commercial driver|cdl|licen[cs]|certifi|credential|endorsement/i;
+
+// Roles shown before the rest collapse behind a button. A reply carrying five
+// roles with pay is fifteen figures in one screen-reader announcement.
+const CARD_PREVIEW = 3;
 
 const STEP_DEFS = [
     { key: 'bg',     label: 'Background' },
@@ -913,7 +918,67 @@ export default class NmChatWidget extends LightningElement {
             blocks.push({ key: 'b' + (++_uid), segments: this._segments(chunk) });
         }
         flushList();
-        return blocks;
+        return this._groupCards(blocks);
+    }
+
+    /*
+     * Turn runs of consecutive role cards into a single list.
+     *
+     * Five sibling <article> elements gave a screen reader headings to jump
+     * between but no sense of how many there were or where the user was. A real
+     * <ul> gives AT its own "list, 5 items" count, and each card also carries a
+     * spoken "Role 2 of 5" because that list count is not reliable across every
+     * browser and screen reader pairing. Both, deliberately.
+     *
+     * Long runs also collapse after the third. A reply carrying five roles with
+     * pay is fifteen figures in one announcement, which is a cognitive-load
+     * barrier rather than a formatting preference; the rest stay one button away.
+     */
+    _groupCards(blocks) {
+        const out = [];
+        let run = [];
+        const flush = () => {
+            if (!run.length) { return; }
+            if (run.length === 1) {
+                out.push(run[0]);
+            } else {
+                const total = run.length;
+                out.push({
+                    key: 'cards' + (++_uid),
+                    isCardList: true,
+                    total,
+                    collapsible: total > CARD_PREVIEW,
+                    showAllLabel: 'Show the other ' + (total - CARD_PREVIEW) + ' roles',
+                    cards: run.map((c, i) => ({
+                        ...c,
+                        position: 'Role ' + (i + 1) + ' of ' + total,
+                        hidden: total > CARD_PREVIEW && i >= CARD_PREVIEW
+                    }))
+                });
+            }
+            run = [];
+        };
+        for (const b of blocks) {
+            if (b.isCard) { run.push(b); continue; }
+            flush();
+            out.push(b);
+        }
+        flush();
+        return out;
+    }
+
+    /* Reveal the rest of a collapsed role list. */
+    handleShowAllCards(evt) {
+        const key = evt.currentTarget.dataset.key;
+        this.messages = this.messages.map(m => ({
+            ...m,
+            blocks: (m.blocks || []).map(b => b.key !== key ? b : {
+                ...b,
+                collapsible: false,
+                cards: b.cards.map(c => ({ ...c, hidden: false }))
+            })
+        }));
+        this._announce('Showing all roles.');
     }
 
     /** Contextual quick replies, derived from what the agent just asked. */
@@ -936,7 +1001,19 @@ export default class NmChatWidget extends LightningElement {
             return hasPay ? [SUG_MENTOR, SUG_SKILLS, SUG_MORE]
                           : [SUG_PAY, SUG_MENTOR, SUG_SKILLS];
         }
-        return [SUG_ROLES, SUG_SKILLS, SUG_MENTOR];
+        return this._withRecap([SUG_ROLES, SUG_SKILLS, SUG_MENTOR]);
+    }
+
+    /*
+     * Offer a recap once there is something to recap.
+     *
+     * The agent could already answer "what have we covered so far?" accurately.
+     * Nothing told anyone it could, so the capability existed and no one could
+     * find it. That is a discoverability failure, not a missing feature, and the
+     * suggested actions are where it belongs.
+     */
+    _withRecap(list) {
+        return this._messageCount >= 3 ? [...list, SUG_RECAP] : list;
     }
 
     // ── Conversation data ───────────────────────────────────────────────────
