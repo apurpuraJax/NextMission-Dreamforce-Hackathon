@@ -990,6 +990,25 @@ red for the ~8% of men with red/green colour blindness.
 * **No keyboard trap.** Tabbing past the widget reaches the page and then the
   browser address bar. This is the failure that actually strands people.
 
+**axe-core 4.13.0 via `scripts/a11y-scan/scan.js`, re-run 2026-09-03**
+against the live site AFTER the list/count/collapse markup shipped:
+
+| State | WCAG 2.0/2.1 A+AA | Best practice (advisory) |
+| --- | --- | --- |
+| Landing, anonymous | 26 pass, **0 violations**, 2 incomplete | 16 pass, 1 violation |
+| Mid-conversation, cards | 27 pass, **0 violations**, 2 incomplete | 16 pass, 1 violation |
+
+**Quote it with the caveats or not at all.** The advisory violation in both
+states is `region`: the LWR "Skip to Main" link sits outside a landmark. That is
+Salesforce platform chrome, not our widget, and it is best-practice rather than
+AA. The 2 incomplete are `aria-valid-attr-value` on our `aria-labelledby`
+references and `color-contrast` on the attach label, both of which axe declines
+to resolve rather than failing. A bare "0 violations, 53 passes" is true but
+reads as a stronger claim than the run supports.
+
+The scan writes no file. If a number from it is going anywhere public, re-run
+it rather than trusting one written down here.
+
 **Confirmed by hand with VoiceOver (2026-09-02, and again 2026-09-03):**
 The first pass is how the `aria-busy` bug was found: it was set during loading
 and silently suppressed the announcement of the reply that followed. **axe-core
