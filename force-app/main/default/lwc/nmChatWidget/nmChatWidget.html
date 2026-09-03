@@ -166,6 +166,11 @@
             </div>
         </template>
 
+        <!-- A real anchor inside the component. Lightning Web Security sandboxes
+             `document`, so building a detached <a> and clicking it throws and the
+             download never fires. This one lives in our own template. -->
+        <a class="nm-sr-only" lwc:ref="dlAnchor" aria-hidden="true" tabindex="-1"></a>
+
         <template lwc:if={showResumeDownload}>
             <div class="nm-resume-dl">
                 <button

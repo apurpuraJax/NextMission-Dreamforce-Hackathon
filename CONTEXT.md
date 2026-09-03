@@ -1530,3 +1530,50 @@ language, and emitting the strict labelled block the widget turns into a Word
 document. The no-invention rule lives with them rather than competing with
 brevity rules written for chat replies.
 
+## Browser testing is not optional (2026-09-02, late)
+
+Everything below passed every API-level check and was broken for a real visitor.
+An admin-run script cannot see any of it.
+
+**The router hijacked to mentor.** "Can you help me with my resume?" returned a
+mentor introduction. Two causes: a stale duplicate rule still sent resume help
+to skills translation, and the mentor-precedence rule treated the agent's OWN
+offer as an open request, so any next message was captured. An offer is not a
+request; only the message immediately after can be an acceptance.
+
+**pdf.js cannot work on this site, at all.** Its worker must load from a static
+resource and Lightning Web Security blocks that outright ("Cannot request
+disallowed endpoint"). Without a worker it parses on the main thread and never
+resolves, so an upload sat on the typing indicator forever with no error.
+Replaced with a dependency-free extractor: find the stream objects, inflate with
+`DecompressionStream`, read the text out of the Tj/TJ operators. That works.
+
+Three traps inside that, each of which looked like a different bug:
+* `new Response(stream).arrayBuffer()` is treated as a fetch and blocked. Read
+  the DecompressionStream with a reader instead.
+* The bytes before `endstream` are an EOL belonging to the syntax. Leaving them
+  on makes the inflater throw away a stream it had already decoded.
+* The writer rejects independently of the reader, so an unhandled rejection
+  surfaces as a page error even when the failure is handled.
+
+**Replies arrive with newlines stripped.** A labelled block comes back as one
+line, so any parser that splits on `\n` finds the first field and silently
+produces nothing. Split on the labels instead. An API test that counted
+`BULLET:` occurrences passed the whole time.
+
+**Repeated surgical edits corrupted the widget.** Successive anchored inserts
+left duplicate copies of seven methods, a dedup pass then removed the wrong
+`_appendMessage`, and a comment containing `T*/ET` closed its own block early and
+failed the deploy, leaving a broken widget live. Restore from the last good
+commit and apply one clean change instead of patching a patch.
+
+### Still not working: the resume DOWNLOAD
+
+Reading a resume and rewriting it both work. Turning that into a file does not.
+The button is hidden behind `_resumeDownloadReady = false` rather than shipped
+broken. Ruled out: the parse (unit-tested against a newline-stripped reply), the
+agent's format (correct via API), and a detached anchor (moved into the
+component's own template). The remaining suspect is the blob download itself
+under LWS. If it is picked up again, the sound design is an Apex action with
+typed inputs plus an @AuraEnabled read, not a text format parsed by regex.
+

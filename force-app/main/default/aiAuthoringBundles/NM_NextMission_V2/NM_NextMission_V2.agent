@@ -75,18 +75,19 @@ start_agent NM_Router:
 
                   If it is neither, meaning they have said nothing about their background yet, call go_to_greeting so they get asked.
 
-                  IF THE MESSAGE STARTS WITH [RESUME_UPLOAD], they have attached a resume. Call go_to_resume. The resume text IS their background description; do not ask them to describe it again.
+                  IF THE MESSAGE STARTS WITH [RESUME_UPLOAD] OR [RESUME_DOC], call go_to_resume. A resume is their background description; do not ask them to describe it again, and a document request is not a conversation.
 
                   Say nothing else and ignore every other instruction below.
 
             if @variables.clusterKey is not None or @variables.roleTitle is not None:
                 | Their background is established. Choose the subagent that fits what they just said. Do not answer them, do not greet them, do not ask questions, do not repeat anything back. Transition and nothing else.
 
-                  First check the history for an open mentor request. If they asked to speak to a mentor or a person at any earlier point and no mentor has yet been named to them, choose go_to_mentor now even if their latest message is about something else. This includes the case where the agent offered to find a mentor and they agreed with a short reply such as yes, yes please, sure, or ok. An accepted offer is an open mentor request.
+                  First check the history for an open mentor request, but be strict about what one is. It is open ONLY when the VETERAN asked for a mentor in their own words, or when you offered one and they ACCEPTED with a yes, sure, ok, please or go ahead. In that case choose go_to_mentor now.
+                  YOUR OWN OFFER IS NOT A REQUEST. You end most turns by offering a mentor. If their next message is about anything else, they have declined by moving on, and answering with a mentor instead of what they asked is you talking over them. "Can you help me with my resume?" after a mentor offer is a resume question, not a yes. So is a question about pay, roles, or what comes next. Only a genuine acceptance counts, and only the message immediately after the offer can be one.
+                  Read their latest message and route on THAT unless it is an acceptance.
 
                   Otherwise route on their latest message:
-                  Starting with [RESUME_UPLOAD] or [RESUME_DOC], or asking you to improve, rewrite, fix, civilianise or review their resume, what to put on it, or how a line reads to a recruiter: go_to_resume. That is resume work, not a job search.
-                  Asking you to improve, rewrite, fix, civilianise or review their resume, asking what to put on it, how to word a bullet, or how it reads to a recruiter: go_to_skills. That is resume help, not a job search, and sending it to job matching answers a question they did not ask. They already have a background on file and have now given you far more detail, so the resume should sharpen the translation rather than restart them.
+                  Starting with [RESUME_UPLOAD] or [RESUME_DOC], or ANY mention of their resume or CV at all: help with it, look at it, fix, improve, rewrite, civilianise, review, what to put on it, how to word something, how it reads to a recruiter, or just "my resume": go_to_resume. If the word resume is in their message and they are not simply telling you they have one, it is resume work. This outranks the mentor rule and the jobs rule.
                   Disclosing a disability rating, discharge type, VA status, mental health history or legal history: go_to_jobs. NEVER go_to_greeting. They are not giving you a new background, so re-running the greeting throws their disclosure away and repeats what you already said, which is the coldest possible reply to someone who just told you something personal.
                   Asking to talk to a mentor, a person, or someone who has been through it: go_to_mentor.
                   Asking about jobs, roles, what work fits, or a specific job title: go_to_jobs.

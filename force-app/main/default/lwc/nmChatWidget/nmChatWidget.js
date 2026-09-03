@@ -3,8 +3,6 @@ import startSession  from '@salesforce/apex/NM_AgentController.startSession';
 import sendMessage   from '@salesforce/apex/NM_AgentController.sendMessage';
 import logTurnFlat   from '@salesforce/apex/NM_AgentController.logTurnFlat';
 import sendResume    from '@salesforce/apex/NM_AgentController.sendResume';
-import { loadScript } from 'lightning/platformResourceLoader';
-import PDFJS          from '@salesforce/resourceUrl/NM_PdfJs';
 
 import WIDGET_ARIA   from '@salesforce/label/c.NM_Chat_WidgetAriaLabel';
 import LOADING_ARIA  from '@salesforce/label/c.NM_Chat_LoadingAriaLabel';
@@ -348,8 +346,14 @@ export default class NmChatWidget extends LightningElement {
     // Offering it before that produces an empty document and wastes their time.
     @track _canBuildResume = false;
 
+    // OFF until the download path actually works end to end in a browser.
+    // Reading the resume and rewriting it both work; turning that into a file
+    // does not, and a button that always fails is worse than no button. See
+    // CONTEXT.md for what was tried and what is left.
+    _resumeDownloadReady = false;
+
     get showResumeDownload() {
-        return this._canBuildResume && !this.isLoading;
+        return this._resumeDownloadReady && this._canBuildResume && !this.isLoading;
     }
 
     /*
@@ -366,14 +370,32 @@ export default class NmChatWidget extends LightningElement {
         this.isLoading = true;
         this._announce(DL_BUILDING);
         try {
-            const result = await sendMessage({
-                sessionId: this._sessionId,
-                text: '[RESUME_DOC] Build the complete resume now.',
-                sourceUrl: this._sourceUrl
-            });
-            const parsed = result && result.success
-                ? this._parseResume(result.replyText) : null;
-            if (!parsed || !parsed.bullets.length) {
+            // Ask twice if the first answer comes back as prose. The strict
+            // format is a contract the model can drift off, and a veteran who
+            // clicked download should not be told to copy the text by hand
+            // because of one bad turn.
+            let parsed = null;
+            for (const attempt of [1, 2]) {
+                const prompt = attempt === 1
+                    ? '[RESUME_DOC] Build the complete resume now.'
+                    : '[RESUME_DOC] Output ONLY the labelled lines, starting with NAME:. '
+                      + 'No preamble and no questions.';
+                // eslint-disable-next-line no-await-in-loop
+                const result = await sendMessage({
+                    sessionId: this._sessionId, text: prompt, sourceUrl: this._sourceUrl
+                });
+                parsed = result && result.success
+                    ? this._parseResume(result.replyText) : null;
+                if (parsed && parsed.bullets.length) { break; }
+                parsed = null;
+            }
+            // Last resort: build from what is already on screen. Asking the
+            // model for a strict format and parsing it with a regex is fragile,
+            // and a veteran who clicked download should get a document rather
+            // than an apology. The rewritten lines are already in the
+            // transcript; use those.
+            if (!parsed) { parsed = this._resumeFromTranscript(); }
+            if (!parsed) {
                 this.errorMessage = DL_FAILED;
                 this._announce(DL_FAILED);
                 return;
@@ -393,16 +415,71 @@ export default class NmChatWidget extends LightningElement {
         }
     }
 
+    /*
+     * Build a resume from the conversation itself when the labelled format did
+     * not come back. Takes the most recent agent turn that reads like rewritten
+     * resume content and uses its lines as the bullets.
+     */
+    _resumeFromTranscript() {
+        for (let i = this.messages.length - 1; i >= 0; i--) {
+            const m = this.messages[i];
+            if (m.senderLabel === YOU_LABEL) { continue; }
+            const text = m.raw || '';
+            let lines = text.split('\n')
+                .map(l => l.replace(/^[\s\-•*]+/, '').trim())
+                .filter(l => l.length > 35 && !l.endsWith('?'));
+            // Replies often arrive as one unbroken paragraph, so fall back to
+            // sentences. Requiring separate lines meant this safety net never
+            // fired on exactly the replies it existed for.
+            if (lines.length < 3) {
+                lines = text.replace(/\s+/g, ' ').split(/(?<=\.)\s+/)
+                    .map(l => l.trim())
+                    .filter(l => l.length > 35 && !l.endsWith('?'));
+            }
+            if (lines.length >= 3) {
+                return {
+                    name: 'Your Name',
+                    headline: '',
+                    summary: '',
+                    experience: '',
+                    bullets: lines.slice(0, 8),
+                    skills: '',
+                    clearance: ''
+                };
+            }
+        }
+        return null;
+    }
+
+    /*
+     * Parse the labelled resume block.
+     *
+     * Split on the LABELS, not on newlines. The reply arrives with its line
+     * breaks stripped, so "NAME: Jane HEADLINE: Diesel Mechanic BULLET: ..."
+     * comes through as one line and a line-based parser found only the first
+     * field and quietly produced an empty document.
+     */
     _parseResume(text) {
         if (!text) { return null; }
+        const clean = text.replace(/[*_`>]/g, ' ').replace(/\s+/g, ' ').trim();
+        const label = /(NAME|HEADLINE|SUMMARY|EXPERIENCE|BULLET|SKILLS|CLEARANCE)\s*:\s*/g;
+
+        const hits = [];
+        let m;
+        while ((m = label.exec(clean)) !== null) {
+            hits.push({ key: m[1], from: m.index + m[0].length });
+        }
+        if (!hits.length) { return null; }
+
         const out = { name: 'Your Name', headline: '', summary: '',
                       experience: '', bullets: [], skills: '', clearance: '' };
-        for (const raw of text.split('\n')) {
-            const line = raw.trim();
-            const m = /^([A-Z]+):\s*(.+)$/.exec(line);
-            if (!m) { continue; }
-            const value = m[2].trim();
-            switch (m[1]) {
+        hits.forEach((h, n) => {
+            const to = n + 1 < hits.length
+                ? clean.lastIndexOf(hits[n + 1].key, hits[n + 1].from)
+                : clean.length;
+            const value = clean.slice(h.from, to).trim().replace(/[-–|]+$/, '').trim();
+            if (!value) { return; }
+            switch (h.key) {
                 case 'NAME':       out.name = value; break;
                 case 'HEADLINE':   out.headline = value; break;
                 case 'SUMMARY':    out.summary = value; break;
@@ -412,7 +489,7 @@ export default class NmChatWidget extends LightningElement {
                 case 'CLEARANCE':  out.clearance = value; break;
                 default: break;
             }
-        }
+        });
         return out;
     }
 
@@ -455,15 +532,13 @@ export default class NmChatWidget extends LightningElement {
 
         const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
         const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
+        const a    = this.refs.dlAnchor;
         a.href = url;
         a.download = (r.name || 'resume').replace(/[^A-Za-z0-9]+/g, '_') + '_Resume.doc';
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
-        // Revoke on the next tick; revoking immediately cancels the download in
-        // some browsers before it has started reading the blob.
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        // Revoke on a later tick. Revoking immediately cancels the download in
+        // some browsers before it has finished reading the blob.
+        setTimeout(() => URL.revokeObjectURL(url), 8000);
     }
 
     // ── Resume upload ───────────────────────────────────────────────────────
@@ -548,44 +623,191 @@ export default class NmChatWidget extends LightningElement {
     }
 
     /*
-     * Extract text from a PDF with pdf.js, loaded from a static resource rather
-     * than a CDN because Experience Cloud CSP blocks third-party script hosts.
-     * Page text is joined with newlines so headings and bullets stay separated;
-     * without that a resume arrives as one unbroken line.
+     * Read the text out of a PDF with no library at all.
+     *
+     * pdf.js cannot work on this site. Its worker must load from a static
+     * resource, and Lightning Web Security blocks that outright: "Cannot
+     * request disallowed endpoint". Without a worker pdf.js falls back to
+     * main-thread parsing that never resolves under LWS, so an upload sat on
+     * the typing indicator forever with no error, while the same API call
+     * worked perfectly from a script.
+     *
+     * So this parses the file directly. Page content lives in stream objects,
+     * usually Flate-compressed, which the browser inflates natively with
+     * DecompressionStream. Inside a content stream the text is in the arguments
+     * to Tj, TJ, ' and ", and the positioning operators mark the line breaks.
+     *
+     * This reads text-based PDFs, which is what a resume is. It will not read a
+     * scan, and does not pretend to; that gets an honest message telling them
+     * to paste the text instead.
      */
     async _pdfText(file) {
-        if (!this._pdfLib) {
-            await loadScript(this, PDFJS + '/pdf.min.js');
-            // eslint-disable-next-line no-undef
-            this._pdfLib = window.pdfjsLib;
-            this._pdfLib.GlobalWorkerOptions.workerSrc = PDFJS + '/pdf.worker.min.js';
-        }
-        const buf = await file.arrayBuffer();
-        const doc = await this._pdfLib.getDocument({ data: buf }).promise;
-
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const streams = await this._pdfStreams(bytes);
         const pages = [];
-        const limit = Math.min(doc.numPages, 10);   // a resume is not 40 pages
-        for (let n = 1; n <= limit; n++) {
-            // eslint-disable-next-line no-await-in-loop
-            const page = await doc.getPage(n);
-            // eslint-disable-next-line no-await-in-loop
-            const content = await page.getTextContent();
-            let line = '';
-            const lines = [];
-            let lastY = null;
-            for (const item of content.items) {
-                const y = item.transform && item.transform[5];
-                if (lastY !== null && Math.abs(y - lastY) > 2) {
-                    if (line.trim()) { lines.push(line.trim()); }
-                    line = '';
-                }
-                line += item.str + (item.hasEOL ? '\n' : ' ');
-                lastY = y;
-            }
-            if (line.trim()) { lines.push(line.trim()); }
-            pages.push(lines.join('\n'));
+        for (const stream of streams) {
+            const t = this._textFromContentStream(stream);
+            if (t.trim()) { pages.push(t.trim()); }
         }
         return pages.join('\n\n');
+    }
+
+    /* Every content stream in the file, inflated where necessary. */
+    async _pdfStreams(bytes) {
+        const latin = new TextDecoder('latin1');
+        const raw = latin.decode(bytes);
+        const out = [];
+        let i = 0;
+        while (out.length < 60) {
+            const s = raw.indexOf('stream', i);
+            if (s === -1) { break; }
+            const dict = raw.slice(Math.max(0, raw.lastIndexOf('<<', s)), s);
+            let from = s + 6;
+            if (raw[from] === '\r') { from++; }
+            if (raw[from] === '\n') { from++; }
+            const e = raw.indexOf('endstream', from);
+            if (e === -1) { break; }
+            i = e + 9;
+
+            // Fonts, images and metadata are not page text.
+            if (/\/Subtype\s*\/Image|\/FontFile|\/Metadata/.test(dict)) { continue; }
+
+            // The bytes just before "endstream" are an EOL belonging to the
+            // syntax, not the data. Leaving them on makes the inflater report
+            // "junk found after end of compressed data" and throw away a
+            // stream it had already decoded correctly.
+            let stop = e;
+            while (stop > from && (bytes[stop - 1] === 0x0a || bytes[stop - 1] === 0x0d)) {
+                stop--;
+            }
+            const slice = bytes.subarray(from, stop);
+            if (/\/FlateDecode/.test(dict)) {
+                try {
+                    // eslint-disable-next-line no-await-in-loop
+                    out.push(latin.decode(await this._inflate(slice)));
+                } catch (err) {
+                    // One unreadable stream should not lose the others.
+                }
+            } else if (!/\/Filter/.test(dict)) {
+                out.push(latin.decode(slice));
+            }
+        }
+        return out;
+    }
+
+    /*
+     * Inflate one stream.
+     *
+     * Read the DecompressionStream by hand rather than with
+     * `new Response(stream).arrayBuffer()`. Wrapping a stream in a Response
+     * counts as a fetch, and this site blocks it: every stream came back
+     * "TypeError: Failed to fetch" while the stream parsing itself was
+     * perfect. A plain reader touches no network API at all.
+     *
+     * Producers are inconsistent about the zlib wrapper, so try both framings
+     * rather than trust what the dictionary claims.
+     */
+    async _inflate(slice) {
+        for (const format of ['deflate', 'deflate-raw']) {
+            try {
+                const ds = new DecompressionStream(format);
+                const writer = ds.writable.getWriter();
+                // Swallow the writer's own rejection. It rejects independently
+                // of the reader, and an unhandled rejection surfaces as a page
+                // error even though we handle the failure below.
+                writer.write(slice).catch(() => {});
+                writer.close().catch(() => {});
+
+                const reader = ds.readable.getReader();
+                const chunks = [];
+                let total = 0;
+                try {
+                    for (;;) {
+                        // eslint-disable-next-line no-await-in-loop
+                        const { value, done } = await reader.read();
+                        if (done) { break; }
+                        chunks.push(value);
+                        total += value.length;
+                    }
+                } catch (readErr) {
+                    // A trailing-junk complaint arrives AFTER the real content
+                    // has been handed over. Keep what we already decoded.
+                }
+                if (total > 0) {
+                    const out = new Uint8Array(total);
+                    let at = 0;
+                    for (const c of chunks) { out.set(c, at); at += c.length; }
+                    return out;
+                }
+            } catch (err) {
+                // Wrong framing, or genuinely not deflate. Try the other one.
+            }
+        }
+        throw new Error('could not inflate stream');
+    }
+
+    /*
+     * One content stream to readable text. Tj and ' take a string, TJ takes an
+     * array of strings and kerning numbers, and the positioning operators Td,
+     * TD, T-star and ET are where the line breaks come from.
+     */
+    _textFromContentStream(content) {
+        let out = '';
+        let pending = '';
+        let i = 0;
+
+        const readString = () => {
+            let depth = 1;
+            let str = '';
+            i++;
+            while (i < content.length && depth > 0) {
+                const c = content[i];
+                if (c === '\\') {
+                    const n = content[i + 1];
+                    const oct = content.substr(i + 1, 3).match(/^[0-7]{1,3}/);
+                    if (oct) {
+                        str += String.fromCharCode(parseInt(oct[0], 8));
+                        i += 1 + oct[0].length;
+                        continue;
+                    }
+                    const map = { n: '\n', r: '', t: ' ', b: '', f: '' };
+                    str += (n in map) ? map[n] : n;
+                    i += 2;
+                    continue;
+                }
+                if (c === '(') { depth++; }
+                if (c === ')') { depth--; if (depth === 0) { i++; break; } }
+                str += c;
+                i++;
+            }
+            return str;
+        };
+
+        while (i < content.length) {
+            const c = content[i];
+            if (c === '(') { pending += readString(); continue; }
+            if (c === '<' && content[i + 1] !== '<') {
+                const close = content.indexOf('>', i);
+                if (close > i) {
+                    const hex = content.slice(i + 1, close).replace(/[^0-9a-fA-F]/g, '');
+                    for (let h = 0; h + 1 < hex.length; h += 2) {
+                        const code = parseInt(hex.substr(h, 2), 16);
+                        if (code >= 32) { pending += String.fromCharCode(code); }
+                    }
+                    i = close + 1;
+                    continue;
+                }
+            }
+            if (content.startsWith('Td', i) || content.startsWith('TD', i) ||
+                content.startsWith('T*', i) || content.startsWith('ET', i)) {
+                if (pending.trim()) { out += pending.trim() + '\n'; pending = ''; }
+                i += 2;
+                continue;
+            }
+            i++;
+        }
+        if (pending.trim()) { out += pending.trim() + '\n'; }
+        return out;
     }
 
     // ── Rendering helpers ───────────────────────────────────────────────────
@@ -593,6 +815,10 @@ export default class NmChatWidget extends LightningElement {
     _appendMessage(text, role) {
         this.messages = [...this.messages, {
             id: ++_msgId,
+            // Keep the original text. Blocks are a render structure with several
+            // shapes (segments, list items, cards), and reconstructing the text
+            // from them is guesswork that silently returns nothing.
+            raw: text,
             rowClass: role === 'user' ? 'nm-row nm-row--user' : 'nm-row nm-row--agent',
             senderLabel: role === 'user' ? YOU_LABEL : AGENT_LABEL,
             blocks: role === 'user'
