@@ -994,7 +994,38 @@ sf data query --target-org dreamforce-hackathon \
 **Do not report a hallucination or refusal rate from anywhere else.** Before this
 object existed the honest answer was "unknown", not "zero".
 
-### The mentor shortlist: built, measured, REVERTED. Read before rebuilding it.
+### The invented mentor: root cause was the PROMPT'S OWN EXAMPLE
+
+The agent told a veteran that Alex R. was a paramedic who moved from Army 68W.
+Alex R. is real and is a **Supply Chain Manager in Logistics**. It invented a
+stranger's job and attached it to their name.
+
+Two people independently blamed the mentor corpus sitting in model context. That
+was **wrong**, and it is worth knowing why, because it nearly sent this to a data
+architecture review it did not need. `NM_MentorCorpusAction` is bound to the
+agent **zero** times. The corpus lives inside `NM_FindMentor_Flow` and never
+reaches the model.
+
+The real source was the PRONOUNS guardrail in the agent's own instructions:
+
+> Say 'Alex R. is a Supply Chain Manager. Alex moved into civilian logistics',
+> never 'He is a Supply Chain Manager'.
+
+**The worked example used a real mentor's name.** Needing a name and having none,
+the model reached for the only one in its instructions and re-skinned the role to
+fit the conversation. Every fabricated name in that incident was either that name
+or a style match for it.
+
+Fixed by replacing it with `Marlow P.`, verified absent from the roster, marked
+in the instructions as invented, plus a hard rule that the only mentor name the
+agent may ever say is one `find_mentor` returned in that conversation.
+
+**Check this whenever you add an example to the prompt.** One name-shaped string
+existed in the entire agent script and it was a real person's.
+`scripts/mentor_truth.py` now cross-checks every name the agent says against the
+live roster and fails if a real mentor is named without their stored role.
+
+### The mentor shortlist: built, measured, REVERTED TWICE. Read before rebuilding it.
 
 The RAI reflection found a real leak: the veteran was offered one mentor chosen
 by a prompt template and their whole say was yes or no. Three things were built
@@ -1024,9 +1055,18 @@ bio, introduction sent. `select_mentor` was removed too, because its
 `set @variables.mentorId` wrote a NULL over a good mentor id whenever it failed
 to resolve, which broke two regression conversations.
 
-**If you rebuild this, the shortlist has to come out of `NM_FindMentor_Flow`
-itself**, so there is no second step and no gap for the model to fill. Adding
-actions around a model that already holds the data does not constrain it.
+Attempted again after the naming root cause was fixed, on the theory that the
+fabrication had been the blocker. It was not. With the shortlist wired to
+`apex://NM_FindMentorWithOptionsAction` the agent stopped naming anyone at all,
+said "there is one matched mentor" without calling the action, and derailed the
+next two turns. No fabrication, because the new rule holds, but no help either.
+Reverted a second time to `flow://NM_FindMentor_Flow`.
+
+**The remaining problem is not fabrication and not data architecture. It is that
+the agent reliably calls the Flow-targeted action and does not reliably call the
+Apex-targeted one.** That is where to look next, and it is a routing question,
+not a prompting one. Do not rewrite the prompt again expecting a different
+answer; that has now been tried four times.
 
 ### Mentor fabrication watch
 

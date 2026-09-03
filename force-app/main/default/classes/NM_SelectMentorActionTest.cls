@@ -46,6 +46,7 @@ private class NM_SelectMentorActionTest {
         NM_SelectMentorAction.Request r = new NM_SelectMentorAction.Request();
         r.mentorOptionIds = ids;
         r.choice          = choice;
+        r.recommendedMentorId = String.isBlank(ids) ? null : ids.split(';')[0];
         return NM_SelectMentorAction.selectMentor(
             new List<NM_SelectMentorAction.Request>{ r })[0];
     }
@@ -126,6 +127,17 @@ private class NM_SelectMentorActionTest {
     static void garbageIdsDoNotThrow() {
         NM_SelectMentorAction.Response res = run('not-an-id;also-not', '1');
         System.assert(!res.resolved, 'Nothing resolvable came back');
+    }
+
+    @IsTest
+    static void anUnresolvedChoiceKeepsTheRecommendationNotNull() {
+        // The failure this guards: setting mentorId to null on a failed resolve
+        // blanked a good mentor and broke the introduction entirely.
+        List<NM_Mentor__c> ms = three();
+        NM_SelectMentorAction.Response res = run(idsOf(ms), 'whichever, you pick');
+        System.assert(!res.resolved, 'An unclear answer must not resolve');
+        System.assertEquals(String.valueOf(ms[0].Id), res.mentorId,
+            'It must fall back to the recommendation, never to nothing');
     }
 
     @IsTest

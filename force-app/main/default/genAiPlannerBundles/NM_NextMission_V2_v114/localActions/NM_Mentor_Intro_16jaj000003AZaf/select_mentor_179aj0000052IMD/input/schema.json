@@ -1,0 +1,28 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "choice" : {
+      "title" : "Choice",
+      "description" : "Choice",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "mentorOptionIds" : {
+      "title" : "Mentor Option Ids",
+      "description" : "Mentor Option Ids",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "recommendedMentorId" : {
+      "title" : "Recommended Mentor Id",
+      "description" : "Recommended Mentor Id",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

@@ -32,6 +32,11 @@ public with sharing class NM_SelectMentorAction {
         public String mentorOptionIds;
 
         @InvocableVariable(
+            label='Recommended Mentor Id'
+            description='The mentor already recommended. Returned unchanged when the choice cannot be resolved, so a failed resolve never blanks the mentor.')
+        public String recommendedMentorId;
+
+        @InvocableVariable(
             label='What The Veteran Said'
             description='Their choice in their own words, passed through verbatim. For example "the second one", "Alex", or "2".'
             required=true)
@@ -88,8 +93,19 @@ public with sharing class NM_SelectMentorAction {
 
         List<Response> results = new List<Response>();
         for (Integer n = 0; n < requests.size(); n++) {
-            results.add(resolveOne(perRequest[n], byId,
-                requests[n] == null ? null : requests[n].choice));
+            Request req = requests[n];
+            Response res = resolveOne(perRequest[n], byId, req == null ? null : req.choice);
+            // Never hand back a blank mentor. The first version set mentorId to
+            // null whenever it could not resolve, the agent stored that null
+            // over a perfectly good mentor, and two regression conversations
+            // ended with "the system could not identify which mentor". An
+            // unresolved choice must degrade to the recommendation, never to
+            // nothing, and resolved=false still tells the agent to ask again.
+            if (res.resolved != true && req != null
+                    && String.isNotBlank(req.recommendedMentorId)) {
+                res.mentorId = req.recommendedMentorId;
+            }
+            results.add(res);
         }
 
         System.debug('Exiting NM_SelectMentorAction.selectMentor: results=' + results.size());
