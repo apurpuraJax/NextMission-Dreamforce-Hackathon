@@ -31,15 +31,39 @@
         <ol class="nm-steps" aria-label={i18n.stepsAria}>
             <template for:each={steps} for:item="st">
                 <li key={st.key} class={st.cssClass} aria-current={st.current}>
-                    <span class="nm-step-dot" aria-hidden="true">
-                        <template lwc:if={st.done}>
-                            <svg viewBox="0 0 16 16" focusable="false" class="nm-step-check">
-                                <path d="M3 8.5 L6.5 12 L13 4.5"/>
-                            </svg>
-                        </template>
-                    </span>
-                    <span class="nm-step-label">{st.label}</span>
-                    <span class="nm-sr-only">{st.statusText}</span>
+                    <!-- A step already reached becomes a real button that goes
+                         back to it. Nothing is reset; it re-asks for that stage.
+                         Steps not yet reached stay plain text so nobody tabs to
+                         a control that does nothing. -->
+                    <template lwc:if={st.reachable}>
+                        <button
+                            type="button"
+                            class="nm-step-btn"
+                            data-revisit={st.revisit}
+                            onclick={handleStepBack}
+                        >
+                            <span class="nm-step-dot" aria-hidden="true">
+                                <template lwc:if={st.done}>
+                                    <svg viewBox="0 0 16 16" focusable="false" class="nm-step-check">
+                                        <path d="M3 8.5 L6.5 12 L13 4.5"/>
+                                    </svg>
+                                </template>
+                            </span>
+                            <span class="nm-step-label">{st.label}</span>
+                            <span class="nm-sr-only">{st.statusText}</span>
+                        </button>
+                    </template>
+                    <template lwc:else>
+                        <span class="nm-step-dot" aria-hidden="true">
+                            <template lwc:if={st.done}>
+                                <svg viewBox="0 0 16 16" focusable="false" class="nm-step-check">
+                                    <path d="M3 8.5 L6.5 12 L13 4.5"/>
+                                </svg>
+                            </template>
+                        </span>
+                        <span class="nm-step-label">{st.label}</span>
+                        <span class="nm-sr-only">{st.statusText}</span>
+                    </template>
                 </li>
             </template>
         </ol>

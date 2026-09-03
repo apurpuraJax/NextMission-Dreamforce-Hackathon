@@ -442,3 +442,28 @@
 }
 .nm-show-all:hover { background: var(--nm-surface-2, #eef2f7); }
 .nm-show-all:focus-visible { outline: 3px solid var(--nm-focus, #1b4dc1); outline-offset: 2px; }
+
+/* A reached step is a button that goes back to it. It must look the same as a
+   step that is not reachable, so the progress bar still reads as progress
+   rather than as a toolbar, while still being obviously operable on hover and
+   focus. */
+.nm-step-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+.nm-step-btn:hover { background: var(--nm-surface-2, #eef2f7); }
+.nm-step-btn:hover .nm-step-label { text-decoration: underline; }
+.nm-step-btn:focus-visible {
+    outline: 3px solid var(--nm-focus, #1b4dc1);
+    outline-offset: 2px;
+}

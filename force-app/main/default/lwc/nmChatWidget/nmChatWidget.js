@@ -93,10 +93,10 @@ const LICENSE_RE = /commercial driver|cdl|licen[cs]|certifi|credential|endorseme
 const CARD_PREVIEW = 3;
 
 const STEP_DEFS = [
-    { key: 'bg',     label: 'Background' },
-    { key: 'skills', label: 'Skills' },
-    { key: 'roles',  label: 'Roles' },
-    { key: 'mentor', label: 'Mentor' }
+    { key: 'bg',     label: 'Background', revisit: null },
+    { key: 'skills', label: 'Skills',     revisit: 'How do my skills translate?' },
+    { key: 'roles',  label: 'Roles',      revisit: 'Show me the roles again' },
+    { key: 'mentor', label: 'Mentor',     revisit: 'Connect me with a mentor' }
 ];
 
 let _msgId = 0;
@@ -174,12 +174,23 @@ export default class NmChatWidget extends LightningElement {
         return STEP_DEFS.map((s, i) => {
             const done    = i < this._stage;
             const current = i === this._stage;   // false for every step once complete
+            // A step you have reached can be revisited. Nothing is reset and
+            // nothing is lost: it simply asks the agent for that stage again,
+            // so someone who is fatigued or anxious can go back and re-read
+            // without the all-or-nothing cost of Start over.
+            const reachable = (done || current) && !!s.revisit && !this.isLoading;
             return {
                 key: s.key,
                 label: s.label,
                 done,
+                revisit: s.revisit,
+                reachable,
                 current: current ? 'step' : 'false',
-                statusText: done ? (s.label + ', done') : current ? (s.label + ', current step') : (s.label + ', not started'),
+                statusText: done
+                    ? (s.label + ', done' + (reachable ? ', go back to this' : ''))
+                    : current
+                        ? (s.label + ', current step')
+                        : (s.label + ', not started'),
                 cssClass: 'nm-step' + (done ? ' nm-step--done' : '') + (current ? ' nm-step--current' : '')
             };
         });
@@ -965,6 +976,22 @@ export default class NmChatWidget extends LightningElement {
         }
         flush();
         return out;
+    }
+
+    /*
+     * Go back to an earlier step without losing anything.
+     *
+     * The progress bar used to be decorative, so the only way back was Start
+     * over, which throws the whole conversation away. That is a punishing
+     * choice for someone who is fatigued or anxious and just wants to re-read
+     * the roles. This re-asks for that stage; the conversation continues and
+     * no state is discarded.
+     */
+    handleStepBack(evt) {
+        const text = evt.currentTarget.dataset.revisit;
+        if (!text || this.isLoading || !this._sessionId) { return; }
+        this.inputText = text;
+        this.handleSend();
     }
 
     /* Reveal the rest of a collapsed role list. */
