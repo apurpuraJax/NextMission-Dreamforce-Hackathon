@@ -990,6 +990,21 @@ red for the ~8% of men with red/green colour blindness.
 * **No keyboard trap.** Tabbing past the widget reaches the page and then the
   browser address bar. This is the failure that actually strands people.
 
+**Confirmed by hand with VoiceOver (2026-09-02, and again 2026-09-03):**
+The first pass is how the `aria-busy` bug was found: it was set during loading
+and silently suppressed the announcement of the reply that followed. **axe-core
+passed that page clean.** An automated scan cannot hear what is not spoken, so
+treat 0 violations as the floor and never as the evidence.
+
+The second pass covers the markup that shipped after the reflection session and
+therefore was not in the first: the roles `<ul>`/`<li>`, the sr-only
+"Role N of M" span, the "Show the other N roles" collapse button, and the
+reachable step buttons announcing as "Skills, done, go back to this".
+
+**Accessibility Reflection Coach (2026-09-03): all five items ADDRESSED.**
+Pace (card collapse), screen-reader list semantics, recap discoverability,
+non-destructive backtracking, and the live AT pass on the new markup.
+
 **Verified in code:** the LWR theme stylesheets, branding set and both theme
 layouts contain **zero** `outline: none`, so theme controls keep the browser
 default ring. Our five focus rules all ADD a 3px ring, none remove one, and
@@ -998,8 +1013,14 @@ mouse click.
 
 **Still open, and should not be claimed as done:**
 * Reflow at 200% and 400% zoom.
-* A real screen reader pass. Structure and contrast are verifiable from a
-  terminal; announcement order is not.
+* **Whether three is the right number of cards before collapsing.** It is
+  reasoned, not validated. One card was rejected because it strips away the
+  comparison the veteran is actually making, and because it reads as the agent
+  deciding what they can handle. The right threshold for working memory after
+  TBI is a clinical judgement, and settling it needs a usability check with
+  veterans or spouses who self-identify with attention or memory impact.
+  Do not quietly change this number without that check; it would be swapping
+  one unvalidated guess for another.
 
 ### Current live state — DO NOT TRUST THIS SECTION, QUERY THE ORG
 
