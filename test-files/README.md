@@ -29,3 +29,20 @@ and a complete resume document built from every one.
   Agentforce's own platform refusal fires here; the crisis-line response is
   guaranteed in Apex instead of asked for in a prompt.
 - Attach one, then click **Download my resume**. Word document, editable.
+
+## Full-length resumes
+
+The short ones above are one page and light. These are what people actually
+send: two pages, several assignments with dates, deployments, education,
+certifications, awards, a clearance line. They are the better test of both the
+extraction and the rewrite, and the better demo.
+
+| File | Who |
+| --- | --- |
+| `full_resume_army_91B` | Sergeant First Class, 91B wheeled vehicle mechanic. Three assignments, GCSS-Army and SAMS-E, ASL/PLL, a readiness percentage, an associate degree in progress. |
+| `full_resume_navy_hm` | Hospital Corpsman First Class, Independent Duty Corpsman. Shipboard, Fleet Marine Force and emergency department. NREMT, ACLS, PALS. |
+| `full_resume_af_intel` | Technical Sergeant, 1N1 geospatial intelligence. TS/SCI, ArcGIS and SOCET GXP, a CGP-I certification, briefing general officers. |
+
+All three verified: read on upload, rewritten into civilian language with
+before-and-after lines, every number traceable to the source.
+
