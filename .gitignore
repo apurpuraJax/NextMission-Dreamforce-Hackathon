@@ -1,0 +1,15 @@
+# Salesforce CLI
+.sf/
+.sfdx/
+.localdevserver/
+deploy-options.json
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+
+# Scratch output from browser and harness runs
+*.log
+/tmp/
