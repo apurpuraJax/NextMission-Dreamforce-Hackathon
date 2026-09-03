@@ -973,6 +973,81 @@ the check is wrong** before changing anything: two of these failures were bad
 assertions, including one that failed the agent for correctly saying "I have
 taken Commercial Airline Pilot off the list".
 
+### Guardrail observability: NM_Guardrail_Event__c
+
+The nets used to correct a reply and record nothing. The QA evaluator grades the
+STORED TRANSCRIPT, and the transcript holds the corrected reply, so every catch
+was invisible to the grader. **The safety net was hiding the model's failure rate
+from its own builder.**
+
+One row per activation now, written outside the transcript, holding what the
+MODEL produced and never what the veteran said. Within a minute of going live it
+recorded a real `Distress / RefusalReplaced`: the platform refused a veteran in
+production, which until then had only ever been a number in a code comment.
+
+```
+sf data query --target-org dreamforce-hackathon \
+  -q "SELECT Net__c, Outcome__c, COUNT(Id) c FROM NM_Guardrail_Event__c \
+      GROUP BY Net__c, Outcome__c"
+```
+
+**Do not report a hallucination or refusal rate from anywhere else.** Before this
+object existed the honest answer was "unknown", not "zero".
+
+### The mentor shortlist: built, measured, REVERTED. Read before rebuilding it.
+
+The RAI reflection found a real leak: the veteran was offered one mentor chosen
+by a prompt template and their whole say was yes or no. Three things were built
+to fix it: `NM_MentorAlternativesAction` (shortlist of 3), `NM_SelectMentorAction`
+(resolves "the second one" in Apex, never by the model), and
+`NM_FindMentorWithOptionsAction` (one call so the shortlist cannot be skipped).
+
+**All three work and are fully tested. All three are disconnected from the agent.**
+
+What happened on the live site, in order:
+* Shortlist as a SECOND action with an instruction to call it: the agent said
+  *"let me check if there are other mentors"* and then introduced the first one
+  without ever calling it. An instruction, ignored, exactly as with the wage net.
+* Descriptive outputs stripped so it could not describe anyone without the
+  shortlist: **it invented a mentor instead.** It described Alex R., a real
+  person, as a paramedic who moved from Army 68W. Alex R. is a Supply Chain
+  Manager in Logistics. Given an id and no words, the model wrote its own.
+* One combined action: it stopped calling the action altogether and fabricated a
+  whole shortlist of three real people with invented jobs.
+
+The corpus that drives the semantic match sits in the model's context, so it can
+name any mentor whether an action ran or not. Removing outputs does not remove
+that, it just removes the true text and leaves the invention.
+
+Reverted to the Flow path, verified: Priya N., real role, real employer, real
+bio, introduction sent. `select_mentor` was removed too, because its
+`set @variables.mentorId` wrote a NULL over a good mentor id whenever it failed
+to resolve, which broke two regression conversations.
+
+**If you rebuild this, the shortlist has to come out of `NM_FindMentor_Flow`
+itself**, so there is no second step and no gap for the model to fill. Adding
+actions around a model that already holds the data does not constrain it.
+
+### Mentor fabrication watch
+
+`watchMentorClaims` logs when a reply names an active mentor without their stored
+role. It is a WATCH, not a corrector: the signal is too rough to edit a reply
+about a named human being, since a legitimate reply does not always repeat a job
+title. It threw silently for every guest until `NM_Mentor__c.sharingRules` was
+added, which is the third time guest record access has broken something that
+worked perfectly as an admin. **Check the guest context first, every time.**
+
+### Transcript retention: 90 days, scrub not delete
+
+`NM_TranscriptRetention` runs daily at 03:00 and nulls `Transcript__c` and
+`Summary__c` past `RETAIN_DAYS`. The anonymous shape of the conversation stays:
+branch, specialty, message count, QA score. Keeping the aggregate costs nobody
+anything, keeping the narrative does.
+
+`RETAIN_DAYS = 90` is a governance decision, not a tuning knob. The site is
+anonymous but it was never ephemeral, and unbounded retention is a decision even
+when nobody makes it on purpose.
+
 ### Accessibility: what is measured, what a human confirmed, what is open
 
 **Measured** (`python3 scripts/check_contrast.py`, plus the page pairs):

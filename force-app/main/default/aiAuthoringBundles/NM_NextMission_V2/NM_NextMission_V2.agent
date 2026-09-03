@@ -124,7 +124,7 @@ subagent NM_Greeting_And_Background:
 
     actions:
         look_up_occupations:
-            description: "Resolve a military specialty code to the civilian occupations it maps to, using the O*NET military crosswalk."
+            description: "Resolve a military specialty code to the civilian occupations it maps to, using the O*NET military crosswalk. IF notShown COMES BACK SET, the list is partial and totalMapped says how many the code really maps to. Say plainly that you are showing some of them, that the ones shown are not ranked and are not the best, they are simply first in the federal file, and offer the rest by name if they want them. Quietly dropping occupations decides for someone which careers they get to consider."
             inputs:
                 branch: string
                 code: string
@@ -137,6 +137,7 @@ subagent NM_Greeting_And_Background:
                 suggestedCluster: string
                 message: string
                 militaryOnly: boolean
+                notShown: string
             target: "apex://NM_LookupOccupationAction"
 
     reasoning:
@@ -414,7 +415,7 @@ subagent NM_Job_Matching:
                 description: "Retrieve civilian job role matches for the veteran's cluster. Returns job titles and descriptions."
             get_wages: @actions.get_wages
                 set @variables.wagesShown=@outputs.wages
-                description: "THE source of pay. Call this the moment pay, salary, wage, earnings or money comes up, passing the exact role titles you showed them, separated by semicolons. Returns one finished line per role. PRESENT EACH LINE VERBATIM, INCLUDING ANYTHING IN PARENTHESES. Those parentheses say which occupation the figure is really reported under, and dropping them attaches a federal number to a job title the government never used, which is the same as inventing it. Never answer a pay question without calling this, and never state a figure it did not return."
+                description: "THE source of pay. Call this the moment pay, salary, wage, earnings or money comes up, UNLESS wagesShown already holds a figure for every role being asked about, in which case use what you already have rather than fetching identical numbers a second time. Pass the exact role titles you showed them, separated by semicolons. Returns one finished line per role. PRESENT EACH LINE VERBATIM, INCLUDING ANYTHING IN PARENTHESES. Those parentheses say which occupation the figure is really reported under, and dropping them attaches a federal number to a job title the government never used, which is the same as inventing it. Never answer a pay question without calling this, and never state a figure it did not return."
             broaden_beyond_code: @actions.broaden_classify
                 available when @variables.clusterKey is None
                 set @variables.clusterKey=@outputs.clusterKey
@@ -523,17 +524,17 @@ subagent NM_Mentor_Connection:
 
     actions:
         find_mentor:
-            description: "Find the best-matching active mentor by semantically comparing the veteran's background against every active mentor's civilian role and bio. Cluster is a tie-breaker only, not a hard filter, so cross-cluster matches are allowed."
+            description: "Find the best-matching active mentor AND the alternatives the veteran can choose instead, in one call. Cluster is a tie-breaker only, not a hard filter."
             inputs:
                 clusterKey: string
                 description: string
             outputs:
                 found: boolean
+                mentorId: string
                 mentorName: string
                 mentorCivilianRole: string
                 mentorEmployer: string
                 mentorBio: string
-                mentorId: string
                 message: string
             target: "flow://NM_FindMentor_Flow"
 
@@ -541,11 +542,14 @@ subagent NM_Mentor_Connection:
         instructions: ->
             | Find this veteran a mentor and introduce the idea. You do NOT handle consent or email here, another subagent does that on the next turn.
 
-              Call find_mentor. Never describe a mentor from your own knowledge and never talk about mentors in general terms, you have no mentor data until the action returns. Build the description from their role title, their occupations and anything they said about what they did.
+              Call find_mentor. EVERY WORD you use to describe any mentor comes from what it returned and from nowhere else. NEVER state a mentor's name, role, employer or background that did not come back from this action, and never describe more than the one mentor it returned. Naming a real person and inventing their job has actually happened here, and it is the worst thing you can do in this conversation. Never describe a mentor from your own knowledge, never talk about mentors in general terms, and never mention a mentor who is not in mentorOptions.
 
-              Then name the mentor: their name, their civilian role, their employer, and one line on the move they made. One short paragraph.
+              Then name the mentor: their name, their civilian role, their employer, and one line on the move they made. One short paragraph, built ONLY from what find_mentor returned.
               NEVER surface the mentor's email address.
               Finish by asking whether they would like you to send an introduction request on their behalf. Then STOP.
+
+              NEVER surface the mentor's email address.
+              Finish by asking whether they would like an introduction, and if there is more than one option, which of them. Then STOP.
 
               Do NOT ask for their email address in this turn. They have only just been told who this person is, and an address collected before that is not consent.
 

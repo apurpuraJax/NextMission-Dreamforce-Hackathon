@@ -19,6 +19,26 @@
     <description>Admin access to all NM_ objects and fields including Contact_Email__c. Use for mentor roster management, demo seeding, and judging review. Assign to human admins only — NOT to the agent user.</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>NM_Guardrail_Event__c.Detail__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Guardrail_Event__c.Net__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Guardrail_Event__c.Outcome__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NM_Guardrail_Event__c.Session_Key__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>NM_Conversation__c.Branch__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -164,6 +184,15 @@
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>NM Admin Data Access</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>NM_Guardrail_Event__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>

@@ -16,6 +16,7 @@ import AGENT_LABEL   from '@salesforce/label/c.NM_Chat_AgentLabel';
 import ERROR_MSG     from '@salesforce/label/c.NM_Chat_ErrorMessage';
 import TITLE         from '@salesforce/label/c.NM_Chat_Title';
 import SUBTITLE      from '@salesforce/label/c.NM_Chat_Subtitle';
+import AI_DISCLOSURE from '@salesforce/label/c.NM_Chat_AI_Disclosure';
 import GREETING      from '@salesforce/label/c.NM_Chat_Greeting';
 import TYPING_ARIA   from '@salesforce/label/c.NM_Chat_TypingAria';
 import SCROLL_LABEL  from '@salesforce/label/c.NM_Chat_ScrollRegionLabel';
@@ -120,6 +121,7 @@ export default class NmChatWidget extends LightningElement {
         agentLabel: AGENT_LABEL,
         title: TITLE,
         subtitle: SUBTITLE,
+        aiDisclosure: AI_DISCLOSURE,
         typingAria: TYPING_ARIA,
         scrollRegionLabel: SCROLL_LABEL,
         stepsAria: 'Your progress through the conversation',

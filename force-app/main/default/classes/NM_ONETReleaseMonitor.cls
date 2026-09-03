@@ -130,10 +130,24 @@ public with sharing class NM_ONETReleaseMonitor implements Schedulable {
      *             Confirm with a CronTrigger query after calling this; a deployed
      *             class is not a scheduled job.
      */
+    @TestVisible
+    private static final String JOB_NAME = 'NM ONET Release Monitor';
+
+    @TestVisible
+    private static final String WEEKLY_CRON = '0 0 3 ? * SUN';
+
     public static String scheduleWeekly() {
-        return System.schedule(
-            'NM ONET Release Monitor',
-            '0 0 3 ? * SUN',
-            new NM_ONETReleaseMonitor());
+        // Idempotent on purpose. Calling this twice used to throw, which meant
+        // a redeploy or a second admin running the setup step got an exception
+        // for asking for a state the org was already in. Return the existing
+        // job instead; scheduling something already scheduled is not an error.
+        List<CronTrigger> existing = [
+            SELECT Id FROM CronTrigger
+            WHERE  CronJobDetail.Name = :JOB_NAME
+            LIMIT  1
+        ];
+        if (!existing.isEmpty()) return String.valueOf(existing[0].Id);
+
+        return System.schedule(JOB_NAME, WEEKLY_CRON, new NM_ONETReleaseMonitor());
     }
 }

@@ -467,3 +467,14 @@
     outline: 3px solid var(--nm-focus, #1b4dc1);
     outline-offset: 2px;
 }
+
+/* The AI disclosure. Deliberately not a footnote: someone is owed the fact
+   that they are talking to software before they type, not after. Sized to be
+   read rather than skipped, and it stays put for the whole conversation. */
+.nm-disclosure {
+    margin: 0.35rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--nm-ink-soft, #3d4a43);
+    max-width: 52ch;
+}

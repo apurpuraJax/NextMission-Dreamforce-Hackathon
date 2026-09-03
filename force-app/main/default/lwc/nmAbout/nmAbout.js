@@ -65,6 +65,10 @@ export default class NmAbout extends LightningElement {
     ];
 
     guardrails = [
+        { key: 'g0', title: 'It is an AI, and it says so. ',
+          body: 'Next Mission is an AI assistant, not a career counselor, a recruiter or a VA representative. Nobody reads your conversation in order to answer it. Knowing what you are talking to is the first thing you are owed, so it is on the panel before you type anything.' },
+        { key: 'g0b', title: 'It cannot get you hired, and will not imply it can. ',
+          body: 'It shows what your experience maps to and what those roles pay nationally. It cannot place you in a job, confirm your VA benefits, or tell you what you are eligible for. Pay figures are national BLS medians and ranges, not an offer and not a prediction of what you will earn.' },
         { key: 'g1', title: 'It never invents a salary. ',
           body: 'Every pay figure is read from Bureau of Labor Statistics wage data we hold. It will not estimate, round from memory, or convert a figure itself, and where BLS publishes no median for a role it says so rather than implying the job pays nothing.' },
         { key: 'g1b', title: 'It shows the numbers it ranked on. ',

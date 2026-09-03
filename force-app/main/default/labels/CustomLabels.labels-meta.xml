@@ -106,6 +106,13 @@
         <value>Translating military experience into civilian careers</value>
     </labels>
     <labels>
+        <fullName>NM_Chat_AI_Disclosure</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NM_Chat_AI_Disclosure</shortDescription>
+        <value>You are talking to an AI assistant, not a career counselor or a VA representative. It can show you what your experience maps to and what those roles pay nationally. It cannot place you in a job, confirm your benefits, or decide what you qualify for.</value>
+    </labels>
+    <labels>
         <fullName>NM_Chat_StartersLabel</fullName>
         <language>en_US</language>
         <protected>false</protected>

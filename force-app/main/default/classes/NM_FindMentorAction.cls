@@ -19,6 +19,11 @@ VERSION  AUTHOR       DATE         DETAIL    DESCRIPTION
 *****************************************************************/
 public with sharing class NM_FindMentorAction {
 
+    // Three, not one. A veteran used to be handed a single mentor chosen for
+    // them; three is enough to be a real choice and few enough to stay readable
+    // in a screen reader announcement.
+    private static final Integer MAX_OPTIONS = 3;
+
     /*****************************************************************
     Purpose:       Input schema consumed by the Agentforce planner.
     *****************************************************************/
@@ -66,6 +71,22 @@ public with sharing class NM_FindMentorAction {
 
         @InvocableVariable(label='Message' description='Human-readable result. Populated when found=false.')
         public String message;
+
+        // A veteran used to be offered ONE mentor, chosen for them, and their
+        // only say was yes or no. That is a selection dressed up as an offer.
+        // These carry the whole shortlist so the person picks.
+        @InvocableVariable(
+            label='Mentor Options'
+            description='The shortlist, numbered, one per line. Present ALL of them and let the veteran choose. Never pick for them and never show only the first.')
+        public String mentorOptions;
+
+        @InvocableVariable(
+            label='Mentor Option Ids'
+            description='Record Ids in the SAME ORDER as Mentor Options, separated by semicolons. Pass this straight to Select Mentor along with what the veteran said. Never parse it yourself.')
+        public String mentorOptionIds;
+
+        @InvocableVariable(label='Mentor Option Count')
+        public Integer mentorOptionCount;
     }
 
     /*****************************************************************
@@ -77,7 +98,7 @@ public with sharing class NM_FindMentorAction {
     *****************************************************************/
     @InvocableMethod(
         label='Find Mentor'
-        description='Returns one matching mentor for the given specialty cluster. NEVER returns mentor email. Pass clusterKey from session context; branch is optional and used for preferred matching.'
+        description='Returns up to three matching mentors for the given specialty cluster, for the VETERAN to choose between. NEVER returns mentor email. Pass clusterKey from session context; branch is optional and used for preferred matching.'
         callout=false
     )
     public static List<Response> findMentor(List<Request> requests) {
@@ -95,38 +116,40 @@ public with sharing class NM_FindMentorAction {
                 continue;
             }
 
-            NM_Mentor__c mentor = null;
+            // Same-branch first because it is the stronger match, then filled
+            // out from the wider cluster. Order is meaningful and disclosed to
+            // the veteran; it is not a ranking of who is better.
+            List<NM_Mentor__c> shortlist = new List<NM_Mentor__c>();
+            Set<Id> seen = new Set<Id>();
 
-            // Attempt 1: exact-branch match when branch is provided
             if (!String.isBlank(req.branch)) {
-                List<NM_Mentor__c> branchMatches = [
+                for (NM_Mentor__c m : [
                     SELECT Id, Name, Civilian_Role__c, Employer__c, Bio__c
                     FROM NM_Mentor__c
                     WHERE Specialty_Cluster__c = :req.clusterKey
                     AND Active__c = true
                     AND Branch__c = :req.branch
-                    LIMIT 1
-                ];
-                if (!branchMatches.isEmpty()) {
-                    mentor = branchMatches[0];
-                }
+                    ORDER BY Name
+                    LIMIT :MAX_OPTIONS
+                ]) { if (seen.add(m.Id)) shortlist.add(m); }
             }
 
-            // Attempt 2: any-branch fallback
-            if (mentor == null) {
-                List<NM_Mentor__c> anyMatches = [
+            if (shortlist.size() < MAX_OPTIONS) {
+                for (NM_Mentor__c m : [
                     SELECT Id, Name, Civilian_Role__c, Employer__c, Bio__c
                     FROM NM_Mentor__c
                     WHERE Specialty_Cluster__c = :req.clusterKey
                     AND Active__c = true
-                    LIMIT 1
-                ];
-                if (!anyMatches.isEmpty()) {
-                    mentor = anyMatches[0];
+                    ORDER BY Name
+                    LIMIT :MAX_OPTIONS
+                ]) {
+                    if (shortlist.size() >= MAX_OPTIONS) break;
+                    if (seen.add(m.Id)) shortlist.add(m);
                 }
             }
 
-            if (mentor != null) {
+            if (!shortlist.isEmpty()) {
+                NM_Mentor__c mentor = shortlist[0];
                 res.found          = true;
                 // Emit the Id as text so it flows through a string session variable.
                 res.mentorId       = String.valueOf(mentor.Id);
@@ -134,6 +157,21 @@ public with sharing class NM_FindMentorAction {
                 res.mentorCivilianRole = mentor.Civilian_Role__c;
                 res.mentorEmployer = mentor.Employer__c;
                 res.mentorBio      = mentor.Bio__c;
+
+                List<String> lines = new List<String>();
+                List<String> ids   = new List<String>();
+                for (Integer i = 0; i < shortlist.size(); i++) {
+                    NM_Mentor__c m = shortlist[i];
+                    String line = String.valueOf(i + 1) + '. ' + m.Name;
+                    if (String.isNotBlank(m.Civilian_Role__c)) line += ', ' + m.Civilian_Role__c;
+                    if (String.isNotBlank(m.Employer__c))      line += ' at ' + m.Employer__c;
+                    if (String.isNotBlank(m.Bio__c))           line += '. ' + m.Bio__c;
+                    lines.add(line);
+                    ids.add(String.valueOf(m.Id));
+                }
+                res.mentorOptions      = String.join(lines, '\n');
+                res.mentorOptionIds    = String.join(ids, ';');
+                res.mentorOptionCount  = shortlist.size();
             } else {
                 res.message = 'I don\'t have a matched mentor for that background yet, but the roster is growing.';
             }

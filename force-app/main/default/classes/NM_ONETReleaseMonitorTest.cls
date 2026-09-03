@@ -72,7 +72,17 @@ private class NM_ONETReleaseMonitorTest {
         Test.startTest();
         String jobId = NM_ONETReleaseMonitor.scheduleWeekly();
         Test.stopTest();
-        CronTrigger ct = [SELECT CronExpression FROM CronTrigger WHERE Id = :jobId];
-        System.assertEquals('0 0 3 ? * SUN', ct.CronExpression);
+        System.assertNotEquals(null, jobId, 'A job id must come back either way');
+
+        // Scheduling is idempotent, so this passes whether or not the org
+        // already had the real weekly job running. The previous version
+        // asserted on a job it assumed it had just created, and failed in any
+        // org where the thing it was testing for had actually been set up.
+        CronTrigger ct = [
+            SELECT CronExpression FROM CronTrigger
+            WHERE  CronJobDetail.Name = :NM_ONETReleaseMonitor.JOB_NAME
+            LIMIT  1 ];
+        System.assertEquals(NM_ONETReleaseMonitor.WEEKLY_CRON, ct.CronExpression,
+            'Sundays at 03:00 in the scheduling user timezone');
     }
 }

@@ -102,6 +102,7 @@ public with sharing class NM_AgentController {
     @AuraEnabled
     public static SendMessageResult sendMessage(String sessionId, String text, String sourceUrl) {
         System.debug('Entering sendMessage: sessionId=' + sessionId + ', text=' + text);
+        currentSessionKey = sessionId;
         try {
             Map<String, Object> body = new Map<String, Object>{
                 'message' => new Map<String, Object>{
@@ -120,6 +121,7 @@ public with sharing class NM_AgentController {
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(resp.getBody());
                 result.replyText =
                     applyDistressNet(text, applyWageNet(extractReplyText(parsed)));
+                watchMentorClaims(result.replyText);
                 result.success   = true;
             } else {
                 result.success      = false;
@@ -220,6 +222,9 @@ public with sharing class NM_AgentController {
             // cannot verify (missing access, a query problem), say nothing about
             // pay rather than pass through a figure we have not checked.
             System.debug(LoggingLevel.WARN, 'Wage net could not run: ' + e.getMessage());
+            if (!figuresIn(agentReply).isEmpty()) {
+                logGuardrail('Wage', 'Unverifiable', 'Net could not run: ' + e.getMessage());
+            }
             return figuresIn(agentReply).isEmpty() ? agentReply
                 : 'I want to be sure any pay figure I give you is the real Bureau of Labor '
                 + 'Statistics number, and I could not check that one just now. Ask me again '
@@ -241,8 +246,11 @@ public with sharing class NM_AgentController {
         System.debug(LoggingLevel.WARN,
             'Agent stated wage figures we do not hold: ' + invented);
 
+        String inventedDetail = 'Figures not held: ' + invented;
+
         List<String> titles = titlesIn(agentReply);
         if (titles.isEmpty()) {
+            logGuardrail('Wage', 'Withheld', inventedDetail + ' (no roles identifiable)');
             // We cannot tell which roles it meant, so we cannot rebuild. Say
             // nothing about pay rather than repeat a number we cannot stand behind.
             return 'I do not want to give you a pay figure I cannot stand behind, and I '
@@ -256,10 +264,14 @@ public with sharing class NM_AgentController {
             NM_GetWagesAction.getWages(new List<NM_GetWagesAction.Request>{ req })[0];
 
         if (w == null || w.found != true || String.isBlank(w.wages)) {
+            logGuardrail('Wage', 'Withheld', inventedDetail + ' (no stored figures for: '
+                + String.join(titles, '; ') + ')');
             return 'I do not have Bureau of Labor Statistics figures for those roles, and '
                  + 'I would rather tell you that than guess at a number you might plan '
                  + 'around.';
         }
+        logGuardrail('Wage', 'Rebuilt', inventedDetail + ' (rebuilt for: '
+            + String.join(titles, '; ') + ')');
         return WAGE_PREAMBLE + '\n\n' + w.wages + '\n\n' + WAGE_CLOSER;
     }
 
@@ -353,6 +365,11 @@ public with sharing class NM_AgentController {
 
         // Refused outright, or answered about careers as though they had not
         // spoken. Either way the person comes first.
+        // Log the MODEL's behaviour, never the veteran's words.
+        logGuardrail('Distress', refused ? 'RefusalReplaced' : 'CrisisPrepended',
+            refused ? 'Agent refused or returned nothing to a distress disclosure.'
+                    : 'Agent answered about careers without acknowledging the disclosure.');
+
         return refused ? CRISIS_REPLY : CRISIS_REPLY + '\n\n' + agentReply;
     }
 
@@ -570,6 +587,81 @@ public with sharing class NM_AgentController {
      *            returned HTTP 200, which is why transcripts silently froze at
      *            one turn. Look the Id up explicitly, then insert or update.
      */
+    /* ─── Mentor fabrication watch ──────────────────────────────────────────
+     *
+     * Measured on the live site: the agent named Alex R., a real mentor, and
+     * described them as a paramedic who moved from Army 68W. Alex R. is a
+     * Supply Chain Manager in Logistics. It invented a real person's job.
+     *
+     * This WATCHES rather than rewrites. A net that edits a reply about a named
+     * human being needs to be right, and this signal is not precise enough yet
+     * to act on: a legitimate reply does not always repeat someone's job title.
+     * So it records, and the rate becomes visible instead of assumed. Shipping
+     * a corrector on a signal this rough would trade a known problem for an
+     * unknown one.
+     */
+    @TestVisible
+    private static void watchMentorClaims(String agentReply) {
+        try {
+            if (String.isBlank(agentReply)) return;
+            String reply = agentReply.toLowerCase();
+            for (NM_Mentor__c m : new MentorReader().active()) {
+                if (String.isBlank(m.Name) || String.isBlank(m.Civilian_Role__c)) continue;
+                if (!reply.contains(m.Name.toLowerCase())) continue;
+                if (reply.contains(m.Civilian_Role__c.toLowerCase())) continue;
+                logGuardrail('Mentor', 'FabricationSuspected',
+                    'Reply names ' + m.Name + ' without their stored role ('
+                    + m.Civilian_Role__c + ').');
+                return;
+            }
+        } catch (Exception e) {
+            System.debug(LoggingLevel.WARN, 'Mentor watch failed: ' + e.getMessage());
+        }
+    }
+
+    private without sharing class MentorReader {
+        List<NM_Mentor__c> active() {
+            return [ SELECT Name, Civilian_Role__c FROM NM_Mentor__c
+                     WHERE Active__c = true LIMIT 200 ];
+        }
+    }
+
+    /* ─── Guardrail observability ──────────────────────────────────────────
+     *
+     * The nets used to correct a reply and say nothing. That is worse than it
+     * sounds: the QA evaluator grades the stored transcript, and the transcript
+     * holds the CORRECTED reply, so every catch was invisible to the grader.
+     * The safety net was hiding the model's failure rate from its own builder,
+     * and "we have never seen it invent a salary" was true only because nothing
+     * was looking.
+     *
+     * One row per activation, written outside the transcript. It records what
+     * the MODEL produced, never what the veteran said, so a distress disclosure
+     * is never persisted anywhere.
+     */
+    @TestVisible
+    private static String currentSessionKey;
+
+    @TestVisible
+    private static void logGuardrail(String net, String outcome, String detail) {
+        try {
+            new GuardrailWriter().write(new NM_Guardrail_Event__c(
+                Net__c         = net,
+                Outcome__c     = outcome,
+                Session_Key__c = currentSessionKey,
+                Detail__c      = detail == null ? null : detail.abbreviate(2000)
+            ));
+        } catch (Exception e) {
+            // Observability must never cost a veteran their answer. If the row
+            // cannot be written, the correction still stands.
+            System.debug(LoggingLevel.WARN, 'Guardrail log failed: ' + e.getMessage());
+        }
+    }
+
+    private without sharing class GuardrailWriter {
+        void write(NM_Guardrail_Event__c e) { insert e; }
+    }
+
     private without sharing class ConversationWriter {
 
         void insertRecord(NM_Conversation__c conv) {

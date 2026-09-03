@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingGuestRules>
+        <fullName>NM_Mentor_Guest_Read</fullName>
+        <accessLevel>Read</accessLevel>
+        <description>Read for the site guest user so the mentor fabrication watch can check a reply against the real roster. It could not: the watch threw silently for every visitor while working for an admin, which is the same guest access failure the wage data hit. Only Name and Civilian Role are readable; Contact Email is NOT granted and is never surfaced.</description>
+        <label>NM Mentor Guest Read</label>
+        <sharedTo>
+            <guestUser>Next_Mission</guestUser>
+        </sharedTo>
+        <criteriaItems>
+            <field>Active__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </criteriaItems>
+    </sharingGuestRules>
+</SharingRules>

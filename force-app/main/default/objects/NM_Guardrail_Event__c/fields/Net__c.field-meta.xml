@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Net__c</fullName>
+    <description>Which safety net fired.</description>
+    <externalId>false</externalId>
+    <label>Net</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Wage</fullName><default>false</default><label>Wage</label></value>
+            <value><fullName>Distress</fullName><default>false</default><label>Distress</label></value>
+            <value><fullName>Mentor</fullName><default>false</default><label>Mentor</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

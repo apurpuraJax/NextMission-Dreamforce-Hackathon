@@ -85,6 +85,22 @@ public with sharing class NM_LookupOccupationAction {
             description='How many civilian occupations were returned.')
         public Integer occupationCount;
 
+        // A cap of five was applied silently, so a code mapping to nine
+        // occupations showed five and the veteran had no way to know four had
+        // been dropped. There is no relevance score behind the ordering, it is
+        // the order O*NET publishes in, so this cannot honestly be called a
+        // "top five". These outputs make the truncation visible instead of
+        // dressing an arbitrary cut up as a selection.
+        @InvocableVariable(
+            label='Total Mapped'
+            description='How many civilian occupations this code maps to in total, before any cap.')
+        public Integer totalMapped;
+
+        @InvocableVariable(
+            label='Not Shown'
+            description='Occupation titles this code maps to that were NOT listed, separated by semicolons. If this is set you MUST tell the veteran the list is partial and offer these, because the ones shown are not ranked and are not better.')
+        public String notShown;
+
         @InvocableVariable(
             label='Message'
             description='Populated when found=false or militaryOnly=true. Surface it as context, never as an accusation that the veteran got their code wrong.')
@@ -227,17 +243,22 @@ public with sharing class NM_LookupOccupationAction {
 
             NM_Military_Code_V2__c mc = codeByKey.get(key);
             List<String> parts = new List<String>();
+            List<String> heldBack = new List<String>();
             Boolean sawMilitaryOnly = false;
             if (String.isNotBlank(mc.ONET_Codes__c)) {
                 for (String c : mc.ONET_Codes__c.split(';')) {
-                    if (parts.size() >= MAX_OCCUPATIONS) break;
                     NM_Occupation__c o = occByCode.get(c.trim());
                     if (o == null) continue;
                     // Never surface a military SOC as a civilian occupation.
                     if (isMilitaryOnlyONET(o.ONET_Code__c)) { sawMilitaryOnly = true; continue; }
+                    // Past the cap we keep counting rather than stopping, so we
+                    // can say honestly how many there are and name the rest.
+                    if (parts.size() >= MAX_OCCUPATIONS) { heldBack.add(o.Name); continue; }
                     parts.add(o.Name + ' :: ' + (o.Description__c == null ? '' : o.Description__c));
                 }
             }
+            res.totalMapped = parts.size() + heldBack.size();
+            res.notShown    = heldBack.isEmpty() ? null : String.join(heldBack, '; ');
 
             if (parts.isEmpty() && sawMilitaryOnly) {
                 // The code IS in the crosswalk and the role title is real. There
