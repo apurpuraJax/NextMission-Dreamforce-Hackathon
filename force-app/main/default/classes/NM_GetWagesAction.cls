@@ -23,7 +23,14 @@ History
 VERSION  AUTHOR   DATE        DETAIL    DESCRIPTION
 1.0      Claude   2026-09-02  Created   NMDH-23
 *****************************************************************/
-public with sharing class NM_GetWagesAction {
+// WITHOUT SHARING, deliberately. Everything this class reads is public federal
+// reference data: BLS wage figures and O*NET occupation titles. Salesforce's
+// secure guest user access forces private record visibility no matter what the
+// object's sharing model says, so a site visitor asking what a job pays got
+// nothing back while the same code worked perfectly as an admin. Object and
+// field permissions still apply; only record-level sharing is bypassed, and
+// there is nothing private in these rows to protect.
+public without sharing class NM_GetWagesAction {
 
     private static final Integer MAX_TITLES = 8;
 
@@ -151,6 +158,32 @@ public with sharing class NM_GetWagesAction {
         return results;
     }
 
+    /*
+     * Purpose:    Every occupation title the agent is allowed to attach a figure
+     *             to: O*NET names plus the plain-English cluster role titles.
+     *             Used by the controller's wage net to work out which roles a
+     *             reply is about so an accurate answer can be rebuilt.
+     */
+    public static Set<String> knownTitles() {
+        Set<String> out = new Set<String>();
+        for (NM_Specialty_Cluster__mdt c : [
+                SELECT Job_Descriptions__c FROM NM_Specialty_Cluster__mdt ]) {
+            if (String.isBlank(c.Job_Descriptions__c)) continue;
+            try {
+                for (Object o : (List<Object>) JSON.deserializeUntyped(c.Job_Descriptions__c)) {
+                    String t = (String) ((Map<String, Object>) o).get('title');
+                    if (String.isNotBlank(t)) out.add(t);
+                }
+            } catch (Exception e) {
+                System.debug(LoggingLevel.WARN, 'Unreadable cluster roles: ' + e.getMessage());
+            }
+        }
+        for (NM_Occupation__c o : [ SELECT Name FROM NM_Occupation__c LIMIT 2000 ]) {
+            if (String.isNotBlank(o.Name)) out.add(o.Name);
+        }
+        return out;
+    }
+
     private static Map<String, String> clusterCodeCache;
 
     /*
@@ -210,6 +243,13 @@ public with sharing class NM_GetWagesAction {
         if (w.Is_Broad_Group__c == true) {
             // Never let a broader figure pass as this exact role's pay.
             s += ' (this figure covers the wider ' + w.Name + ' group, not that role alone)';
+        } else if (String.isNotBlank(w.Name) && !title.equalsIgnoreCase(w.Name)) {
+            // We show plain-English titles ("Warehouse Operations Manager")
+            // because that is what a veteran searches for, but BLS publishes
+            // under its own name. Attaching a federal figure to a label the
+            // government never used reads as an invented number, so say which
+            // occupation the figure is actually for.
+            s += ' (BLS reports this as ' + w.Name + ')';
         }
         return s;
     }

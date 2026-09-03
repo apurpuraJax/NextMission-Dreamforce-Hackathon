@@ -1466,3 +1466,67 @@ while working perfectly as an admin. `getAll()` bypasses that. Test as guest.
 shared text deleted a subagent boundary. Check the subagent count before
 publishing.
 
+## The agent invented salaries, and how that was actually stopped
+
+The most serious defect found in this project, and it read perfectly.
+
+Asked what five widened roles paid, the agent produced Warehouse Operations
+Manager at **$98,560** when the stored figure is **$102,010**, Supply Chain
+Analyst at **$67,190** against a real **$80,880**, Inventory Control Manager at
+**$65,190** against **$57,770**. Every figure in the reply was fabricated,
+formatted immaculately, attributed to BLS, with plausible ranges.
+
+`get_wages` returns finished lines and the agent was told to present them
+verbatim. It rewrote them and generated its own BLS-looking numbers instead.
+**Strengthening that instruction made it worse.**
+
+Every check passed it. `broad_run` asked "is there a `$` and a source". The
+outcome grader scored the conversation 8/10. Nothing compared a figure to the
+database, so nothing could catch it.
+
+### Two things fixed it
+
+**`NM_AgentController.applyWageNet`.** Every figure in a reply is checked
+against `NM_Wage__c`. A reply containing a number we do not hold is REBUILT from
+stored data, not patched. If the roles cannot be identified it refuses to quote
+a figure at all. Wrapped in try/catch: a net that breaks the conversation is
+worse than no net.
+
+**`scripts/wage_truth.py`.** Asserts every dollar figure the agent prints exists
+in the database, across seven conversations covering both matching paths. Run it
+after any change touching pay.
+
+### The guest access trap underneath it
+
+The net silently did nothing at first, because **the guest user could see zero
+`NM_Wage__c` and zero `NM_Occupation__c` records** while an admin saw everything.
+Object permissions were granted and correct. `without sharing` did not help.
+
+`ExternalSharingModel` is **Private** on those objects and secure guest user
+access enforces it, so guest record access needs a **`SharingGuestRule`**, not a
+`sharingCriteriaRule`, and `sharedTo/guestUser` wants the guest user's
+**CommunityNickname** (`Next_Mission`), not the site name. After that: 968 wage
+rows and 1,060 titles visible to guests.
+
+Diagnosing this by reasoning failed three times. What worked was a temporary
+`@AuraEnabled` method returning what the guest could actually count, called from
+the live site. **When guest behaviour is in question, measure from the guest
+context; an admin-run script cannot reproduce it.**
+
+Also removed: `NM_Conversation_Turn__e` in the guest permission set, a platform
+event that exists in neither the repo nor the org and had been failing every
+permission set deploy.
+
+## Resume handling is its own subagent (NM_Resume)
+
+It was implemented as instructions scattered across the router, Describe
+Background and Skills Translation, so nothing about it appeared in the Agent
+Explorer and `NM_Skills_Translation` held two contradictory rules: *"output ONLY
+the labelled sections, no preamble"* against *"keep it short, three or four
+sentences."*
+
+`NM_Resume` now owns all three cases: reading an upload, rewriting into civilian
+language, and emitting the strict labelled block the widget turns into a Word
+document. The no-invention rule lives with them rather than competing with
+brevity rules written for chat replies.
+

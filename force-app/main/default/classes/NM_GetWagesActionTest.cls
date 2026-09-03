@@ -138,4 +138,33 @@ private class NM_GetWagesActionTest {
         System.assert(res.missing.split('; ').size() <= 8,
             'The action caps how many titles it will process');
     }
+
+    @IsTest
+    static void aPlainEnglishTitleNamesTheBLSOccupation() {
+        // We show "Warehouse Operations Manager" because that is what a veteran
+        // searches for. BLS publishes the figure under a different name, and
+        // attaching a federal number to a label the government never used reads
+        // as an invented figure. Say which occupation it is really for.
+        insert new NM_Occupation__c(Name='Transportation, Storage, and Distribution Managers',
+            ONET_Code__c='11-3071.00', Description__c='Plan and direct transportation.');
+        insert new NM_Wage__c(Name='Transportation, Storage, and Distribution Managers',
+            ONET_Code__c='11-3071.00', Median_Annual__c=102010, Pct10_Annual__c=61200,
+            Pct90_Annual__c=180590, Total_Employment__c=180000,
+            Wage_SOC_Code__c='11-3071', Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+
+        NM_GetWagesAction.Response res = run('Warehouse Operations Manager');
+        System.assert(res.found, 'A cluster title must still resolve to a figure');
+        System.assert(res.wages.contains('BLS reports this as'),
+            'The BLS occupation name must be disclosed when our label differs');
+        System.assert(res.wages.contains('Transportation, Storage, and Distribution Managers'),
+            'Name the occupation the figure is actually for');
+    }
+
+    @IsTest
+    static void anExactTitleMatchIsNotClutteredWithADisclosure() {
+        NM_GetWagesAction.Response res = run('Paramedics');
+        System.assert(res.found);
+        System.assert(!res.wages.contains('BLS reports this as'),
+            'When the title we show IS the BLS title, saying so twice is noise');
+    }
 }

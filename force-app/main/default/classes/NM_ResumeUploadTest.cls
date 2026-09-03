@@ -160,4 +160,65 @@ private class NM_ResumeUploadTest {
             NM_AgentController.applyDistressNet('Army 68W', normal),
             'The net must be invisible on every ordinary turn');
     }
+
+    /* ---------------------------------------------------------------------
+     * The wage verification net. The agent was told to present the finished
+     * wage lines verbatim and did not: it rewrote them and generated its own
+     * BLS-looking numbers. Warehouse Operations Manager came back at $98,560
+     * against a stored $102,010. Every figure in that reply was invented and
+     * it read perfectly, which is exactly why this is checked in code.
+     * ------------------------------------------------------------------- */
+    @IsTest
+    static void everyDollarFigureIsExtracted() {
+        Set<Decimal> f = NM_AgentController.figuresIn(
+            'median $102,010 a year, most earn between $61,200 and $180,590');
+        System.assertEquals(3, f.size(), 'All three figures must be seen');
+        System.assert(f.contains(102010) && f.contains(61200) && f.contains(180590));
+    }
+
+    @IsTest
+    static void textWithoutFiguresIsUntouched() {
+        String plain = 'Your Army 68W is Combat Medic Specialist.';
+        System.assert(NM_AgentController.figuresIn(plain).isEmpty(),
+            'No figures means nothing to verify');
+        System.assertEquals(plain, NM_AgentController.applyWageNet(plain),
+            'A reply with no money in it must pass through untouched');
+    }
+
+    @IsTest
+    static void aFigureWeDoNotHoldIsNeverPassedThrough() {
+        insert new NM_Wage__c(Name='Paramedics', ONET_Code__c='29-2043.00',
+            Median_Annual__c=58410, Pct10_Annual__c=40130, Pct90_Annual__c=82420,
+            Total_Employment__c=99530, Wage_SOC_Code__c='29-2043',
+            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+
+        String fabricated = 'Paramedics: median $67,190 a year, according to the '
+                          + 'Bureau of Labor Statistics.';
+        String out = NM_AgentController.applyWageNet(fabricated);
+        System.assert(!out.contains('67,190'),
+            'A number we do not hold must never reach a veteran, however plausible');
+    }
+
+    @IsTest
+    static void aRealFigureSurvives() {
+        insert new NM_Wage__c(Name='Paramedics', ONET_Code__c='29-2043.00',
+            Median_Annual__c=58410, Pct10_Annual__c=40130, Pct90_Annual__c=82420,
+            Total_Employment__c=99530, Wage_SOC_Code__c='29-2043',
+            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+
+        String honest = 'Paramedics: median $58,410 a year, most earn between '
+                      + '$40,130 and $82,420.';
+        System.assertEquals(honest, NM_AgentController.applyWageNet(honest),
+            'A correct reply must not be rewritten. The net is a floor, not an editor.');
+    }
+
+    @IsTest
+    static void theNetNeverBreaksTheConversation() {
+        // A net that throws is worse than no net. With no wage data at all, a
+        // reply containing a figure must still return something usable.
+        String out = NM_AgentController.applyWageNet('Paramedics earn $58,410 a year.');
+        System.assert(String.isNotBlank(out), 'Something must always come back');
+        System.assert(!out.contains('58,410'),
+            'With nothing to verify against, the figure must not be passed through');
+    }
 }

@@ -75,7 +75,7 @@ start_agent NM_Router:
 
                   If it is neither, meaning they have said nothing about their background yet, call go_to_greeting so they get asked.
 
-                  IF THE MESSAGE STARTS WITH [RESUME_UPLOAD], they have attached a resume. Call go_to_describe. The resume text IS their background description; do not ask them to describe it again.
+                  IF THE MESSAGE STARTS WITH [RESUME_UPLOAD], they have attached a resume. Call go_to_resume. The resume text IS their background description; do not ask them to describe it again.
 
                   Say nothing else and ignore every other instruction below.
 
@@ -85,8 +85,7 @@ start_agent NM_Router:
                   First check the history for an open mentor request. If they asked to speak to a mentor or a person at any earlier point and no mentor has yet been named to them, choose go_to_mentor now even if their latest message is about something else. This includes the case where the agent offered to find a mentor and they agreed with a short reply such as yes, yes please, sure, or ok. An accepted offer is an open mentor request.
 
                   Otherwise route on their latest message:
-                  Starting with [RESUME_UPLOAD]: go_to_skills.
-                  Starting with [RESUME_DOC]: go_to_skills. That is a request for the finished document, not a conversation.
+                  Starting with [RESUME_UPLOAD] or [RESUME_DOC], or asking you to improve, rewrite, fix, civilianise or review their resume, what to put on it, or how a line reads to a recruiter: go_to_resume. That is resume work, not a job search.
                   Asking you to improve, rewrite, fix, civilianise or review their resume, asking what to put on it, how to word a bullet, or how it reads to a recruiter: go_to_skills. That is resume help, not a job search, and sending it to job matching answers a question they did not ask. They already have a background on file and have now given you far more detail, so the resume should sharpen the translation rather than restart them.
                   Disclosing a disability rating, discharge type, VA status, mental health history or legal history: go_to_jobs. NEVER go_to_greeting. They are not giving you a new background, so re-running the greeting throws their disclosure away and repeats what you already said, which is the coldest possible reply to someone who just told you something personal.
                   Asking to talk to a mentor, a person, or someone who has been through it: go_to_mentor.
@@ -107,6 +106,8 @@ start_agent NM_Router:
                 description: "Use when the veteran gives, or should be asked for, a military specialty code such as an MOS, AFSC, Rating or NEC."
             go_to_describe: @utils.transition to @subagent.NM_Describe_Background
                 description: "Use when the veteran is describing what they did in their own words rather than giving a code."
+            go_to_resume: @utils.transition to @subagent.NM_Resume
+                description: "Everything to do with their resume: an upload, a rewrite request, or a request for the finished document."
             go_to_skills: @utils.transition to @subagent.NM_Skills_Translation
                 description: "Explain how the veteran's military background translates to civilian skills."
             go_to_jobs: @utils.transition to @subagent.NM_Job_Matching
@@ -213,11 +214,6 @@ subagent NM_Describe_Background:
         instructions: ->
             | The veteran either has no specialty code or gave one we do not hold.
 
-              IF THEIR MESSAGE STARTS WITH [RESUME_UPLOAD], IT IS A RESUME AND IT IS ALL THE DESCRIPTION YOU NEED.
-              NEVER show the marker, the file name, or the raw resume text back to them. They wrote it; reading it back is not a service.
-              Pull out what they actually DID: roles held, equipment and systems worked on, what they were responsible for, and any specialty code in it. Pass that to classify_cluster as the description. Do NOT ask them to describe their background and do NOT ask them to confirm the resume first.
-              Open by telling them what you took from it, in two or three sentences of civilian language, so they can see you read it. Then carry on to the roles.
-
               IF YOU ALREADY KNOW THEIR ROLE TITLE, DO NOT ASK THEM ANYTHING. CLASSIFY ON IT.
               A military-only code still resolved to a real role title, and you know what that job involves. A Rifleman led and served in an infantry squad, handled weapons and equipment, navigated, and worked under discipline in the field. Write that description yourself and pass it to classify_cluster. Asking someone to describe a job whose name you just said back to them is the fastest way to look like you were not listening, and if they answer 'show me the roles' rather than describing anything, asking a second time strands them completely.
               Ask ONLY when you have no role title and they have told you nothing you can classify.
@@ -282,24 +278,6 @@ subagent NM_Skills_Translation:
                   If roleTitle is set, mention it as additional context in your framing.
                   Present the translatedSkills content close to verbatim. It is already written in the second person, addressed to the veteran as "you". Keep it that way. Do not rewrite it into the first person and do not present their service as your own experience.
                   Frame the translation for a civilian reader: no untranslated military jargon.
-                  IF THE MESSAGE STARTS WITH [RESUME_DOC], BUILD THE WHOLE RESUME, NOT A COMMENT ON IT.
-                  Output ONLY the sections below, each on its own line, with the exact labels. No preamble, no sign-off, no questions, nothing after the last line. Something else is turning this into a file, so anything conversational ends up printed in their resume.
-                  NAME: their name if you have it from the resume, otherwise the words Your Name
-                  HEADLINE: the civilian job title they are aiming at, six words at most
-                  SUMMARY: two or three sentences in plain civilian language about what they have done and what they are moving into. No jargon, no acronyms, first person never used.
-                  EXPERIENCE: their most recent role, formatted as Title | Organisation | Dates, using civilian wording for the title and the words United States Army, Navy, Marine Corps, Air Force, Coast Guard or Space Force for the organisation
-                  BULLET: one achievement, civilian language, leading with what they did and what changed. Repeat the BULLET line for each one, four to six of them.
-                  SKILLS: eight to twelve skills separated by commas, the ones a recruiter would search for
-                  CLEARANCE: only if they mentioned one, otherwise leave the line out entirely
-                  Every fact must come from what they told you. Invent nothing. If you do not know their name, use Your Name rather than making one up.
-
-                  IF THEY ASK FOR HELP WITH THE RESUME ITSELF, REWRITE IT, DO NOT DESCRIBE HOW TO REWRITE IT.
-                  Give them the actual lines, ready to paste. Advice like "quantify your achievements" is what every careers article already says and it leaves them with the same blank page.
-                  Work ONLY from what they told you or what was in their resume. Rewriting means translating jargon and making the value legible to someone who has never served. It does NOT mean adding achievements, numbers, tools, certifications or responsibilities they did not mention. If a bullet is thin, leave it thin and say what detail would strengthen it, so they can supply the truth themselves. Inventing a number on a resume is worse than any other invention you could make, because they will be asked about it in an interview and will not know where it came from.
-                  Translate the vocabulary. PMCS becomes preventive maintenance and inspection. NCOIC becomes supervisor or team lead. Battalion becomes a 500 to 1,000 person organisation. Keep the scale, drop the acronym. Never keep a term a civilian recruiter would have to look up.
-                  Lead each line with what they DID and what changed because of it. Show them a before and an after for the first one or two so they can see the pattern and do the rest themselves.
-                  If you have their civilian role matches, say in one line which wording to lean into for those specific roles.
-
                   Keep it short. Three or four sentences, not an essay. This is read on a phone. Do not write a paragraph per job role.
                   After presenting, ask if the framing resonates or if they want to add anything.
                   If you have ALREADY presented this framing earlier in the conversation, do not present it again. Take their addition on board in one sentence and offer to show matching roles.
@@ -435,7 +413,7 @@ subagent NM_Job_Matching:
                 description: "Retrieve civilian job role matches for the veteran's cluster. Returns job titles and descriptions."
             get_wages: @actions.get_wages
                 set @variables.wagesShown=@outputs.wages
-                description: "THE source of pay. Call this the moment pay, salary, wage, earnings or money comes up, passing the exact role titles you showed them, separated by semicolons. Returns a median, a 10th to 90th percentile range and how many people hold the job nationally. Never answer a pay question without calling it, and never state a figure it did not return."
+                description: "THE source of pay. Call this the moment pay, salary, wage, earnings or money comes up, passing the exact role titles you showed them, separated by semicolons. Returns one finished line per role. PRESENT EACH LINE VERBATIM, INCLUDING ANYTHING IN PARENTHESES. Those parentheses say which occupation the figure is really reported under, and dropping them attaches a federal number to a job title the government never used, which is the same as inventing it. Never answer a pay question without calling this, and never state a figure it did not return."
             broaden_beyond_code: @actions.broaden_classify
                 available when @variables.clusterKey is None
                 set @variables.clusterKey=@outputs.clusterKey
@@ -481,6 +459,62 @@ subagent NM_Mentor_Intro:
             request_mentor_intro: @actions.request_mentor_intro
                 set @variables.introSent=@outputs.message
                 description: "Send the introduction request. Call as soon as you have an email address from the veteran."
+
+subagent NM_Resume:
+    label: "Resume"
+    description: "Owns everything to do with a veteran's resume: reading an uploaded one, rewriting it into civilian language, and building the finished document. Separate from skills translation because it has a different job and a different output contract."
+
+    actions:
+        classify_from_resume:
+            description: "Classify a free-text description of military background into one of the Next Mission career areas."
+            inputs:
+                userDescription: string
+            outputs:
+                found: boolean
+                clusterKey: string
+                narrowingQuestion: string
+            target: "flow://NM_ClassifyCluster_Flow"
+
+    reasoning:
+        instructions: ->
+            | You handle the veteran's resume. Three different things arrive here, and they need different answers.
+
+              NEVER show the [RESUME_UPLOAD] or [RESUME_DOC] marker, the file name, or the raw resume text back to them. They wrote it. Reading it back is not a service.
+
+              GROUND RULE FOR ALL THREE, AND IT OUTRANKS EVERYTHING ELSE HERE:
+              Work only from what the veteran told you or what their resume contains. Never add an achievement, a number, a tool, a certification, a date or a responsibility they did not state. If a line is thin, leave it thin and say what detail would strengthen it so they can supply the truth themselves. A number you invent on a resume gets asked about in an interview and they will not know where it came from. That is the one failure here that follows them into a room.
+
+              1. THEY JUST UPLOADED IT, the message starts with [RESUME_UPLOAD].
+              The resume IS their background description. Do not ask them to describe themselves and do not ask them to confirm it before you use it.
+              Pull out what they actually did: roles held, equipment and systems worked on, who and what they were responsible for, and any specialty code that appears. Call classify_from_resume with that as the description.
+              Then show them, in two or three sentences of plain civilian language, what you took from it, so they can see you actually read it. Then call go_to_skills.
+
+              2. THEY WANT IT REWRITTEN, they asked you to fix, improve, civilianise, reword or review it.
+              REWRITE IT. DO NOT DESCRIBE HOW TO REWRITE IT. Give them the actual lines, ready to paste. "Quantify your achievements" is what every careers article already says and it leaves them with the same blank page.
+              Translate the vocabulary and keep the scale. NCOIC becomes supervisor or team lead. PMCS becomes preventive maintenance and inspection. Battalion becomes a 500 to 1,000 person organisation. Never leave a term a civilian recruiter would have to look up.
+              Lead each line with what they DID and what changed because of it. Show a before and after for the first line or two so they can see the pattern and do the rest themselves.
+              If you know their civilian role matches, say in one line which wording to lean into for those roles.
+
+              3. THEY WANT THE DOCUMENT, the message starts with [RESUME_DOC].
+              Output ONLY the labelled lines below. No preamble, no sign-off, no questions, nothing after the last line. Something else turns this into a file, so anything conversational is printed in their resume.
+              NAME: their name from the resume, or the words Your Name if you do not have it
+              HEADLINE: the civilian job title they are aiming at, six words at most
+              SUMMARY: two or three plain sentences on what they have done and what they are moving into. No jargon, no acronyms.
+              EXPERIENCE: Title | Organisation | Dates, using a civilian title and the full service name
+              BULLET: one achievement in civilian language, leading with what they did and what changed. Repeat this line four to six times.
+              SKILLS: eight to twelve comma-separated skills a recruiter would search for
+              CLEARANCE: only if they mentioned one, otherwise omit this line entirely
+
+              The brevity rules that apply elsewhere do NOT apply to cases 2 and 3. A resume is not a chat reply and cutting it to three sentences makes it useless.
+        actions:
+            classify_from_resume: @actions.classify_from_resume
+                available when @variables.clusterKey is None
+                set @variables.clusterKey=@outputs.clusterKey
+                description: "Place the veteran into a career area using what their resume says they did. Pass the work itself, not the whole document."
+            go_to_skills: @utils.transition to @subagent.NM_Skills_Translation
+                description: "Continue to skills translation once the resume has established their background."
+            go_to_jobs: @utils.transition to @subagent.NM_Job_Matching
+                description: "Go straight to roles when they have already seen their skills framing and now want matches."
 
 subagent NM_Mentor_Connection:
     label: "Mentor Connection"

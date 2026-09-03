@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingGuestRules>
+        <fullName>NM_Wage_Guest_Read</fullName>
+        <accessLevel>Read</accessLevel>
+        <description>Public BLS wage data. Secure guest user access forces an external sharing model of Private, so a site visitor saw zero rows and the wage verification net could not check a single figure. Object permissions alone are not enough; guest record access needs a SharingGuestRule.</description>
+        <label>NM Wage Guest Read</label>
+        <sharedTo>
+            <guestUser>Next_Mission</guestUser>
+        </sharedTo>
+        <criteriaItems>
+            <field>ONET_Code__c</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </criteriaItems>
+    </sharingGuestRules>
+</SharingRules>

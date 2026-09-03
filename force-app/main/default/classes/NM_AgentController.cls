@@ -118,7 +118,8 @@ public with sharing class NM_AgentController {
             SendMessageResult result = new SendMessageResult();
             if (resp.getStatusCode() == 200) {
                 Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(resp.getBody());
-                result.replyText = applyDistressNet(text, extractReplyText(parsed));
+                result.replyText =
+                    applyDistressNet(text, applyWageNet(extractReplyText(parsed)));
                 result.success   = true;
             } else {
                 result.success      = false;
@@ -128,6 +129,151 @@ public with sharing class NM_AgentController {
             return result;
         } catch (AuraHandledException e) { throw e; }
         catch (Exception e) { throw new AuraHandledException('Message send failed: ' + e.getMessage()); }
+    }
+
+    // ── Wage verification net ───────────────────────────────────────────────
+    //
+    // The agent was asked to present the finished wage lines verbatim and did
+    // not. It rewrote them and generated its own plausible BLS-looking numbers:
+    // Warehouse Operations Manager came back as $98,560 when the stored figure
+    // is $102,010, Supply Chain Analyst as $67,190 against a real $80,880. Every
+    // figure in the reply was invented, and it read perfectly.
+    //
+    // No instruction fixes this reliably, and a wrong salary is the most harmful
+    // thing this product can output: someone takes or leaves a job on it. So
+    // every figure that reaches a veteran is checked against NM_Wage__c here,
+    // and a reply containing a number we do not hold is REPLACED with one built
+    // from the stored data rather than patched.
+
+    @TestVisible
+    private static final String WAGE_PREAMBLE =
+        'Here is what the Bureau of Labor Statistics reports for those roles nationally:';
+
+    @TestVisible
+    private static final String WAGE_CLOSER =
+        'These are national figures, so pay varies by where you live and who you work for.';
+
+    /*
+     * Purpose:    Pull every dollar amount out of a reply, as plain integers.
+     */
+    @TestVisible
+    private static Set<Decimal> figuresIn(String text) {
+        Set<Decimal> found = new Set<Decimal>();
+        if (String.isBlank(text)) return found;
+        Matcher m = Pattern.compile('\\$\\s?([0-9][0-9,]{2,})').matcher(text);
+        while (m.find()) {
+            try {
+                found.add(Decimal.valueOf(m.group(1).replace(',', '')));
+            } catch (Exception e) {
+                // A malformed amount is not a figure we can verify either way.
+            }
+        }
+        return found;
+    }
+
+    /*
+     * Purpose:    Every wage number we actually hold. Small table, read once.
+     */
+    private static Set<Decimal> heldFigures {
+        get {
+            if (heldFigures == null) {
+                heldFigures = new Set<Decimal>();
+                // Same reason NM_GetWagesAction is without sharing: secure guest
+                // access hides these public BLS rows from a site visitor.
+                for (NM_Wage__c w : new WageReader().all()) {
+                    if (w.Median_Annual__c != null) heldFigures.add(w.Median_Annual__c);
+                    if (w.Pct10_Annual__c  != null) heldFigures.add(w.Pct10_Annual__c);
+                    if (w.Pct90_Annual__c  != null) heldFigures.add(w.Pct90_Annual__c);
+                }
+            }
+            return heldFigures;
+        }
+        set;
+    }
+
+    /*
+     * Purpose:    Find the occupation titles this reply is talking about, so we
+     *             can rebuild an accurate answer for exactly those roles.
+     */
+    @TestVisible
+    private static List<String> titlesIn(String text) {
+        List<String> hits = new List<String>();
+        if (String.isBlank(text)) return hits;
+        String lower = text.toLowerCase();
+        for (String title : NM_GetWagesAction.knownTitles()) {
+            if (lower.contains(title.toLowerCase())) hits.add(title);
+        }
+        return hits;
+    }
+
+    /*
+     * Purpose:    Guarantee that no invented salary reaches a veteran.
+     * Returns:    the agent's reply when every figure checks out, otherwise a
+     *             reply rebuilt from stored BLS data.
+     */
+    @TestVisible
+    private static String applyWageNet(String agentReply) {
+        try {
+            return checkWages(agentReply);
+        } catch (Exception e) {
+            // A net that breaks the conversation is worse than no net. If we
+            // cannot verify (missing access, a query problem), say nothing about
+            // pay rather than pass through a figure we have not checked.
+            System.debug(LoggingLevel.WARN, 'Wage net could not run: ' + e.getMessage());
+            return figuresIn(agentReply).isEmpty() ? agentReply
+                : 'I want to be sure any pay figure I give you is the real Bureau of Labor '
+                + 'Statistics number, and I could not check that one just now. Ask me again '
+                + 'and I will pull it properly.';
+        }
+    }
+
+    private static String checkWages(String agentReply) {
+        Set<Decimal> shown = figuresIn(agentReply);
+        if (shown.isEmpty()) return agentReply;
+
+        Set<Decimal> held = heldFigures;
+        List<Decimal> invented = new List<Decimal>();
+        for (Decimal d : shown) {
+            if (!held.contains(d)) invented.add(d);
+        }
+        if (invented.isEmpty()) return agentReply;
+
+        System.debug(LoggingLevel.WARN,
+            'Agent stated wage figures we do not hold: ' + invented);
+
+        List<String> titles = titlesIn(agentReply);
+        if (titles.isEmpty()) {
+            // We cannot tell which roles it meant, so we cannot rebuild. Say
+            // nothing about pay rather than repeat a number we cannot stand behind.
+            return 'I do not want to give you a pay figure I cannot stand behind, and I '
+                 + 'got that one wrong. Ask me again which roles you want the pay for and '
+                 + 'I will pull the Bureau of Labor Statistics numbers properly.';
+        }
+
+        NM_GetWagesAction.Request req = new NM_GetWagesAction.Request();
+        req.occupationTitles = String.join(titles, ';');
+        NM_GetWagesAction.Response w =
+            NM_GetWagesAction.getWages(new List<NM_GetWagesAction.Request>{ req })[0];
+
+        if (w == null || w.found != true || String.isBlank(w.wages)) {
+            return 'I do not have Bureau of Labor Statistics figures for those roles, and '
+                 + 'I would rather tell you that than guess at a number you might plan '
+                 + 'around.';
+        }
+        return WAGE_PREAMBLE + '\n\n' + w.wages + '\n\n' + WAGE_CLOSER;
+    }
+
+    /*
+     * Purpose:    Read the public BLS wage rows in a context guest users can
+     *             actually see. Nothing here is private; it is federal data.
+     */
+    private without sharing class WageReader {
+        // Inner classes cannot have static methods, so this is an instance method.
+        private List<NM_Wage__c> all() {
+            return [ SELECT Median_Annual__c, Pct10_Annual__c, Pct90_Annual__c
+                     FROM   NM_Wage__c
+                     WHERE  Median_Annual__c != null ];
+        }
     }
 
     // ── Distress safety net ─────────────────────────────────────────────────
