@@ -1,6 +1,25 @@
 <template>
     <section class="nm-hero">
         <div class="nm-hero-inner">
+            <!-- The lockup. aria-hidden with a visually hidden name beside it:
+                 the wordmark is already real text, so reading the graphic too
+                 would say "Next Mission" twice. -->
+            <p class="nm-lockup">
+                <span class="nm-lockup-mark" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" focusable="false">
+                        <rect width="64" height="64" rx="16" class="nm-lk-plate"/>
+                        <path class="nm-lk-chev-2" d="M16 56 L32 43 L48 56"/>
+                        <path class="nm-lk-chev-1" d="M16 44 L32 31 L48 44"/>
+                        <path class="nm-lk-arrow"
+                              d="M32 5 L45 20 L38.5 20 L38.5 25.5 L25.5 25.5 L25.5 20 L19 20 Z"/>
+                    </svg>
+                </span>
+                <span class="nm-lockup-text">
+                    <span class="nm-lockup-name">Next Mission</span>
+                    <span class="nm-lockup-tag">Translating service into careers</span>
+                </span>
+            </p>
+
             <p class="nm-eyebrow">
                 <span class="nm-eyebrow-dot" aria-hidden="true"></span>
                 For veterans and military spouses

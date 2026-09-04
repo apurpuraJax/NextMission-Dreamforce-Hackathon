@@ -78,9 +78,13 @@ function check(ok, label, detail) {
           box ? `${Math.round(box.width)}px in ${vp.width}px` : '');
 
     // Nothing sticking out of the card.
-    const spill = await page.evaluate(() => {
-      const a = document.querySelector('figure.nm-art');
-      if (!a) return -1;
+    // evaluate() runs raw document.querySelector, which does NOT pierce shadow
+    // DOM, while Playwright's own selectors do. The first version of this check
+    // therefore never found the card and returned its -1 sentinel on every run,
+    // which passed the <=2 assertion and tested nothing at all. elementHandle()
+    // hands the real node across so this measures something.
+    const handle = await art.elementHandle();
+    const spill = await page.evaluate((a) => {
       const ar = a.getBoundingClientRect();
       let worst = 0;
       a.querySelectorAll('*').forEach(el => {
@@ -89,8 +93,16 @@ function check(ok, label, detail) {
         worst = Math.max(worst, Math.round(r.right - ar.right));
       });
       return worst;
-    });
+    }, handle);
     check(spill <= 2, 'no content spills out of the card', `worst ${spill}px`);
+
+    // The brand lockup, which must render and be reachable as real text.
+    const lockup = page.locator('.nm-lockup').first();
+    check(await lockup.count() > 0, 'brand lockup present');
+    if (await lockup.count() > 0) {
+      const t = (await lockup.innerText()).replace(/\n/g, ' ');
+      check(/Next Mission/.test(t), 'lockup names the product', `"${t.trim()}"`);
+    }
 
     // Pause control: present, operable, and big enough to hit.
     const btn = page.locator('figure.nm-art button.nm-toggle').first();

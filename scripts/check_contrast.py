@@ -38,6 +38,15 @@ PAIRS=[
  ("hero connector on art bg", "#4F7A63","#FBF9F4",3.0),
  ("hero toggle border",       "#4F7A63","#FFFFFF",3.0),
  ("hero eyebrow on art bg",   "#14532D","#FBF9F4",4.5),
+ # Brand lockup, added with the markup. The mark itself is decorative and
+ # aria-hidden, so these are its two REAL text pairs, not the graphic.
+ ("lockup name on cream",     "#14532D","#F8F5EE",4.5),
+ ("lockup tagline on cream",  "#2A5C41","#F8F5EE",4.5),
+ # Widget mark on the pine header. Decorative, so 3.0 is the bar it is held to
+ # for legibility rather than compliance. The design's own #6E9480 measures
+ # 2.69:1 here and vanishes; #8FB09E is the replacement.
+ ("mark chevron on pine",     "#8FB09E","#14532D",3.0),
+ ("mark arrow on pine",       "#F0CDA9","#14532D",3.0),
  ("current step on cream",     "#14532D","#F8F5EE",4.5),
  # non-text / UI component contrast, 3:1
  ("focus ring vs white",       "#8A4513","#FFFFFF",3.0),

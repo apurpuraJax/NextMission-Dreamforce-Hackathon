@@ -1078,6 +1078,33 @@ paragraph comes out of a rule somebody else fixed last week. Re-run
 `sim_eval.py` after ANY instruction edit, including one that looks unrelated to
 the journeys it grades.
 
+### LWC STRIPS container-type. Container queries fail SILENTLY.
+
+Measured on the live site: `getComputedStyle(card).containerType` returns
+`"normal"` even though the stylesheet sets `inline-size`. Every `@container`
+block therefore matches nothing, and there is no error anywhere.
+
+This cost a round of "fixed it" that fixed nothing. The card was 305px wide
+inside an 820px viewport, because the hero was still two columns there, so
+every viewport breakpoint said the screen was roomy while the wage pills pushed
+23px out of the card. Container queries are the right tool for that and they do
+not work here.
+
+**Use viewport breakpoints chosen from what the card actually measures.** The
+hero now stacks at 64rem rather than 46rem, which gives the card 759px at an
+820px viewport instead of 305px.
+
+### A check that cannot find its target passes forever
+
+`page.evaluate(() => document.querySelector(...))` does NOT pierce shadow DOM.
+Playwright's own locators do. The hero's "nothing spills out of the card" check
+was written with `evaluate`, never found the card, returned its `-1` sentinel,
+and passed `-1 <= 2` on every run for hours.
+
+The moment it was rewritten with `elementHandle()` it found a real 23px overflow
+at tablet width. **A sentinel value must fail the check, not satisfy it**, and a
+check that has never once reported a number worth looking at deserves suspicion.
+
 ### Contrast: a new element is unmeasured until it is in check_contrast.py
 
 The AI disclosure shipped with the dark body ink on the PINE header. **1.02:1.

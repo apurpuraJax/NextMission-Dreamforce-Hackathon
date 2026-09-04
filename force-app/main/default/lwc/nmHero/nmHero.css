@@ -25,6 +25,26 @@
     margin: 0 auto;
     padding: 3rem 1.5rem 2rem;
 }
+/* ── lockup ──────────────────────────────────────────────────────────────
+   On cream, so the mark keeps its pine plate and the design's own chevron
+   colours, which have enough contrast against pine to read at this size. */
+.nm-lockup { display: flex; align-items: center; gap: .6rem; margin: 0 0 1.25rem; }
+.nm-lockup-mark { display: block; width: 2.6rem; height: 2.6rem; flex: none; }
+.nm-lockup-mark svg { width: 100%; height: 100%; display: block; }
+.nm-lk-plate { fill: var(--nm-pine); }
+.nm-lk-chev-1, .nm-lk-chev-2 { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.nm-lk-chev-1 { stroke: #FFFFFF; }
+.nm-lk-chev-2 { stroke: #6E9480; }
+.nm-lk-arrow  { fill: #F0CDA9; }
+.nm-lockup-text { display: flex; flex-direction: column; line-height: 1.15; }
+.nm-lockup-name {
+    font-size: 1.12rem; font-weight: 700; letter-spacing: -.01em; color: var(--nm-pine);
+}
+.nm-lockup-tag {
+    margin-top: .18rem; font-size: .62rem; font-weight: 600;
+    letter-spacing: .135em; text-transform: uppercase; color: #2A5C41;
+}
+
 .nm-eyebrow {
     display: inline-flex; align-items: center; gap: .45rem;
     margin: 0 0 .9rem; padding: .3rem .7rem;
@@ -46,6 +66,11 @@
 .nm-stat-lbl { font-size: .8rem; color: var(--nm-muted); }
 
 /* ── the graphic ─────────────────────────────────────────────────────────── */
+/* NO container queries here. LWC's style pipeline strips container-type: it
+   computes to "normal" on the live site, so @container blocks never match and
+   fail silently. Verified in the browser, not assumed. The breakpoints below
+   are viewport-based and chosen from what the card actually measures at each
+   width, since the hero's column ratio is fixed. */
 .nm-art {
     position: relative;
     margin: 0;
@@ -70,7 +95,7 @@
    static resting state is one complete, legible scene rather than three. */
 .nm-scene-2, .nm-scene-3 { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
 
-.nm-source { display: flex; align-items: center; padding-right: .55rem; }
+.nm-source { display: flex; align-items: center; padding-right: .55rem; min-width: 0; }
 .nm-chip {
     position: relative; width: 100%;
     display: flex; flex-direction: column; gap: .1rem;
@@ -94,9 +119,12 @@
 .nm-wires svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .nm-wire { stroke-dasharray: 100; stroke-dashoffset: 0; }
 
-.nm-nodes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+/* min-width:0 or the grid track refuses to shrink below its content and the
+   wage pills push out of the card. Measured at 820px: 23px of spill before
+   this. A grid child defaults to min-width:auto, which is the content size. */
+.nm-nodes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; min-width: 0; }
 .nm-node {
-    position: relative; flex: 1 1 0;
+    position: relative; flex: 1 1 0; min-width: 0;
     display: flex; flex-direction: column; justify-content: center; gap: .28rem;
     margin: .18rem 0;
     padding: .45rem .75rem .45rem 1.05rem;
@@ -112,7 +140,7 @@
     margin: 0; font-size: .88rem; font-weight: 650; line-height: 1.25; color: var(--nm-pine);
     min-height: 2.5em; display: flex; align-items: center;
 }
-.nm-pay { margin: 0; display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+.nm-pay { margin: 0; display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; min-width: 0; }
 .nm-wage {
     display: inline-block; padding: .08rem .45rem; border-radius: 1rem;
     background: var(--nm-peach); border: 1px solid var(--nm-peach-2);
@@ -197,18 +225,27 @@
    decorative: it carries nine wage figures and the screen-reader copy of the
    whole data set. display:none would take real content away from exactly the
    people most likely to be on a phone. It collapses instead. */
-@media (max-width: 46rem) {
+@media (max-width: 64rem) {
     .nm-hero { grid-template-columns: 1fr; padding: 2rem 1.15rem 1.25rem; gap: 1.5rem; }
+    .nm-art-footer { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── the card is tight ───────────────────────────────────────────────────── */
+@media (min-width: 64.01rem) and (max-width: 82rem) {
     .nm-scene { grid-template-columns: 6.5rem 2.2rem minmax(0, 1fr); }
     .nm-code { font-size: 1.45rem; }
     .nm-branch { font-size: .58rem; letter-spacing: .05em; }
     .nm-mos { font-size: .68rem; }
     .nm-role { font-size: .8rem; }
+    .nm-wage { font-size: .76rem; padding: .08rem .38rem; }
+    .nm-note { font-size: .66rem; }
     .nm-chip { padding: .55rem .6rem .6rem; }
     .nm-chip::after { right: -.7rem; }
     .nm-art-footer { flex-direction: column; align-items: flex-start; }
 }
-@media (max-width: 26rem) {
+
+/* ── the card is very tight: one labelled column, no wires ───────────────── */
+@media (max-width: 27rem) {
     .nm-scene { grid-template-columns: minmax(0, 1fr); gap: .6rem; }
     .nm-wires, .nm-dot { display: none; }
     .nm-chip::after { display: none; }
@@ -216,7 +253,6 @@
     .nm-role { min-height: 0; }
     .nm-code { font-size: 1.6rem; }
 }
-
 /* ── Windows High Contrast ───────────────────────────────────────────────── */
 @media (forced-colors: active) {
     .nm-art, .nm-node, .nm-chip, .nm-wage, .nm-toggle { border: 1px solid CanvasText; }

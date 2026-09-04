@@ -59,8 +59,18 @@
 }
 .nm-mark { display: flex; width: 2rem; height: 2rem; flex: 0 0 auto; }
 .nm-mark-svg { width: 100%; height: 100%; }
-.nm-mark-ring  { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1.5; }
-.nm-mark-arrow { fill: #FFFFFF; }
+/* The Next Mission mark: two service chevrons, and a third that has broken
+   formation and become the way forward. It sits ON the pine header, so it
+   carries no background square of its own.
+   The design's sage chevron is #6E9480, which measures 2.69:1 on pine and all
+   but disappears there. #8FB09E is 3.85:1. The mark is decorative and
+   aria-hidden, so this is legibility rather than a WCAG requirement, but a
+   chevron nobody can see is not a chevron. */
+.nm-mark-chev-1,
+.nm-mark-chev-2 { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.nm-mark-chev-1 { stroke: #FFFFFF; }
+.nm-mark-chev-2 { stroke: #8FB09E; }
+.nm-mark-arrow  { fill: #F0CDA9; }
 .nm-headtext { display: flex; flex-direction: column; line-height: 1.25; }
 /* Restart sits at the end of the header. Icon plus text, so it is not an
    unlabelled glyph; the text hides on narrow screens but aria-label remains. */
