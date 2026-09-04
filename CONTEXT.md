@@ -994,6 +994,46 @@ sf data query --target-org dreamforce-hackathon \
 **Do not report a hallucination or refusal rate from anywhere else.** Before this
 object existed the honest answer was "unknown", not "zero".
 
+### The instruction block has a length budget. Adding to it costs you elsewhere.
+
+Measured, not theorised. A 248 character block was appended to the PRONOUNS
+guardrail spelling out the mentor naming rule. Nothing else changed. Two
+unrelated journeys degraded: "frustrated and about to leave" fell from 8 to 5
+with NoHelpDelivered, and the repeat-ask journey started returning a
+VERBATIM IDENTICAL reply twice, which the instructions explicitly forbid.
+
+Trimming the same rule to two sentences restored both (mean 8.5, min 7, nothing
+below threshold) **and kept the fabrication protection**, verified by
+`scripts/mentor_truth.py` passing 6/6 afterwards.
+
+**Say a new rule in the fewest words that still make it unambiguous.** The
+instruction string is already enormous, and attention spent on your new
+paragraph comes out of a rule somebody else fixed last week. Re-run
+`sim_eval.py` after ANY instruction edit, including one that looks unrelated to
+the journeys it grades.
+
+### Contrast: a new element is unmeasured until it is in check_contrast.py
+
+The AI disclosure shipped with the dark body ink on the PINE header. **1.02:1.
+A transparency notice nobody could read.** `check_contrast.py` reported zero
+failures throughout, because it checks a fixed pair list and nothing covered the
+new element. `scripts/a11y-scan/scan.js` also passed it clean.
+
+Fixed at 7.02:1 and the pair is now in the list. **Any new text goes into that
+list before it goes on the page**, or the tooling will keep telling you it is
+fine.
+
+### sim_eval and rc6 are noisy. Read a trend, not a run.
+
+`sim_eval` means across one afternoon at comparable quality: 8.6, 8.5, 8.6, 8.4,
+8.6, 8.1, 8.2, 8.5. `rc6_anaphora` fails "between those" roughly one run in
+three or four with no code change between runs.
+
+A single bad run is not a regression and a single good run is not a fix. What IS
+signal: a specific tag appearing repeatedly on the same journey, and anything
+visible in the transcript itself, such as two identical consecutive replies.
+Chase those. Re-run before believing a mean.
+
 ### The invented mentor: root cause was the PROMPT'S OWN EXAMPLE
 
 The agent told a veteran that Alex R. was a paramedic who moved from Army 68W.

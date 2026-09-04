@@ -475,6 +475,10 @@
     margin: 0.35rem 0 0;
     font-size: 0.78rem;
     line-height: 1.45;
-    color: var(--nm-ink-soft, #3d4a43);
+    /* This sits INSIDE the pine header, not on cream. The first version used
+       the dark body ink and measured 1.02:1 against pine, which made the AI
+       disclosure invisible: a transparency notice nobody could read. This is
+       7.02:1, secondary to the white title without disappearing into it. */
+    color: #D9E5DC;
     max-width: 52ch;
 }

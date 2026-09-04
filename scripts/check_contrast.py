@@ -22,6 +22,10 @@ PAIRS=[
  ("send label on send bg",     "#FFFFFF","#14532D",4.5),
  ("disabled send label",       "#FFFFFF","#6E7A70",3.0),
  ("stepper label on cream",    "#55534C","#F8F5EE",4.5),
+ # The AI disclosure sits inside the PINE header, not on cream. It shipped
+ # once at 1.02:1 using the body ink, invisible, because no pair here
+ # covered it. Any new text goes in this list before it goes on the page.
+ ("AI disclosure on pine",    "#D9E5DC","#14532D",4.5),
  ("current step on cream",     "#14532D","#F8F5EE",4.5),
  # non-text / UI component contrast, 3:1
  ("focus ring vs white",       "#8A4513","#FFFFFF",3.0),
