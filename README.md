@@ -111,6 +111,7 @@ anonymous aggregates and dropping the narrative.
 
 | Document | What is in it |
 | --- | --- |
+| [DESIGN.md](DESIGN.md) | Architecture: the Router, the seven subagents, where the data comes from, and why the model choices are what they are |
 | [ACCESSIBILITY.md](ACCESSIBILITY.md) | The scan, the ruleset, the numbers, and how to reproduce them |
 | [CONTEXT.md](CONTEXT.md) | Full engineering context: architecture, every decision, and every failure with what it cost |
 | [MODEL-REVIEW-2026-09-01.md](MODEL-REVIEW-2026-09-01.md) | Which model each prompt template uses, and why |
