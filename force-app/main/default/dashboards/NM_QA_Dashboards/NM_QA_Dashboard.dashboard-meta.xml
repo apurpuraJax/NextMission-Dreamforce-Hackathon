@@ -27,7 +27,12 @@
     <leftSection>
         <columnSize>Wide</columnSize>
         <components>
+                        <chartSummary>
+                <axisBinding>y</axisBinding>
+                <column>RowCount</column>
+            </chartSummary>
             <componentType>Metric</componentType>
+            <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
             <dashboardFilterColumns>
                 <column>NM_Conversation__c$Started_At__c</column>
             </dashboardFilterColumns>
@@ -115,9 +120,8 @@
         <components>
             <chartAxisRange>Auto</chartAxisRange>
             <chartSummary>
-                <aggregate>Average</aggregate>
                 <axisBinding>y</axisBinding>
-                <column>NM_Conversation__c$QA_Score__c</column>
+                <column>RowCount</column>
             </chartSummary>
             <componentType>Donut</componentType>
             <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
@@ -156,9 +160,8 @@
         <components>
             <chartAxisRange>Auto</chartAxisRange>
             <chartSummary>
-                <aggregate>Average</aggregate>
                 <axisBinding>y</axisBinding>
-                <column>NM_Conversation__c$QA_Score__c</column>
+                <column>RowCount</column>
             </chartSummary>
             <componentType>Bar</componentType>
             <autoselectColumnsFromReport>false</autoselectColumnsFromReport>

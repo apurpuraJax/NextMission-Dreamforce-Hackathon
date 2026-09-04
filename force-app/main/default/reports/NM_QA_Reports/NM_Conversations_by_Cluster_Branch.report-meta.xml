@@ -5,6 +5,26 @@
         <field>NM_Conversation__c$QA_Score__c</field>
     </columns>
     <description>Matrix showing conversation volume and average QA score broken down by Cluster (rows) and military Branch (columns).</description>
+    <filter>
+        <criteriaItems>
+            <column>NM_Conversation__c$QA_Reviewed__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>equals</operator>
+            <value>true</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>NM_Conversation__c$Message_Count__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>greaterOrEqual</operator>
+            <value>2</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>NM_Conversation__c$Source_URL__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>contains</operator>
+            <value>nextmission</value>
+        </criteriaItems>
+    </filter>
     <format>Matrix</format>
     <groupingsAcross>
         <dateGranularity>Day</dateGranularity>

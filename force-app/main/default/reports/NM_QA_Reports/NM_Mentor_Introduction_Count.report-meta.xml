@@ -6,8 +6,7 @@
     <description>Count of mentor introductions grouped by month — tracks referral volume over time.</description>
     <format>Summary</format>
     <groupingsDown>
-        <dateGranularity>Month</dateGranularity>
-        <field>NM_Mentor_Introduction__c$Introduced_At__c</field>
+        <field>NM_Mentor_Introduction__c$Status__c</field>
         <sortOrder>Desc</sortOrder>
     </groupingsDown>
     <name>NM Mentor Introduction Count</name>

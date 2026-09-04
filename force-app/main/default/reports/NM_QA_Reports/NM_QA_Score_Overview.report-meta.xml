@@ -12,6 +12,26 @@
         <field>NM_Conversation__c$Sentiment__c</field>
     </columns>
     <description>QA Score summary grouped by military branch — shows conversation volume and average score per branch.</description>
+    <filter>
+        <criteriaItems>
+            <column>NM_Conversation__c$QA_Reviewed__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>equals</operator>
+            <value>true</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>NM_Conversation__c$Message_Count__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>greaterOrEqual</operator>
+            <value>2</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>NM_Conversation__c$Source_URL__c</column>
+            <columnToColumn>false</columnToColumn>
+            <operator>contains</operator>
+            <value>nextmission</value>
+        </criteriaItems>
+    </filter>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>

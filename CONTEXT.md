@@ -973,6 +973,37 @@ the check is wrong** before changing anything: two of these failures were bad
 assertions, including one that failed the agent for correctly saying "I have
 taken Commercial Airline Pilot off the list".
 
+### The QA dashboard: report deploys are BLOCKED by a corrupt folder
+
+`NM_QA_Reports` (00laj00000ObAx3) and `NM_QA_Dashboards` (00laj00000ObAyf) each
+have **ParentId pointing at their own Id**. The Metadata API calls that a
+circular reference and refuses, which blocks EVERY report and dashboard deploy
+in this org, including into a brand new folder.
+
+Not fixable from code: `Folder.ParentId` is not writable through the REST API
+and `Folder` is not DML-updatable from Apex. **It has to be repaired in the UI**,
+or the reports rebuilt in a fresh folder by hand.
+
+The corrected definitions ARE in the repo and will deploy the moment the folder
+is fixed. What they change:
+
+* Three components plotted **Average QA Score** where they should count records:
+  "Total Graded" (rendered 1.9, which is not a count of anything), "Sentiment
+  Split", and "Issue Categories" whose own title said Frequency.
+* "Introductions" was grouped by `Introduced_At__c`, a datetime, giving 174
+  groups for 174 records, which is why Salesforce refused it as a metric source.
+  Now grouped by `Status__c`.
+* Every conversation report now filters to `QA_Reviewed__c = true`,
+  `Message_Count__c >= 2`, and `Source_URL__c` containing the site, so harness
+  traffic and single-turn abandonments stay out of the numbers.
+
+Data fixed directly, and that part IS live: `Branch__c` held both "Marines" and
+"Marine Corps", so the chart showed one service twice with different averages.
+20 rows normalised.
+
+**With the filters applied the dashboard reads: 23 conversations, mean 8.26,
+20 Positive to 3 Neutral, three issue tags in total.**
+
 ### The QA evaluator ignores harness traffic. It has to.
 
 The regression suites drive the LIVE agent hundreds of times a day with
