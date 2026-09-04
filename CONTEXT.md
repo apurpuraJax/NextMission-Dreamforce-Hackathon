@@ -973,19 +973,57 @@ the check is wrong** before changing anything: two of these failures were bad
 assertions, including one that failed the agent for correctly saying "I have
 taken Commercial Airline Pilot off the list".
 
-### The QA dashboard: report deploys are BLOCKED by a corrupt folder
+### The QA dashboard: fixed through the Analytics REST API, NOT the Metadata API
+
+**Report and dashboard deploys are permanently blocked in this org.**
+`NM_QA_Reports` (00laj00000ObAx3) and `NM_QA_Dashboards` (00laj00000ObAyf) each
+have **ParentId pointing at their own Id**. The Metadata API calls that a
+circular reference and refuses every report and dashboard deploy, including
+into a brand new folder created to route around it. `Folder.ParentId` is
+read-only through REST and `Folder` is not DML-updatable from Apex.
+
+**The way through is the Analytics REST API**, which does not care about the
+folder graph:
+
+```
+GET   /services/data/v64.0/analytics/reports/{id}/describe
+PATCH /services/data/v64.0/analytics/reports/{id}      {"reportMetadata": {...}}
+GET   /services/data/v64.0/analytics/dashboards/{id}/describe
+PATCH /services/data/v64.0/analytics/dashboards/{id}   (full describe payload)
+```
+
+Token: `yes | sf org auth show-access-token`. Delete it afterwards.
+
+What was wrong and is now fixed live:
+
+* Three components plotted **Average QA Score** where they should count rows.
+  "Total Graded" rendered **1.9**, which is not a count of anything; it now
+  reads a real number. "Sentiment Split" and "Issue Categories" likewise, the
+  latter under a title that already said Frequency.
+* "Introductions" errored because its report was **Tabular** grouped by a
+  datetime. Now a Summary grouped by `Status__c`.
+* **The killer: 44 reviewed rows have a NULL QA_Score__c**, and the report
+  averaged them as zeroes, which is why Army read 3.3 and Navy 3.1. Filtering
+  `QA_Score__c > 0` moved the dashboard from **avg 3.68 across 81 rows to
+  avg 8 across 37**. There are ZERO records with a score of 0; they are nulls.
+* `Branch__c` held both "Marines" and "Marine Corps". 20 rows normalised.
+
+Two gotchas found on the way: `Source_URL__c` is **not reachable from the
+`NM_Conversations__c` report type**, so it cannot be used as a report filter
+however the field permissions read; and a field cannot be both a grouping and a
+detail column, which is why the intro report rejected the grouping until
+`Status__c` was removed from its columns.
+
+The repo definitions are synced to what is live, and will deploy if the folder
+is ever repaired.
+
+
 
 `NM_QA_Reports` (00laj00000ObAx3) and `NM_QA_Dashboards` (00laj00000ObAyf) each
 have **ParentId pointing at their own Id**. The Metadata API calls that a
 circular reference and refuses, which blocks EVERY report and dashboard deploy
 in this org, including into a brand new folder.
 
-Not fixable from code: `Folder.ParentId` is not writable through the REST API
-and `Folder` is not DML-updatable from Apex. **It has to be repaired in the UI**,
-or the reports rebuilt in a fresh folder by hand.
-
-The corrected definitions ARE in the repo and will deploy the moment the folder
-is fixed. What they change:
 
 * Three components plotted **Average QA Score** where they should count records:
   "Total Graded" (rendered 1.9, which is not a count of anything), "Sentiment

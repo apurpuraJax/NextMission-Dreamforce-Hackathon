@@ -35,12 +35,6 @@
             <operator>greaterOrEqual</operator>
             <value>2</value>
         </criteriaItems>
-        <criteriaItems>
-            <column>NM_Conversation__c$Source_URL__c</column>
-            <columnToColumn>false</columnToColumn>
-            <operator>contains</operator>
-            <value>nextmission</value>
-        </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
