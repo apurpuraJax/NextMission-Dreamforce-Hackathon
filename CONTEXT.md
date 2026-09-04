@@ -973,6 +973,30 @@ the check is wrong** before changing anything: two of these failures were bad
 assertions, including one that failed the agent for correctly saying "I have
 taken Commercial Airline Pilot off the list".
 
+### The QA evaluator ignores harness traffic. It has to.
+
+The regression suites drive the LIVE agent hundreds of times a day with
+deliberately hostile input: someone in crisis, someone abusive, someone asking
+the same question four times to prove we do not stonewall. Those are logged like
+any other conversation, and grading them would report this agent as far worse
+than it is, with our own test traffic as the evidence.
+
+`NM_QAEvaluator` now grades only conversations whose `Source_URL__c` is the real
+site. Harness runs are tagged (`https://sim-eval`, `https://rc6`,
+`https://mentor-truth` and so on) and are skipped.
+
+**Real conversations only, 2+ turns, split at the day the guardrails shipped:**
+
+| | n | mean | min | below 7 |
+| --- | --- | --- | --- | --- |
+| Before the guardrails | 15 | 7.67 | 3 | 2 |
+| Since | 20 | **8.45** | **7** | **0** |
+
+Tags before: MadeUpContent, NoHelpDelivered, WrongTone, RepeatedQuestion.
+Since: one RepeatedQuestion. **Quote these, not the raw average**, and always say
+"2 or more turns": single-turn rows are people who typed once and closed the tab,
+and the grader reasonably calls that NoHelpDelivered.
+
 ### Guardrail observability: NM_Guardrail_Event__c
 
 The nets used to correct a reply and record nothing. The QA evaluator grades the

@@ -39,10 +39,21 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         // would score a one-line fragment as a finished conversation, which
         // reads as "NoHelpDelivered" and drags the average down, and it burns
         // one Einstein call per turn instead of one per conversation.
+        // Only real visitors. The regression harnesses drive the live agent
+        // hundreds of times a day with deliberately hostile input: someone
+        // abusive, someone in crisis, someone asking the same question four
+        // times to prove we do not stonewall. Grading those as if they were
+        // veterans would report this agent as far worse than it is, and it
+        // would be OUR OWN test traffic saying so. They are tagged by
+        // sourceUrl, so they are excluded here rather than explained away in
+        // a dashboard later.
+        String sitePrefix = 'https://orgfarm-3bfff135af.my.site.com/nextmission%';
+
         List<NM_Conversation__c> candidates = [
             SELECT Id, Transcript__c, External_Session_Key__c, Message_Count__c, CreatedDate
             FROM NM_Conversation__c
             WHERE QA_Reviewed__c = false
+            AND   (Source_URL__c LIKE :sitePrefix OR Source_URL__c = null)
             ORDER BY CreatedDate ASC
             LIMIT 200
         ];
