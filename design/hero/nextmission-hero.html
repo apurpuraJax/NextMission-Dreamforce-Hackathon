@@ -1,0 +1,494 @@
+<!-- ============================================================
+     NEXT MISSION — hero graphic: "specialty code -> civilian occupations"
+     Self-contained. No external CSS, JS, fonts or images.
+     Paste into an Experience Builder HTML / Rich Content component,
+     or drop the markup + style + script into an LWC template.
+
+     Accessibility decisions (deliberate, see README):
+       - Motion autoplays, but NEVER for a visitor whose system asks for
+         reduced motion. (WCAG 2.3.3)
+       - Visible, keyboard-operable Pause / Play control, because the
+         animation runs longer than 5 seconds. (WCAG 2.2.2)
+       - The animated stage is aria-hidden; assistive tech gets the whole
+         data set as ordered text instead, so nothing is lost to cycling.
+       - Real text throughout: reflows, zooms, translates, and respects the
+         visitor's own font size (rem units, no fixed-size SVG text).
+       - Nothing is encoded by colour alone; every node is labelled.
+       - Windows High Contrast / forced-colors handled explicitly.
+       - No flashing. Nothing approaches 3 flashes per second. (WCAG 2.3.1)
+     ============================================================ -->
+
+<div class="nm-hero" data-nm-hero>
+  <figure class="nm-card">
+
+    <svg class="nm-decor" viewBox="0 0 400 90" preserveAspectRatio="none"
+         aria-hidden="true" focusable="false">
+      <path d="M0 90 L74 40 L128 66 L206 22 L268 58 L330 34 L400 62 L400 90 Z"
+            fill="var(--nm-wash)"/>
+    </svg>
+
+    <p class="nm-eyebrow">
+      <span class="nm-eyebrow-dot" aria-hidden="true"></span>
+      Specialty code <span aria-hidden="true">&#8594;</span><span class="nm-sr-only">to</span> civilian occupations
+    </p>
+
+    <!-- ============ animated stage (decorative twin of the text below) ============ -->
+    <div class="nm-stage" aria-hidden="true">
+
+      <!-- ---------------- SCENE 1 ---------------- -->
+      <div class="nm-scene" style="--s:0s">
+        <div class="nm-source">
+          <div class="nm-chip">
+            <span class="nm-branch">U.S. Marine Corps</span>
+            <span class="nm-code">3531</span>
+            <span class="nm-mos">Motor Vehicle Operator</span>
+          </div>
+        </div>
+
+        <div class="nm-wires">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+            <g fill="none" stroke="var(--nm-line)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round">
+              <path class="nm-wire" style="--d:.10s" pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path class="nm-wire" style="--d:.22s" pathLength="100" d="M0 50 L100 50"/>
+              <path class="nm-wire" style="--d:.34s" pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+            <g class="nm-flow" fill="none" stroke="var(--nm-flow)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-dasharray="1.5 7">
+              <path pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path pathLength="100" d="M0 50 L100 50"/>
+              <path pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+          </svg>
+        </div>
+
+        <ul class="nm-nodes">
+          <li class="nm-node" style="--d:.55s"><span class="nm-dot"></span>
+            <p class="nm-title">Transportation &amp; Distribution Manager</p>
+            <p class="nm-pay"><span class="nm-wage">$102,010</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.70s"><span class="nm-dot"></span>
+            <p class="nm-title">Logistician</p>
+            <p class="nm-pay"><span class="nm-wage">$80,880</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.85s"><span class="nm-dot"></span>
+            <p class="nm-title">Heavy &amp; Tractor-Trailer Truck Driver</p>
+            <p class="nm-pay"><span class="nm-wage">$57,440</span><span class="nm-note">median / yr</span></p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ---------------- SCENE 2 ---------------- -->
+      <div class="nm-scene" style="--s:6s">
+        <div class="nm-source">
+          <div class="nm-chip">
+            <span class="nm-branch">U.S. Navy</span>
+            <span class="nm-code">HM</span>
+            <span class="nm-mos">Hospital Corpsman</span>
+          </div>
+        </div>
+
+        <div class="nm-wires">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+            <g fill="none" stroke="var(--nm-line)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round">
+              <path class="nm-wire" style="--d:.10s" pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path class="nm-wire" style="--d:.22s" pathLength="100" d="M0 50 L100 50"/>
+              <path class="nm-wire" style="--d:.34s" pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+            <g class="nm-flow" fill="none" stroke="var(--nm-flow)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-dasharray="1.5 7">
+              <path pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path pathLength="100" d="M0 50 L100 50"/>
+              <path pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+          </svg>
+        </div>
+
+        <ul class="nm-nodes">
+          <li class="nm-node" style="--d:.55s"><span class="nm-dot"></span>
+            <p class="nm-title">Registered Nurse</p>
+            <p class="nm-pay"><span class="nm-wage">$93,600</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.70s"><span class="nm-dot"></span>
+            <p class="nm-title">Surgical Technologist</p>
+            <p class="nm-pay"><span class="nm-wage">$62,830</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.85s"><span class="nm-dot"></span>
+            <p class="nm-title">Paramedic</p>
+            <p class="nm-pay"><span class="nm-wage">$58,410</span><span class="nm-note">median / yr</span></p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ---------------- SCENE 3 ---------------- -->
+      <div class="nm-scene" style="--s:12s">
+        <div class="nm-source">
+          <div class="nm-chip">
+            <span class="nm-branch">U.S. Army</span>
+            <span class="nm-code">25B</span>
+            <span class="nm-mos">Information Technology Specialist</span>
+          </div>
+        </div>
+
+        <div class="nm-wires">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+            <g fill="none" stroke="var(--nm-line)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round">
+              <path class="nm-wire" style="--d:.10s" pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path class="nm-wire" style="--d:.22s" pathLength="100" d="M0 50 L100 50"/>
+              <path class="nm-wire" style="--d:.34s" pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+            <g class="nm-flow" fill="none" stroke="var(--nm-flow)" stroke-width="2"
+               vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-dasharray="1.5 7">
+              <path pathLength="100" d="M0 50 C46 50 54 16.7 100 16.7"/>
+              <path pathLength="100" d="M0 50 L100 50"/>
+              <path pathLength="100" d="M0 50 C46 50 54 83.3 100 83.3"/>
+            </g>
+          </svg>
+        </div>
+
+        <ul class="nm-nodes">
+          <li class="nm-node" style="--d:.55s"><span class="nm-dot"></span>
+            <p class="nm-title">Information Security Analyst</p>
+            <p class="nm-pay"><span class="nm-wage">$124,910</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.70s"><span class="nm-dot"></span>
+            <p class="nm-title">Network &amp; Systems Administrator</p>
+            <p class="nm-pay"><span class="nm-wage">$96,800</span><span class="nm-note">median / yr</span></p>
+          </li>
+          <li class="nm-node" style="--d:.85s"><span class="nm-dot"></span>
+            <p class="nm-title">Computer User Support Specialist</p>
+            <p class="nm-pay"><span class="nm-wage">$60,340</span><span class="nm-note">median / yr</span></p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nm-footer">
+      <figcaption class="nm-caption">
+        Median annual wage. Source: U.S. Bureau of Labor Statistics, Occupational
+        Employment and Wage Statistics, May&nbsp;2024.
+      </figcaption>
+
+      <button type="button" class="nm-toggle" data-nm-toggle aria-pressed="false">
+        <svg class="nm-ico" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <g class="nm-ico-pause"><rect x="4" y="3" width="3" height="10" rx="1"/><rect x="9" y="3" width="3" height="10" rx="1"/></g>
+          <path class="nm-ico-play" d="M5 3.4 13 8l-8 4.6z"/>
+        </svg>
+        <span data-nm-label>Play animation</span>
+      </button>
+    </div>
+  </figure>
+
+  <!-- ============ the same information, for assistive technology ============ -->
+  <div class="nm-sr-only">
+    <h2>Example military-to-civilian occupation matches</h2>
+    <p>Each military specialty code is followed by civilian occupations it maps to and
+       the median annual wage for each. Wage source: U.S. Bureau of Labor Statistics,
+       Occupational Employment and Wage Statistics, May 2024.</p>
+    <h3>Marine Corps 3531, Motor Vehicle Operator</h3>
+    <ul>
+      <li>Transportation and Distribution Manager. Median annual wage $102,010.</li>
+      <li>Logistician. Median annual wage $80,880.</li>
+      <li>Heavy and Tractor-Trailer Truck Driver. Median annual wage $57,440.</li>
+    </ul>
+    <h3>Navy HM, Hospital Corpsman</h3>
+    <ul>
+      <li>Registered Nurse. Median annual wage $93,600.</li>
+      <li>Surgical Technologist. Median annual wage $62,830.</li>
+      <li>Paramedic. Median annual wage $58,410.</li>
+    </ul>
+    <h3>Army 25B, Information Technology Specialist</h3>
+    <ul>
+      <li>Information Security Analyst. Median annual wage $124,910.</li>
+      <li>Network and Computer Systems Administrator. Median annual wage $96,800.</li>
+      <li>Computer User Support Specialist. Median annual wage $60,340.</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+.nm-hero{
+  /* ---- brand tokens, sampled from the Next Mission page ---- */
+  --nm-ink:     #14532D;   /* primary green, matches the site  */
+  --nm-ink-2:   #2A5C41;   /* secondary text green    */
+  --nm-line:    #4F7A63;   /* connector stroke        */
+  --nm-flow:    #9CBAA9;   /* travelling dashes       */
+  --nm-sage:    #D9E5DC;   /* on-dark secondary, 7.02:1 on pine */
+  --nm-mist:    #DEE6E1;   /* on-dark body text       */
+  --nm-rule:    #DCE5DF;   /* hairlines               */
+  --nm-peach:   #FBEEE1;   /* accent fill             */
+  --nm-peach-2: #E3CCB5;   /* accent edge             */
+  --nm-wash:    #EBF0EB;   /* decorative landform     */
+  --nm-surface: #FFFFFF;
+  --nm-canvas:  #FBF9F4;
+
+  --nm-font: "Poppins", "Gilroy", ui-sans-serif, -apple-system,
+             "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --nm-cycle: 18s;         /* 3 scenes x 6s */
+
+  font-family: var(--nm-font);
+  color: var(--nm-ink);
+  max-width: 46rem;
+}
+.nm-hero *, .nm-hero *::before, .nm-hero *::after{ box-sizing:border-box; }
+
+/* ---------------- card ---------------- */
+.nm-card{
+  container-type: inline-size;
+  position:relative; isolation:isolate;
+  margin:0;
+  padding:1.15rem 1.25rem .9rem;
+  border:1px solid var(--nm-rule);
+  border-radius:1rem;
+  overflow:hidden;
+  background:
+    radial-gradient(12rem 12rem at calc(100% - 2rem) -2rem,
+                    var(--nm-peach) 0 55%, rgba(251,238,225,.45) 78%, transparent 100%),
+    linear-gradient(160deg, var(--nm-surface) 0%, var(--nm-canvas) 100%);
+}
+.nm-decor{
+  position:absolute; left:0; right:0; bottom:0;
+  width:100%; height:5.5rem; z-index:-1; pointer-events:none;
+}
+
+/* ---------------- eyebrow ---------------- */
+.nm-eyebrow{
+  display:flex; align-items:center; gap:.5rem; margin:0 0 1rem;
+  font-size:.75rem; font-weight:700; letter-spacing:.085em;
+  text-transform:uppercase; color:var(--nm-ink-2);
+}
+.nm-eyebrow-dot{
+  width:.45rem; height:.45rem; border-radius:50%;
+  background:var(--nm-peach-2); flex:none;
+}
+
+/* ---------------- stage ---------------- */
+.nm-stage{ position:relative; }
+.nm-scene{
+  display:grid;
+  grid-template-columns:10rem minmax(2.75rem,6rem) minmax(0,1fr);
+  align-items:stretch;
+}
+.nm-scene + .nm-scene{
+  position:absolute; inset:0;
+  opacity:0; visibility:hidden;   /* static default: scene 1 only */
+}
+
+/* ---------------- source chip ---------------- */
+.nm-source{ display:flex; align-items:center; padding-right:.6rem; }
+.nm-chip{
+  position:relative; width:100%;
+  display:flex; flex-direction:column; gap:.1rem;
+  padding:.75rem .85rem .8rem;
+  border-radius:.85rem;
+  background:var(--nm-ink);
+}
+.nm-chip::after{                       /* connector origin */
+  content:""; position:absolute; right:-.94rem; top:50%;
+  width:.6rem; height:.6rem; margin-top:-.3rem;
+  border-radius:50%; background:var(--nm-ink);
+}
+.nm-branch{
+  font-size:.66rem; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--nm-sage);
+}
+.nm-code{
+  font-size:2rem; line-height:1.1; font-weight:800;
+  letter-spacing:-.01em; color:#FFFFFF;
+}
+.nm-mos{
+  margin:.28rem 0 0; font-size:.8rem; font-weight:600;
+  line-height:1.3; color:var(--nm-mist);
+}
+
+/* ---------------- wires ---------------- */
+.nm-wires{ position:relative; }
+.nm-wires svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.nm-wire{ stroke-dasharray:100; stroke-dashoffset:0; }
+.nm-flow{ opacity:0; }
+
+/* ---------------- nodes ---------------- */
+.nm-nodes{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.nm-node{
+  position:relative; flex:1 1 0;
+  display:flex; flex-direction:column; justify-content:center; gap:.3rem;
+  margin:.2rem 0;
+  padding:.5rem .8rem .5rem 1.15rem;
+  border:1px solid var(--nm-rule); border-radius:.7rem;
+  background:var(--nm-surface);
+}
+.nm-dot{
+  position:absolute; left:-.34rem; top:50%;
+  width:.68rem; height:.68rem; margin-top:-.34rem;
+  border-radius:50%; background:var(--nm-surface);
+  border:.19rem solid var(--nm-ink);
+}
+.nm-title{
+  margin:0; font-size:.94rem; font-weight:650; line-height:1.25;
+  color:var(--nm-ink);
+  min-height:2.5em;                /* two reserved lines keeps every scene the same height */
+  display:flex; align-items:center;
+}
+.nm-pay{ margin:0; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.nm-wage{
+  display:inline-block; padding:.1rem .5rem; border-radius:1rem;
+  background:var(--nm-peach); border:1px solid var(--nm-peach-2);
+  font-size:.88rem; font-weight:750; font-variant-numeric:tabular-nums;
+  color:var(--nm-ink);
+}
+.nm-note{ font-size:.74rem; font-weight:500; color:var(--nm-ink-2); }
+
+/* ---------------- footer ---------------- */
+.nm-footer{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:1rem; margin-top:.85rem; padding-top:.7rem;
+  border-top:1px solid var(--nm-rule);
+}
+.nm-caption{ margin:0; font-size:.72rem; line-height:1.45; color:var(--nm-ink-2); max-width:30rem; }
+.nm-toggle{
+  flex:none; display:inline-flex; align-items:center; gap:.4rem;
+  padding:.4rem .75rem; min-height:2.2rem;
+  font-family:inherit; font-size:.76rem; font-weight:650;
+  color:var(--nm-ink); background:var(--nm-surface);
+  border:1px solid var(--nm-line); border-radius:1.2rem; cursor:pointer;
+}
+.nm-toggle:hover{ background:var(--nm-peach); }
+.nm-toggle:focus-visible{ outline:3px solid var(--nm-ink); outline-offset:2px; }
+.nm-ico{ width:.85rem; height:.85rem; fill:currentColor; flex:none; }
+.nm-ico-pause{ display:none; }
+.nm-toggle[aria-pressed="true"] .nm-ico-pause{ display:inline; }
+.nm-toggle[aria-pressed="true"] .nm-ico-play{ display:none; }
+
+/* ---------------- screen-reader-only ---------------- */
+.nm-sr-only{
+  position:absolute!important; width:1px; height:1px; margin:-1px; padding:0;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%);
+  white-space:nowrap; border:0;
+}
+
+/* =====================================================================
+   MOTION — active only while data-motion="on", which the script sets
+   for visitors who have not asked their system for reduced motion,
+   or who press Play themselves.
+   ===================================================================== */
+.nm-hero[data-motion="on"] .nm-scene{
+  animation:nm-scene var(--nm-cycle) var(--s) infinite both;
+}
+.nm-hero[data-motion="on"] .nm-scene + .nm-scene{ visibility:visible; }
+.nm-hero[data-motion="on"] .nm-chip{
+  animation:nm-rise var(--nm-cycle) var(--s) infinite both;
+}
+.nm-hero[data-motion="on"] .nm-wire{
+  animation:nm-draw var(--nm-cycle) calc(var(--s) + var(--d)) infinite both;
+}
+.nm-hero[data-motion="on"] .nm-flow{
+  animation:nm-flow-in var(--nm-cycle) calc(var(--s) + 1s) infinite both,
+            nm-flow-move 1.7s linear infinite;
+}
+.nm-hero[data-motion="on"] .nm-node{
+  animation:nm-pop var(--nm-cycle) calc(var(--s) + var(--d)) infinite both;
+}
+.nm-hero[data-motion="paused"] .nm-scene,
+.nm-hero[data-motion="paused"] .nm-chip,
+.nm-hero[data-motion="paused"] .nm-wire,
+.nm-hero[data-motion="paused"] .nm-flow,
+.nm-hero[data-motion="paused"] .nm-node{ animation-play-state:paused; }
+
+/* every keyframe set starts from the hidden state, so the backwards
+   fill during a scene's delay leaves it invisible rather than flashing */
+@keyframes nm-scene{
+  0%{opacity:0} 0.2%{opacity:1} 30.5%{opacity:1} 33.3%{opacity:0} 100%{opacity:0}
+}
+@keyframes nm-rise{
+  0%{opacity:0; transform:translateY(.55rem)}
+  3.5%{opacity:1; transform:none}
+  100%{opacity:1; transform:none}
+}
+@keyframes nm-draw{
+  0%{stroke-dashoffset:100} 6%{stroke-dashoffset:0} 100%{stroke-dashoffset:0}
+}
+@keyframes nm-pop{
+  0%{opacity:0; transform:translateX(-.7rem)}
+  5%{opacity:1; transform:none}
+  100%{opacity:1; transform:none}
+}
+@keyframes nm-flow-in{ 0%{opacity:0} 4%{opacity:.85} 100%{opacity:.85} }
+@keyframes nm-flow-move{ to{ stroke-dashoffset:-8.5 } }
+
+/* Belt and braces: an OS-level reduce-motion preference wins outright,
+   even if the attribute were somehow forced on. */
+@media (prefers-reduced-motion: reduce){
+  .nm-hero[data-motion="on"] *{ animation:none!important; transition:none!important; }
+  .nm-hero[data-motion="on"] .nm-scene + .nm-scene{ opacity:0; visibility:hidden; }
+}
+
+/* ---------------- narrow containers ---------------- */
+@container (max-width:30rem){
+  .nm-scene{ grid-template-columns:7rem 2.4rem minmax(0,1fr); }
+  .nm-code{ font-size:1.5rem; }
+  .nm-branch{ font-size:.6rem; letter-spacing:.05em; }
+  .nm-mos{ font-size:.72rem; }
+  .nm-title{ font-size:.86rem; }
+  .nm-chip{ padding:.6rem .6rem .65rem; }
+  .nm-chip::after{ right:-.72rem; }
+  .nm-footer{ flex-direction:column; align-items:flex-start; }
+}
+@container (max-width:21rem){
+  .nm-scene{ grid-template-columns:minmax(0,1fr); gap:.7rem; }
+  .nm-wires, .nm-dot{ display:none; }
+  .nm-chip::after{ display:none; }
+  .nm-node{ padding-left:.8rem; border-left:.2rem solid var(--nm-line); }
+  .nm-code{ font-size:1.75rem; }
+}
+
+/* ---------------- Windows High Contrast / forced colors ---------------- */
+@media (forced-colors: active){
+  .nm-decor{ display:none; }
+  .nm-card, .nm-node, .nm-chip, .nm-wage, .nm-toggle{ border:1px solid CanvasText; }
+  .nm-chip{ background:Canvas; }
+  .nm-code, .nm-branch, .nm-mos{ color:CanvasText; }
+  .nm-chip::after{ background:CanvasText; forced-color-adjust:none; }
+  .nm-dot{ background:Canvas; border-color:CanvasText; forced-color-adjust:none; }
+  .nm-wires svg path{ stroke:CanvasText; }
+  .nm-toggle:focus-visible{ outline:3px solid Highlight; }
+}
+</style>
+
+<script>
+(function () {
+  var roots = document.querySelectorAll('[data-nm-hero]');
+  Array.prototype.forEach.call(roots, function (root) {
+    if (root.dataset.nmReady) return;
+    root.dataset.nmReady = '1';
+
+    var btn   = root.querySelector('[data-nm-toggle]');
+    var label = root.querySelector('[data-nm-label]');
+    if (!btn || !label) return;
+
+    var query = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+    function set(on) {
+      root.setAttribute('data-motion', on ? 'on' : 'paused');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      label.textContent = on ? 'Pause animation' : 'Play animation';
+    }
+
+    // Autoplay for everyone EXCEPT visitors who asked their system for less motion.
+    set(!(query && query.matches));
+
+    btn.addEventListener('click', function () {
+      set(btn.getAttribute('aria-pressed') !== 'true');
+    });
+
+    // Honour the preference if it changes mid-visit.
+    if (query) {
+      var onChange = function (e) { set(!e.matches); };
+      if (query.addEventListener) query.addEventListener('change', onChange);
+      else if (query.addListener) query.addListener(onChange);
+    }
+  });
+})();
+</script>

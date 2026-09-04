@@ -26,6 +26,18 @@ PAIRS=[
  # once at 1.02:1 using the body ink, invisible, because no pair here
  # covered it. Any new text goes in this list before it goes on the page.
  ("AI disclosure on pine",    "#D9E5DC","#14532D",4.5),
+ # Hero graphic. Added WITH the component, not after it. The design it came
+ # from ran its branch label at 4.59:1 on our pine, 0.09 over the floor.
+ ("hero branch on pine",      "#D9E5DC","#14532D",4.5),
+ ("hero mos on pine",         "#EDF3EF","#14532D",4.5),
+ ("hero code on pine",        "#FFFFFF","#14532D",3.0),
+ ("hero role on white",       "#14532D","#FFFFFF",4.5),
+ ("hero wage on peach",       "#14532D","#FBEEE1",4.5),
+ ("hero note on white",       "#55534C","#FFFFFF",4.5),
+ ("hero caption on art bg",   "#55534C","#FBF9F4",4.5),
+ ("hero connector on art bg", "#4F7A63","#FBF9F4",3.0),
+ ("hero toggle border",       "#4F7A63","#FFFFFF",3.0),
+ ("hero eyebrow on art bg",   "#14532D","#FBF9F4",4.5),
  ("current step on cream",     "#14532D","#F8F5EE",4.5),
  # non-text / UI component contrast, 3:1
  ("focus ring vs white",       "#8A4513","#FFFFFF",3.0),

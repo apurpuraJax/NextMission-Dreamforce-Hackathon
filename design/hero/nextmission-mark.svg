@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"
+     role="img" aria-labelledby="nmMarkTitle">
+  <title id="nmMarkTitle">Next Mission</title>
+  <rect width="64" height="64" rx="16" fill="#104A2A"/>
+  <!-- two service chevrons -->
+  <path d="M16 56 L32 43 L48 56" fill="none" stroke="#6E9480" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16 44 L32 31 L48 44" fill="none" stroke="#FFFFFF" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the third has broken formation and become the way forward -->
+  <path d="M32 5 L45 20 L38.5 20 L38.5 25.5 L25.5 25.5 L25.5 20 L19 20 Z"
+        fill="#F0CDA9" stroke="#F0CDA9" stroke-width="2.4" stroke-linejoin="round"/>
+</svg>

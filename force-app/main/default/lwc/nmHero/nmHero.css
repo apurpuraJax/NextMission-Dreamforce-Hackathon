@@ -1,6 +1,17 @@
 :host {
     --nm-pine: #14532D; --nm-sand: #EFE7D8; --nm-cream: #F8F5EE;
     --nm-ink: #1B1B18;  --nm-muted: #55534C; --nm-line: #D8CFC0; --nm-clay: #8A4513;
+
+    /* Graphic tokens. Every one is measured in scripts/check_contrast.py.
+       --nm-onpine is 7.02:1 on pine; the standalone version used a sage that
+       measured 4.59:1, which is 0.09 over the floor and not a margin. */
+    --nm-onpine:  #D9E5DC;
+    --nm-mist:    #EDF3EF;
+    --nm-connect: #4F7A63;
+    --nm-peach:   #FBEEE1;
+    --nm-peach-2: #E3CCB5;
+    --nm-rule:    #DCE5DF;
+
     display: block;
     font-family: 'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
     color: var(--nm-ink);
@@ -21,7 +32,7 @@
     color: var(--nm-clay); background: #FBF0E4;
     border: 1px solid #E6D2BC; border-radius: 999px;
 }
-.nm-eyebrow-dot { width: .42rem; height: .42rem; border-radius: 50%; background: var(--nm-clay); }
+.nm-eyebrow-dot { width: .42rem; height: .42rem; border-radius: 50%; background: currentColor; flex: none; }
 .nm-h1 {
     margin: 0 0 .9rem;
     font-size: clamp(1.9rem, 4.2vw, 3rem);
@@ -33,8 +44,186 @@
 .nm-stat { display: flex; flex-direction: column; }
 .nm-stat-num { font-size: 1.5rem; font-weight: 700; color: var(--nm-pine); letter-spacing: -.01em; }
 .nm-stat-lbl { font-size: .8rem; color: var(--nm-muted); }
-.nm-hero-art { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--nm-line); }
+
+/* ── the graphic ─────────────────────────────────────────────────────────── */
+.nm-art {
+    position: relative;
+    margin: 0;
+    padding: 1.1rem 1.15rem .85rem;
+    border: 1px solid var(--nm-rule);
+    border-radius: 14px;
+    background: linear-gradient(160deg, #FFFFFF 0%, #FBF9F4 100%);
+    overflow: hidden;
+}
+.nm-art-eyebrow {
+    display: flex; align-items: center; gap: .5rem; margin: 0 0 .9rem;
+    font-size: .72rem; font-weight: 700; letter-spacing: .085em;
+    text-transform: uppercase; color: var(--nm-pine);
+}
+.nm-stage { position: relative; }
+.nm-scene {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(2.5rem, 4.5rem) minmax(0, 1fr);
+    align-items: stretch;
+}
+/* Scenes 2 and 3 stack on scene 1 and stay hidden until motion is on, so the
+   static resting state is one complete, legible scene rather than three. */
+.nm-scene-2, .nm-scene-3 { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+
+.nm-source { display: flex; align-items: center; padding-right: .55rem; }
+.nm-chip {
+    position: relative; width: 100%;
+    display: flex; flex-direction: column; gap: .1rem;
+    padding: .7rem .8rem .75rem;
+    border-radius: .8rem;
+    background: var(--nm-pine);
+}
+.nm-chip::after {
+    content: ""; position: absolute; right: -.9rem; top: 50%;
+    width: .58rem; height: .58rem; margin-top: -.29rem;
+    border-radius: 50%; background: var(--nm-pine);
+}
+.nm-branch {
+    font-size: .64rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--nm-onpine);
+}
+.nm-code { font-size: 1.8rem; line-height: 1.1; font-weight: 800; color: #FFFFFF; }
+.nm-mos { margin: .25rem 0 0; font-size: .76rem; font-weight: 600; line-height: 1.3; color: var(--nm-mist); }
+
+.nm-wires { position: relative; }
+.nm-wires svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.nm-wire { stroke-dasharray: 100; stroke-dashoffset: 0; }
+
+.nm-nodes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.nm-node {
+    position: relative; flex: 1 1 0;
+    display: flex; flex-direction: column; justify-content: center; gap: .28rem;
+    margin: .18rem 0;
+    padding: .45rem .75rem .45rem 1.05rem;
+    border: 1px solid var(--nm-rule); border-radius: .65rem;
+    background: #FFFFFF;
+}
+.nm-dot {
+    position: absolute; left: -.32rem; top: 50%;
+    width: .64rem; height: .64rem; margin-top: -.32rem;
+    border-radius: 50%; background: #FFFFFF; border: .18rem solid var(--nm-pine);
+}
+.nm-role {
+    margin: 0; font-size: .88rem; font-weight: 650; line-height: 1.25; color: var(--nm-pine);
+    min-height: 2.5em; display: flex; align-items: center;
+}
+.nm-pay { margin: 0; display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+.nm-wage {
+    display: inline-block; padding: .08rem .45rem; border-radius: 1rem;
+    background: var(--nm-peach); border: 1px solid var(--nm-peach-2);
+    font-size: .82rem; font-weight: 750; font-variant-numeric: tabular-nums; color: var(--nm-pine);
+}
+.nm-note { font-size: .7rem; font-weight: 500; color: var(--nm-muted); }
+
+.nm-art-footer {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 1rem; margin-top: .8rem; padding-top: .65rem; border-top: 1px solid var(--nm-rule);
+}
+.nm-caption { margin: 0; font-size: .68rem; line-height: 1.45; color: var(--nm-muted); max-width: 28rem; }
+.nm-toggle {
+    flex: none; display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .75rem; min-height: 2.75rem; min-width: 2.75rem;
+    font-family: inherit; font-size: .74rem; font-weight: 650;
+    color: var(--nm-pine); background: #FFFFFF;
+    border: 1px solid var(--nm-connect); border-radius: 1.2rem; cursor: pointer;
+}
+.nm-toggle:hover { background: var(--nm-peach); }
+.nm-toggle:focus-visible { outline: 3px solid var(--nm-pine); outline-offset: 2px; }
+.nm-ico { width: .8rem; height: .8rem; fill: currentColor; flex: none; }
+.nm-ico-pause { display: none; }
+.nm-toggle[aria-pressed="true"] .nm-ico-pause { display: inline; }
+.nm-toggle[aria-pressed="true"] .nm-ico-play { display: none; }
+
+.nm-sr-only {
+    position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* ── motion, only when the component turned it on ────────────────────────── */
+.nm-motion-on .nm-scene   { animation: nm-scene 18s infinite both; }
+.nm-motion-on .nm-scene-2,
+.nm-motion-on .nm-scene-3 { visibility: visible; }
+.nm-motion-on .nm-scene-1 { animation-delay: 0s; }
+.nm-motion-on .nm-scene-2 { animation-delay: 6s; }
+.nm-motion-on .nm-scene-3 { animation-delay: 12s; }
+.nm-motion-on .nm-chip    { animation: nm-rise 18s infinite both; }
+.nm-motion-on .nm-scene-2 .nm-chip { animation-delay: 6s; }
+.nm-motion-on .nm-scene-3 .nm-chip { animation-delay: 12s; }
+.nm-motion-on .nm-wire    { animation: nm-draw 18s infinite both; }
+.nm-motion-on .nm-node    { animation: nm-pop 18s infinite both; }
+
+.nm-motion-on .nm-scene-1 .nm-wire-1 { animation-delay: .10s }
+.nm-motion-on .nm-scene-1 .nm-wire-2 { animation-delay: .22s }
+.nm-motion-on .nm-scene-1 .nm-wire-3 { animation-delay: .34s }
+.nm-motion-on .nm-scene-2 .nm-wire-1 { animation-delay: 6.10s }
+.nm-motion-on .nm-scene-2 .nm-wire-2 { animation-delay: 6.22s }
+.nm-motion-on .nm-scene-2 .nm-wire-3 { animation-delay: 6.34s }
+.nm-motion-on .nm-scene-3 .nm-wire-1 { animation-delay: 12.10s }
+.nm-motion-on .nm-scene-3 .nm-wire-2 { animation-delay: 12.22s }
+.nm-motion-on .nm-scene-3 .nm-wire-3 { animation-delay: 12.34s }
+
+.nm-motion-on .nm-scene-1 .nm-node:nth-child(1) { animation-delay: .55s }
+.nm-motion-on .nm-scene-1 .nm-node:nth-child(2) { animation-delay: .70s }
+.nm-motion-on .nm-scene-1 .nm-node:nth-child(3) { animation-delay: .85s }
+.nm-motion-on .nm-scene-2 .nm-node:nth-child(1) { animation-delay: 6.55s }
+.nm-motion-on .nm-scene-2 .nm-node:nth-child(2) { animation-delay: 6.70s }
+.nm-motion-on .nm-scene-2 .nm-node:nth-child(3) { animation-delay: 6.85s }
+.nm-motion-on .nm-scene-3 .nm-node:nth-child(1) { animation-delay: 12.55s }
+.nm-motion-on .nm-scene-3 .nm-node:nth-child(2) { animation-delay: 12.70s }
+.nm-motion-on .nm-scene-3 .nm-node:nth-child(3) { animation-delay: 12.85s }
+
+.nm-motion-paused .nm-scene, .nm-motion-paused .nm-chip,
+.nm-motion-paused .nm-wire,  .nm-motion-paused .nm-node { animation-play-state: paused; }
+
+@keyframes nm-scene { 0%{opacity:0} .2%{opacity:1} 30.5%{opacity:1} 33.3%{opacity:0} 100%{opacity:0} }
+@keyframes nm-rise  { 0%{opacity:0;transform:translateY(.5rem)} 3.5%{opacity:1;transform:none} 100%{opacity:1;transform:none} }
+@keyframes nm-draw  { 0%{stroke-dashoffset:100} 6%{stroke-dashoffset:0} 100%{stroke-dashoffset:0} }
+@keyframes nm-pop   { 0%{opacity:0;transform:translateX(-.6rem)} 5%{opacity:1;transform:none} 100%{opacity:1;transform:none} }
+
+/* An OS-level reduce-motion preference wins outright, even if the class were
+   somehow set. Belt and braces on top of the component logic. */
+@media (prefers-reduced-motion: reduce) {
+    .nm-motion-on * { animation: none !important; transition: none !important; }
+    .nm-motion-on .nm-scene-2, .nm-motion-on .nm-scene-3 { opacity: 0; visibility: hidden; }
+}
+
+/* ── narrow ──────────────────────────────────────────────────────────────
+   The old road art was decorative and hidden at this width. This is NOT
+   decorative: it carries nine wage figures and the screen-reader copy of the
+   whole data set. display:none would take real content away from exactly the
+   people most likely to be on a phone. It collapses instead. */
 @media (max-width: 46rem) {
-    .nm-hero { grid-template-columns: 1fr; padding: 2rem 1.15rem 1.25rem; }
-    .nm-hero-art { display: none; }
+    .nm-hero { grid-template-columns: 1fr; padding: 2rem 1.15rem 1.25rem; gap: 1.5rem; }
+    .nm-scene { grid-template-columns: 6.5rem 2.2rem minmax(0, 1fr); }
+    .nm-code { font-size: 1.45rem; }
+    .nm-branch { font-size: .58rem; letter-spacing: .05em; }
+    .nm-mos { font-size: .68rem; }
+    .nm-role { font-size: .8rem; }
+    .nm-chip { padding: .55rem .6rem .6rem; }
+    .nm-chip::after { right: -.7rem; }
+    .nm-art-footer { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 26rem) {
+    .nm-scene { grid-template-columns: minmax(0, 1fr); gap: .6rem; }
+    .nm-wires, .nm-dot { display: none; }
+    .nm-chip::after { display: none; }
+    .nm-node { padding-left: .75rem; border-left: .2rem solid var(--nm-connect); }
+    .nm-role { min-height: 0; }
+    .nm-code { font-size: 1.6rem; }
+}
+
+/* ── Windows High Contrast ───────────────────────────────────────────────── */
+@media (forced-colors: active) {
+    .nm-art, .nm-node, .nm-chip, .nm-wage, .nm-toggle { border: 1px solid CanvasText; }
+    .nm-chip { background: Canvas; }
+    .nm-code, .nm-branch, .nm-mos { color: CanvasText; }
+    .nm-chip::after { background: CanvasText; forced-color-adjust: none; }
+    .nm-dot { background: Canvas; border-color: CanvasText; forced-color-adjust: none; }
+    .nm-wires svg path { stroke: CanvasText; }
+    .nm-toggle:focus-visible { outline: 3px solid Highlight; }
 }

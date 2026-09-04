@@ -994,6 +994,41 @@ sf data query --target-org dreamforce-hackathon \
 **Do not report a hallucination or refusal rate from anywhere else.** Before this
 object existed the honest answer was "unknown", not "zero".
 
+### The hero graphic: nine figures that would have contradicted the agent
+
+A designed replacement for the decorative road art arrived carrying BLS medians
+from **May 2025**, sourced from the Occupational Outlook Handbook while citing
+OEWS. **All nine differed from what NM_Wage__c holds.** Paramedics would have
+read $60,600 in the graphic and $58,410 from the agent, on the same page, in one
+screenshot, and the agent's own wage net would have rejected the graphic's number.
+
+Rebuilt as an LWC on our stored May 2024 figures. Three things worth keeping:
+
+* **It is an LWC, not pasted HTML.** The original carried an inline `<script>`
+  for the reduced-motion logic. Experience Builder can strip that, which leaves
+  a Play button that does nothing: worse than no button.
+* **One data array feeds both the animation and the screen-reader copy.** The
+  original kept a hand-written second copy of every figure with a comment
+  warning it would go stale. It would have.
+* **It COLLAPSES on mobile, it does not hide.** The road art was decorative and
+  was `display:none` below 46rem. This carries nine wage figures and the
+  screen-reader data set; hiding it would take real content from the people most
+  likely to be on a phone.
+
+`scripts/hero_truth.py` fails if any hero figure is not a median we hold.
+`scripts/a11y-scan/hero_check.js` checks four viewports plus reduced motion.
+
+### Known: the page scrolls sideways at 320px, and it is NOT ours
+
+69px of horizontal overflow at a 320px viewport, which is the WCAG 1.4.10
+reflow baseline. The cause is Salesforce's own `component-wrapper-spacer` around
+the chat widget: **the host measures 377px while none of its children exceed
+320.** That is LWR page layout, changeable in Builder, not in our CSS.
+
+`hero_check.js` reports it as a NOTE rather than a failure, with the cause named,
+because a check that fails for something you cannot fix in code just teaches
+people to ignore the check.
+
 ### The instruction block has a length budget. Adding to it costs you elsewhere.
 
 Measured, not theorised. A 248 character block was appended to the PRONOUNS
