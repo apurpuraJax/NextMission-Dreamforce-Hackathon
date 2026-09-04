@@ -1,11 +1,11 @@
 # Data build inputs
 
 ## wages.json — NMDH-23
-BLS OEWS national file, May 2024. Rebuild:
+BLS OEWS national file, May 2025. Rebuilt with `python3 scripts/data/build_wages.py 25`:
 
 ```
 curl -A "NextMission/1.0 (you@example.com)" -o oes.zip \
-  https://www.bls.gov/oes/special-requests/oesm24nat.zip
+  https://www.bls.gov/oes/special-requests/oesm25nat.zip
 ```
 
 BLS returns **403 to a default User-Agent**. It must carry contact details.

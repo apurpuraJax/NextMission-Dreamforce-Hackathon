@@ -190,7 +190,7 @@ private class NM_ResumeUploadTest {
         insert new NM_Wage__c(Name='Paramedics', ONET_Code__c='29-2043.00',
             Median_Annual__c=58410, Pct10_Annual__c=40130, Pct90_Annual__c=82420,
             Total_Employment__c=99530, Wage_SOC_Code__c='29-2043',
-            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2025');
 
         String fabricated = 'Paramedics: median $67,190 a year, according to the '
                           + 'Bureau of Labor Statistics.';
@@ -204,7 +204,7 @@ private class NM_ResumeUploadTest {
         insert new NM_Wage__c(Name='Paramedics', ONET_Code__c='29-2043.00',
             Median_Annual__c=58410, Pct10_Annual__c=40130, Pct90_Annual__c=82420,
             Total_Employment__c=99530, Wage_SOC_Code__c='29-2043',
-            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+            Is_Broad_Group__c=false, Source__c='BLS OEWS May 2025');
 
         String honest = 'Paramedics: median $58,410 a year, most earn between '
                       + '$40,130 and $82,420.';

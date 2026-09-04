@@ -31,7 +31,7 @@ export default class NmAbout extends LightningElement {
           meta: '8,179 codes loaded across all six branches' },
         { key: 'x3', title: 'BLS Occupational Employment and Wage Statistics',
           body: 'National wage figures by occupation, published by the U.S. Bureau of Labor Statistics. Every pay figure shown comes from here; none is estimated.',
-          meta: '968 of 1,016 occupations priced, May 2024 release' },
+          meta: '992 of 1,016 occupations priced, May 2025 release' },
         { key: 'x2', title: 'O*NET Occupations',
           body: 'The federal occupation database behind CareerOneStop, supplying the description of what each civilian role actually involves.',
           meta: '1,016 occupations loaded' },

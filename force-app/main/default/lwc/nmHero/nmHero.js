@@ -14,10 +14,10 @@ import { LightningElement } from 'lwc';
  * as the agent, and the agent is required to name the Bureau of Labor Statistics
  * with every figure it gives. A hero quoting a different number for the same
  * occupation makes both of them look invented. These were taken from the org,
- * not from a web page: BLS OEWS May 2024, the release the agent actually holds.
+ * not from a web page: BLS OEWS May 2025, the release the agent actually holds.
  * scripts/hero_truth.py checks them and will fail if they drift.
  */
-const SOURCE = 'BLS OEWS May 2024';
+const SOURCE = 'BLS OEWS May 2025';
 
 export default class NmHero extends LightningElement {
 
@@ -36,12 +36,12 @@ export default class NmHero extends LightningElement {
             branch: 'U.S. Marine Corps', code: '3531', mos: 'Motor Vehicle Operator',
             heading: 'Marine Corps 3531, Motor Vehicle Operator',
             roles: [
-                { key: 'r1', title: 'Transportation & Distribution Manager', wage: '$102,010',
-                  sr: 'Transportation, Storage and Distribution Manager. Median annual wage $102,010.' },
-                { key: 'r2', title: 'Logistician', wage: '$80,880',
-                  sr: 'Logistician. Median annual wage $80,880.' },
-                { key: 'r3', title: 'Heavy & Tractor-Trailer Truck Driver', wage: '$57,440',
-                  sr: 'Heavy and Tractor-Trailer Truck Driver. Median annual wage $57,440.' }
+                { key: 'r1', title: 'Transportation & Distribution Manager', wage: '$107,230',
+                  sr: 'Transportation, Storage and Distribution Manager. Median annual wage $107,230.' },
+                { key: 'r2', title: 'Logistician', wage: '$82,320',
+                  sr: 'Logistician. Median annual wage $82,320.' },
+                { key: 'r3', title: 'Heavy & Tractor-Trailer Truck Driver', wage: '$58,640',
+                  sr: 'Heavy and Tractor-Trailer Truck Driver. Median annual wage $58,640.' }
             ]
         },
         {
@@ -49,12 +49,12 @@ export default class NmHero extends LightningElement {
             branch: 'U.S. Navy', code: 'HM', mos: 'Hospital Corpsman',
             heading: 'Navy HM, Hospital Corpsman',
             roles: [
-                { key: 'r1', title: 'Registered Nurse', wage: '$93,600',
-                  sr: 'Registered Nurse. Median annual wage $93,600.' },
-                { key: 'r2', title: 'Surgical Technologist', wage: '$62,830',
-                  sr: 'Surgical Technologist. Median annual wage $62,830.' },
-                { key: 'r3', title: 'Paramedic', wage: '$58,410',
-                  sr: 'Paramedic. Median annual wage $58,410.' }
+                { key: 'r1', title: 'Registered Nurse', wage: '$97,550',
+                  sr: 'Registered Nurse. Median annual wage $97,550.' },
+                { key: 'r2', title: 'Surgical Technologist', wage: '$64,650',
+                  sr: 'Surgical Technologist. Median annual wage $64,650.' },
+                { key: 'r3', title: 'Paramedic', wage: '$60,600',
+                  sr: 'Paramedic. Median annual wage $60,600.' }
             ]
         },
         {
@@ -62,12 +62,12 @@ export default class NmHero extends LightningElement {
             branch: 'U.S. Army', code: '25B', mos: 'Information Technology Specialist',
             heading: 'Army 25B, Information Technology Specialist',
             roles: [
-                { key: 'r1', title: 'Information Security Analyst', wage: '$124,910',
-                  sr: 'Information Security Analyst. Median annual wage $124,910.' },
-                { key: 'r2', title: 'Network & Systems Administrator', wage: '$96,800',
-                  sr: 'Network and Computer Systems Administrator. Median annual wage $96,800.' },
-                { key: 'r3', title: 'Computer User Support Specialist', wage: '$60,340',
-                  sr: 'Computer User Support Specialist. Median annual wage $60,340.' }
+                { key: 'r1', title: 'Information Security Analyst', wage: '$129,180',
+                  sr: 'Information Security Analyst. Median annual wage $129,180.' },
+                { key: 'r2', title: 'Network & Systems Administrator', wage: '$99,130',
+                  sr: 'Network and Computer Systems Administrator. Median annual wage $99,130.' },
+                { key: 'r3', title: 'Computer User Support Specialist', wage: '$61,860',
+                  sr: 'Computer User Support Specialist. Median annual wage $61,860.' }
             ]
         }
     ];

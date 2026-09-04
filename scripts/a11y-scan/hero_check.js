@@ -13,13 +13,13 @@ const { chromium } = require('playwright-core');
 
 const URL = process.env.NM_URL || 'https://orgfarm-3bfff135af.my.site.com/nextmission/';
 
-const FIGURES = ['$102,010','$80,880','$57,440','$93,600','$62,830',
-                 '$58,410','$124,910','$96,800','$60,340'];
+const FIGURES = ['$107,230','$82,320','$58,640','$97,550','$64,650',
+                 '$60,600','$129,180','$99,130','$61,860'];
 
 // Anything the agent does not hold. If one of these is on the page the hero and
 // the agent are quoting different numbers for the same job, in one screenshot.
-const STALE = ['$107,230','$82,320','$58,640','$97,550','$64,650',
-               '$60,600','$129,180','$99,130','$61,860','May 2025'];
+const STALE = ['$102,010','$80,880','$57,440','$93,600','$62,830',
+               '$58,410','$124,910','$96,800','$60,340','May 2024'];
 
 let failures = 0;
 function check(ok, label, detail) {
@@ -115,7 +115,7 @@ function check(ok, label, detail) {
     check(stale.length === 0, 'no figure the agent does not hold',
           stale.length ? 'FOUND ' + stale.join(', ') : '');
 
-    check(html.includes('May&nbsp;2024') || text.includes('May 2024'),
+    check(html.includes('May&nbsp;2025') || text.includes('May 2025'),
           'cites the release the agent actually uses');
 
     await ctx.close();

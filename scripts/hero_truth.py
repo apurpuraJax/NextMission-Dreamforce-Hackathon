@@ -49,8 +49,8 @@ def main():
     # The screen-reader copy is generated from the same array, but the release
     # named in the caption is written by hand in the template.
     tpl = open("force-app/main/default/lwc/nmHero/nmHero.html").read()
-    if "May&nbsp;2025" in tpl or "May 2025" in tpl:
-        print("\n  FAIL caption still cites May 2025; the agent uses May 2024")
+    if "May&nbsp;2024" in tpl or "May 2024" in tpl:
+        print("\n  FAIL caption still cites May 2024; the agent uses May 2025")
         bad += 1
 
     print("\n%s" % ("EVERY HERO FIGURE IS ONE WE HOLD"

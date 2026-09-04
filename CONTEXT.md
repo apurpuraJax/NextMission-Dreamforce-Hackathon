@@ -994,6 +994,37 @@ sf data query --target-org dreamforce-hackathon \
 **Do not report a hallucination or refusal rate from anywhere else.** Before this
 object existed the honest answer was "unknown", not "zero".
 
+### Wage data is BLS OEWS **May 2025**. It drifted a release, and here is why.
+
+A scheduled job watches O*NET for a newer release. **Nothing watched BLS.** The
+About page said the data was "kept current, on purpose" and meant only half of
+it. wages.json had also been built by hand with no script, so there was nothing
+to re-run even if someone had noticed.
+
+Both fixed. `scripts/data/build_wages.py` rebuilds from any release:
+
+```
+python3 scripts/data/build_wages.py 25          # load a release
+python3 scripts/data/build_wages.py 24 --check  # prove the logic first
+```
+
+`--check` reproduces an already-loaded release and diffs it against the
+committed file. **Run it before trusting a new one.** Validating against May
+2024 reproduced 934 detailed matches and zero figure differences, which is what
+made the 2025 load safe; it also found 5 occupations the hand-built file had
+left unpriced that do have a legitimate broad-group figure (Actors, Dancers, and
+three dental specialties rolling up to Dentists).
+
+May 2025 vs May 2024 across 967 shared occupations: 886 medians rose, 79 fell,
+median change +3.0%. Coverage improved from 95.8% to **97.6%**, 992 of 1,016
+priced. Every one of the nine hero figures matched the designed graphic exactly,
+which is how we know the designer's numbers were right and only our release was
+behind.
+
+**STILL MISSING: a BLS release monitor.** `NM_ONETReleaseMonitor` has no wage
+equivalent, so this will drift again. That is the actual root cause and it is
+not yet fixed.
+
 ### The hero graphic: nine figures that would have contradicted the agent
 
 A designed replacement for the decorative road art arrived carrying BLS medians

@@ -29,16 +29,16 @@ private class NM_GetWagesActionTest {
             new NM_Wage__c(Name='Paramedics', ONET_Code__c='29-2043.00',
                 Median_Annual__c=58410, Pct10_Annual__c=40130, Pct90_Annual__c=82420,
                 Total_Employment__c=99530, Wage_SOC_Code__c='29-2043',
-                Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024'),
+                Is_Broad_Group__c=false, Source__c='BLS OEWS May 2025'),
             new NM_Wage__c(Name='Logisticians', ONET_Code__c='13-1081.00',
                 Median_Annual__c=80880, Pct10_Annual__c=49260, Pct90_Annual__c=132110,
                 Total_Employment__c=225000, Wage_SOC_Code__c='13-1081',
-                Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024'),
+                Is_Broad_Group__c=false, Source__c='BLS OEWS May 2025'),
             // BLS publishes this one only at the wider group level.
             new NM_Wage__c(Name='Counselors, All Other', ONET_Code__c='21-1014.00',
                 Median_Annual__c=53710, Pct10_Annual__c=36700, Pct90_Annual__c=89900,
                 Total_Employment__c=41000, Wage_SOC_Code__c='21-1010',
-                Is_Broad_Group__c=true, Source__c='BLS OEWS May 2024')
+                Is_Broad_Group__c=true, Source__c='BLS OEWS May 2025')
         };
     }
 
@@ -56,7 +56,7 @@ private class NM_GetWagesActionTest {
         System.assert(res.wages.contains('40,130') && res.wages.contains('82,420'),
             'The range must appear; a median alone hides the spread');
         System.assert(res.wages.contains('99,530'), 'Employment must appear');
-        System.assertEquals('BLS OEWS May 2024', res.source, 'Source must be attributable');
+        System.assertEquals('BLS OEWS May 2025', res.source, 'Source must be attributable');
         System.assertEquals(null, res.missing, 'Nothing was missing');
     }
 
@@ -150,7 +150,7 @@ private class NM_GetWagesActionTest {
         insert new NM_Wage__c(Name='Transportation, Storage, and Distribution Managers',
             ONET_Code__c='11-3071.00', Median_Annual__c=102010, Pct10_Annual__c=61200,
             Pct90_Annual__c=180590, Total_Employment__c=180000,
-            Wage_SOC_Code__c='11-3071', Is_Broad_Group__c=false, Source__c='BLS OEWS May 2024');
+            Wage_SOC_Code__c='11-3071', Is_Broad_Group__c=false, Source__c='BLS OEWS May 2025');
 
         NM_GetWagesAction.Response res = run('Warehouse Operations Manager');
         System.assert(res.found, 'A cluster title must still resolve to a figure');
