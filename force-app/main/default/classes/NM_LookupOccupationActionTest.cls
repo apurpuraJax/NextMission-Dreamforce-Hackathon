@@ -399,4 +399,34 @@ private class NM_LookupOccupationActionTest {
             NM_LookupOccupationAction.afscLevelSwapKeys('Navy', '2A551').size(),
             'Skill-level digits are an Air Force convention');
     }
+
+    @IsTest
+    static void codesSpokenInThePhoneticAlphabetTranslate() {
+        // An 88M is an "eighty-eight mike" out loud. The model translated this
+        // inconsistently, so the closed vocabulary is a table here instead.
+        Map<String, String> spoken = new Map<String, String>{
+            '88 mike' => '88M',
+            'eleven bravo' => '11B',
+            'sixty-eight whiskey' => '68W',
+            'eighty eight mike' => '88M',
+            'hotel mike' => 'HM',
+            'two alpha five xray one' => '2A5X1',
+            '88M' => '88M'
+        };
+        for (String said : spoken.keySet()) {
+            System.assertEquals(spoken.get(said),
+                NM_LookupOccupationAction.normaliseCode(said),
+                'Not translated: ' + said);
+        }
+    }
+
+    @IsTest
+    static void tensOnlyCombineWithAFollowingSingleDigit() {
+        // "sixty eight" is 68; "eleven eight" is 118, since eleven is not a
+        // tens word. The combine rule must not over-apply.
+        System.assertEquals('118',
+            NM_LookupOccupationAction.normaliseCode('eleven eight'));
+        System.assertEquals('2011',
+            NM_LookupOccupationAction.normaliseCode('twenty eleven'));
+    }
 }

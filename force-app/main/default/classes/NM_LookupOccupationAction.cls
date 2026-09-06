@@ -512,10 +512,57 @@ public with sharing class NM_LookupOccupationAction {
         return branch.trim();
     }
 
+    /*
+     * Purpose:    Soldiers SAY their codes in the phonetic alphabet: an 88M is
+     *             an "eighty-eight mike", an 11B an "eleven bravo". The model
+     *             translates this inconsistently — measured live, "sixty-eight
+     *             whiskey" resolved and "88 mike" was told we do not have the
+     *             code. The alphabet is a closed 26-word vocabulary plus number
+     *             words, which is a translation table, not a similarity search,
+     *             so it is guaranteed here rather than hoped for in the prompt.
+     */
+    private static final Map<String, String> PHONETIC = new Map<String, String>{
+        'alpha'=>'A','alfa'=>'A','bravo'=>'B','charlie'=>'C','delta'=>'D',
+        'echo'=>'E','foxtrot'=>'F','golf'=>'G','hotel'=>'H','india'=>'I',
+        'juliet'=>'J','juliett'=>'J','kilo'=>'K','lima'=>'L','mike'=>'M',
+        'november'=>'N','oscar'=>'O','papa'=>'P','quebec'=>'Q','romeo'=>'R',
+        'sierra'=>'S','tango'=>'T','uniform'=>'U','victor'=>'V','whiskey'=>'W',
+        'xray'=>'X','yankee'=>'Y','zulu'=>'Z',
+        'zero'=>'0','oh'=>'0','one'=>'1','two'=>'2','three'=>'3','four'=>'4',
+        'five'=>'5','six'=>'6','seven'=>'7','eight'=>'8','nine'=>'9',
+        'ten'=>'10','eleven'=>'11','twelve'=>'12','thirteen'=>'13',
+        'fourteen'=>'14','fifteen'=>'15','sixteen'=>'16','seventeen'=>'17',
+        'eighteen'=>'18','nineteen'=>'19','twenty'=>'20','thirty'=>'30',
+        'forty'=>'40','fifty'=>'50','sixty'=>'60','seventy'=>'70',
+        'eighty'=>'80','ninety'=>'90'
+    };
+
+    @TestVisible
+    private static String translatePhonetic(String code) {
+        if (String.isBlank(code)) return code;
+        List<String> outParts = new List<String>();
+        for (String tokRaw : code.toLowerCase().split('[^a-z0-9]+')) {
+            if (String.isBlank(tokRaw)) continue;
+            String mapped = PHONETIC.containsKey(tokRaw) ? PHONETIC.get(tokRaw) : tokRaw;
+            // "sixty" then "eight" is 68, not 608: a tens word followed by a
+            // single digit combines, exactly as it does when spoken.
+            if (!outParts.isEmpty() && mapped.length() == 1 && mapped.isNumeric()) {
+                String prev = outParts[outParts.size() - 1];
+                if (prev.length() == 2 && prev.endsWith('0') && prev.isNumeric()) {
+                    outParts[outParts.size() - 1] =
+                        prev.substring(0, 1) + mapped;
+                    continue;
+                }
+            }
+            outParts.add(mapped);
+        }
+        return String.join(outParts, '');
+    }
+
     @TestVisible
     private static String normaliseCode(String code) {
         if (String.isBlank(code)) return '';
-        return code.toUpperCase().replaceAll('[^A-Z0-9]', '');
+        return translatePhonetic(code).toUpperCase().replaceAll('[^A-Z0-9]', '');
     }
 
     @TestVisible

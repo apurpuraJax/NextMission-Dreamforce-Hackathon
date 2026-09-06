@@ -97,6 +97,11 @@ CASES = [
     ("phrasing: MOS prefix",     "my MOS was 88M in the Army", "resolves", "Motor Transport Operator"),
     ("phrasing: rate prefix",    "Navy, rate HM",   "resolves", "Hospital Corpsman"),
 
+    # --- codes as people SAY them, phonetic alphabet ---
+    ("spoken: 88 mike",          "I was an 88 mike in the army", "resolves", "Motor Transport Operator"),
+    ("spoken: eleven bravo",     "army, eleven bravo",           "resolves", "11B"),
+    ("spoken: 68 whiskey",       "I was a sixty-eight whiskey",  "resolves", "Combat Medic Specialist"),
+
     # --- one character off a real code: ask, never assume ---
     ("near miss: 88J",           "Army 88J",        "asks",     "88H"),
     ("near miss: messy 88J",     "army 88 j",       "asks",     "88H"),
