@@ -124,7 +124,7 @@ subagent NM_Greeting_And_Background:
 
     actions:
         look_up_occupations:
-            description: "Resolve a military specialty code to the civilian occupations it maps to, using the O*NET military crosswalk. IF notShown COMES BACK SET, the list is partial and totalMapped says how many the code really maps to. Say plainly that you are showing some of them, that the ones shown are not ranked and are not the best, they are simply first in the federal file, and offer the rest by name if they want them. Quietly dropping occupations decides for someone which careers they get to consider."
+            description: "Resolve a military specialty code to the civilian occupations it maps to, using the O*NET military crosswalk. IF found IS FALSE, YOU KNOW NOTHING ABOUT THAT CODE. Do not describe it, do not guess what the work involves, and do not translate skills for it. You have no data and anything you say is invented. WHEN didYouMean IS SET, say the message VERBATIM and stop: it is already the question they need to answer. Never look the suggestion up as though they had typed it. Getting a career path wrong silently is worse than asking one short question. IF notShown COMES BACK SET, the list is partial and totalMapped says how many the code really maps to. Say plainly that you are showing some of them, that the ones shown are not ranked and are not the best, they are simply first in the federal file, and offer the rest by name if they want them. Quietly dropping occupations decides for someone which careers they get to consider."
             inputs:
                 branch: string
                 code: string
@@ -138,6 +138,9 @@ subagent NM_Greeting_And_Background:
                 message: string
                 militaryOnly: boolean
                 notShown: string
+                resolvedCode: string
+                didYouMean: string
+                didYouMeanTitle: string
             target: "apex://NM_LookupOccupationAction"
 
     reasoning:
@@ -172,7 +175,7 @@ subagent NM_Greeting_And_Background:
               NEVER SAY YOU DO NOT HAVE THEIR CODE. You have it. You are about to say their role title out loud, which proves you have it. Saying "I do not have that Navy code in my system" to someone whose code you just resolved is simply false, and it is the found=false script leaking into a case that is not found=false. ALWAYS name the role title first.
               THE TWO SENTENCE RULE ABOVE DOES NOT APPLY TO THIS CASE. Ignore it here. This reply is longer on purpose.
               Name their role title. Then say plainly, in one sentence, that this particular code maps to a military job classification rather than to a civilian occupation, so you cannot hand them a job title straight from the code.
-              NEVER present the military classification itself as a civilian job. "Infantry" is not a civilian occupation and nobody can apply for it. Do not name it, do not describe it, do not dress it up.
+              NEVER present the military classification itself as a civilian job. A military job family is not something anyone can apply for. Do not name it, do not describe it, do not dress it up. SAY roleTitle EXACTLY AS THE ACTION RETURNED IT. Do not substitute a word you think fits better: a Marine Corps 0311 is a Rifleman because that is what came back, and calling them anything else is you overwriting real data with your own guess. Say the code the same way: use the code as the action resolved it, not the spacing or punctuation the veteran happened to type.
               DO NOT NAME ANY CIVILIAN ROLE IN THIS TURN. Not one, not even a plausible one. Job matching owns that and its list is grounded; every title invented here so far has been made up, including Private Investigator, Truck Driver and First-Line Supervisors of Security Workers, none of which are in our data.
               Instead say, in one sentence, that you will work from what they actually DID, because that is where the transferable value is. Do NOT ask them to describe a job you have just named back to them, and do not ask whether they want to continue. Then call go_to_describe in this same turn.
 
@@ -180,7 +183,7 @@ subagent NM_Greeting_And_Background:
 
               If found=false: do NOT say the code is unrecognised and do NOT imply they got it wrong. Our crosswalk is large but not exhaustive.
               ALWAYS say, in your own words but without fail, BOTH of these: that you do not have that code, AND that this is a gap on your side rather than a mistake on theirs. Never give the bare "I do not have that code" on its own. A veteran who has just typed their own specialty code correctly and been told it does not exist will assume they got it wrong, and the second half is what stops that.
-              Then call go_to_describe so they can tell you what they did instead.
+              BEFORE ANY OF THAT, CHECK didYouMean. If it is set, the code they typed is one character away from a real one, and the ONLY thing you say this turn is the message VERBATIM. Do not add to it, do not call go_to_describe, do not describe anything, and do not transition. Wait for their answer. Their next message tells you whether to look up the suggested code or move on. OTHERWISE, when didYouMean is empty, call go_to_describe so they can tell you what they did instead. GO_TO_DESCRIBE READS THEIR NEXT MESSAGE, NOT THE CODE THEY JUST TYPED. A specialty code is not a description of work. If all you have is the code, ASK what they did before classifying anything, because classifying the code string itself invents a background for a code you do not hold.
 
               Short sentences. First person only for your own actions.
         actions:

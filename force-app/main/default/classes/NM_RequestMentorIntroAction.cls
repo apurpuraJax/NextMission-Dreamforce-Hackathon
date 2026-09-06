@@ -38,6 +38,27 @@ public with sharing class NM_RequestMentorIntroAction {
     private static final String EMAIL_REGEX =
         '^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$';
 
+    /*
+     * Purpose:    Clean an email the way a person actually supplies one.
+     *             Measured: " dana@example.com " was rejected outright, so
+     *             someone who copy-pasted their own address was told it did not
+     *             look right. A trailing full stop did the same, and people end
+     *             sentences with full stops. Neither is a malformed address;
+     *             both were our failure to trim.
+     *             An INTERNAL space is still invalid and still rejected.
+     */
+    @TestVisible
+    private static String cleanEmail(String raw) {
+        if (String.isBlank(raw)) return raw;
+        String e = raw.trim();
+        while (e.length() > 0 && '.,;:'.contains(e.substring(e.length() - 1))) {
+            e = e.substring(0, e.length() - 1).trim();
+        }
+        // A stray mailto: from a copy-paste is not the veteran's mistake either.
+        if (e.toLowerCase().startsWith('mailto:')) e = e.substring(7).trim();
+        return e;
+    }
+
     private static final String MSG_BAD_EMAIL =
         'That email address doesn\'t look right. Could you double-check it and try again?';
     private static final String MSG_DUPLICATE =
@@ -129,7 +150,7 @@ public with sharing class NM_RequestMentorIntroAction {
 
             // Email must be present and well-formed.
             if (String.isBlank(req.requesterEmail) ||
-                !Pattern.matches(EMAIL_REGEX, req.requesterEmail)) {
+                !Pattern.matches(EMAIL_REGEX, cleanEmail(req.requesterEmail))) {
                 results[i].success = false;
                 results[i].message = MSG_BAD_EMAIL;
                 continue;
@@ -296,7 +317,9 @@ public with sharing class NM_RequestMentorIntroAction {
             introsToInsert.add(new NM_Mentor_Introduction__c(
                 Conversation__c    = convId,
                 Mentor__c          = mentorId,
-                Requester_Email__c = requests[i].requesterEmail,
+                // Store what we validated, not what was typed. Otherwise a
+                // trailing space or full stop ends up in the address we mail.
+                Requester_Email__c = cleanEmail(requests[i].requesterEmail),
                 Status__c          = 'Pending',
                 Introduced_At__c   = DateTime.now()
             ));

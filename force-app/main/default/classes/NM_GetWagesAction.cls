@@ -137,7 +137,7 @@ public without sharing class NM_GetWagesAction {
             List<String> absent = new List<String>();
 
             for (String title : perRequest[n]) {
-                String code = codeByTitle.get(title.toLowerCase());
+                String code = resolveTitle(title, codeByTitle);
                 NM_Wage__c w = code == null ? null : wageByCode.get(code);
                 if (w == null || w.Median_Annual__c == null) {
                     absent.add(title);
@@ -156,6 +156,39 @@ public without sharing class NM_GetWagesAction {
 
         System.debug('Exiting NM_GetWagesAction.getWages: results=' + results.size());
         return results;
+    }
+
+    /*
+     * Purpose:    Match a title the agent printed against a title we store.
+     *
+     *             BLS publishes plurals: "Paramedics", "Logisticians",
+     *             "Registered Nurses". The agent says "Paramedic", because that
+     *             is how a person says it. Measured: the singular missed
+     *             entirely and the veteran was told we hold no figure for a job
+     *             we had priced. Trailing punctuation missed too.
+     *
+     *             Only ever widens the match. A title that resolves to nothing
+     *             still comes back as missing rather than guessed at.
+     */
+    @TestVisible
+    private static String resolveTitle(String title, Map<String, String> codeByTitle) {
+        if (String.isBlank(title)) return null;
+        String t = title.trim();
+        while (t.length() > 0 && '.,;:'.contains(t.substring(t.length() - 1))) {
+            t = t.substring(0, t.length() - 1).trim();
+        }
+        String k = t.toLowerCase();
+        if (codeByTitle.containsKey(k)) return codeByTitle.get(k);
+
+        // Singular the agent used, plural the government publishes.
+        for (String v : new List<String>{ k + 's', k + 'es' }) {
+            if (codeByTitle.containsKey(v)) return codeByTitle.get(v);
+        }
+        // ...and the other way round.
+        if (k.endsWith('s') && codeByTitle.containsKey(k.substring(0, k.length() - 1))) {
+            return codeByTitle.get(k.substring(0, k.length() - 1));
+        }
+        return null;
     }
 
     /*

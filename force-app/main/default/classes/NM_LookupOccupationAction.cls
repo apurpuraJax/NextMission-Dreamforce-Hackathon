@@ -101,6 +101,23 @@ public with sharing class NM_LookupOccupationAction {
             description='Occupation titles this code maps to that were NOT listed, separated by semicolons. If this is set you MUST tell the veteran the list is partial and offer these, because the ones shown are not ranked and are not better.')
         public String notShown;
 
+        // A near miss is offered, never assumed. Sending a veteran down the
+        // wrong career path silently is worse than asking one short question.
+        @InvocableVariable(
+            label='Resolved Code'
+            description='The code as the crosswalk stores it, normalised from whatever was typed. Say THIS back, not the spacing the veteran used.')
+        public String resolvedCode;
+
+        @InvocableVariable(
+            label='Did You Mean'
+            description='A real code that is one character away from what they typed. When this is set, ASK whether they meant it. Never look it up as though they had typed it.')
+        public String didYouMean;
+
+        @InvocableVariable(
+            label='Did You Mean Title'
+            description='The role title of the suggested code, so the question names the job rather than just a code.')
+        public String didYouMeanTitle;
+
         @InvocableVariable(
             label='Message'
             description='Populated when found=false or militaryOnly=true. Surface it as context, never as an accusation that the veteran got their code wrong.')
@@ -212,6 +229,51 @@ public with sharing class NM_LookupOccupationAction {
             }
         }
 
+        // --- Near misses: one query, only for codes that did not resolve -----
+        //     Somebody typing 88N when they meant 88M should be asked, not told
+        //     their service does not exist. Prefix-filtered on the first
+        //     character so this stays a handful of rows, never the whole branch.
+        Map<String, NM_Military_Code_V2__c> nearByRequestKey =
+            new Map<String, NM_Military_Code_V2__c>();
+        List<String> prefixes = new List<String>();
+        Set<String> missBranches = new Set<String>();
+        for (Request req : requests) {
+            String k = buildKey(req.branch, req.code);
+            if (k == null || codeByKey.containsKey(k)) continue;
+            String c = normaliseCode(req.code);
+            if (c.length() < 2) continue;
+            prefixes.add(c.substring(0, 1) + '%');
+            missBranches.add(normaliseBranch(req.branch));
+        }
+
+        List<NM_Military_Code_V2__c> candidates = new List<NM_Military_Code_V2__c>();
+        if (!prefixes.isEmpty()) {
+            candidates = [
+                SELECT Code_Value__c, Branch__c, Role_Title__c, External_Key__c, ONET_Codes__c
+                FROM   NM_Military_Code_V2__c
+                WHERE  Branch__c IN :missBranches
+                AND    Code_Value__c LIKE :prefixes
+                LIMIT  2000
+            ];
+        }
+
+        for (Request req : requests) {
+            String k = buildKey(req.branch, req.code);
+            if (k == null || codeByKey.containsKey(k)) continue;
+            String typed = normaliseCode(req.code);
+            NM_Military_Code_V2__c best = null;
+            Integer bestDist = 99;
+            for (NM_Military_Code_V2__c cand : candidates) {
+                if (cand.Branch__c != normaliseBranch(req.branch)) continue;
+                String have = normaliseCode(cand.Code_Value__c);
+                if (Math.abs(have.length() - typed.length()) > 1) continue;
+                Integer d = editDistance(typed, have, 1);
+                if (d >= 0 && d < bestDist) { bestDist = d; best = cand; }
+            }
+            // Exactly one character out. Two is a different code, not a typo.
+            if (best != null && bestDist == 1) nearByRequestKey.put(k, best);
+        }
+
         // --- Resolve each request in memory, no further SOQL ------------------
         List<Response> results = new List<Response>();
         for (Request req : requests) {
@@ -237,11 +299,30 @@ public with sharing class NM_LookupOccupationAction {
                 res.militaryOnly = false;
                 res.occupationCount = 0;
                 res.message = NOT_FOUND_MSG;
+
+                NM_Military_Code_V2__c near = nearByRequestKey.get(buildKey(req.branch, req.code));
+                if (near != null) {
+                    res.didYouMean      = near.Code_Value__c;
+                    res.didYouMeanTitle = near.Role_Title__c;
+                    // Hand the agent the finished question, not two fields to
+                    // compose one from. Told only that a near match existed, it
+                    // ignored the suggestion and invented a whole background for
+                    // a code that does not exist, which is the worst outcome
+                    // available: confident, plausible, and about nobody.
+                    res.message =
+                        'I do not have ' + normaliseCode(req.code) + ' for the '
+                      + normaliseBranch(req.branch) + ', but I do have '
+                      + near.Code_Value__c
+                      + (String.isBlank(near.Role_Title__c)
+                            ? '' : ', ' + near.Role_Title__c)
+                      + '. Is that the one you meant?';
+                }
                 results.add(res);
                 continue;
             }
 
             NM_Military_Code_V2__c mc = codeByKey.get(key);
+            res.resolvedCode = normaliseCode(req.code);
             List<String> parts = new List<String>();
             List<String> heldBack = new List<String>();
             Boolean sawMilitaryOnly = false;
@@ -358,10 +439,78 @@ public with sharing class NM_LookupOccupationAction {
      *             Returns a non-matching sentinel rather than null so callers do
      *             not have to null-check before every map lookup.
      */
+    /*
+     * Purpose:    Strip a user-typed code down to what the crosswalk stores.
+     *             trim() only removes the ends, so "88 m" became "88 M" and
+     *             matched nothing while telling the veteran their code did not
+     *             exist. People type "88 m", "88-M", "88m." and "88M " and mean
+     *             the same MOS every time. Codes are alphanumeric, so anything
+     *             else a person typed is punctuation or spacing, not signal.
+     */
+    /*
+     * Purpose:    Edit distance between two short codes, abandoned once it
+     *             exceeds maxDist. Returns -1 when it is further than that.
+     *             Codes are at most a handful of characters, so this is cheap.
+     */
+    @TestVisible
+    private static Integer editDistance(String a, String b, Integer maxDist) {
+        if (a == b) return 0;
+        if (Math.abs(a.length() - b.length()) > maxDist) return -1;
+        List<Integer> prev = new List<Integer>();
+        for (Integer j = 0; j <= b.length(); j++) prev.add(j);
+        for (Integer i = 1; i <= a.length(); i++) {
+            List<Integer> cur = new List<Integer>{ i };
+            Integer rowBest = i;
+            for (Integer j = 1; j <= b.length(); j++) {
+                Integer cost = a.substring(i - 1, i) == b.substring(j - 1, j) ? 0 : 1;
+                Integer v = Math.min(Math.min(cur[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost);
+                cur.add(v);
+                if (v < rowBest) rowBest = v;
+            }
+            if (rowBest > maxDist) return -1;
+            prev = cur;
+        }
+        Integer d = prev[b.length()];
+        return d > maxDist ? -1 : d;
+    }
+
+    /*
+     * Purpose:    Turn whatever a person calls their service into the five names
+     *             the crosswalk stores.
+     *
+     *             The agent is INSTRUCTED to pass a canonical branch, and an
+     *             instruction is a preference. Measured: "Marines", "USMC",
+     *             "US Army", "USN", "USAF" and "USCG" all resolved to nothing
+     *             and told the veteran their code did not exist. Most Marines
+     *             say "Marines". This is not an edge case.
+     */
+    @TestVisible
+    private static String normaliseBranch(String branch) {
+        if (String.isBlank(branch)) return '';
+        String b = branch.toLowerCase().replaceAll('[^a-z ]', ' ').replaceAll(' +', ' ').trim();
+        // Drop the noise people put in front of a service name.
+        for (String lead : new List<String>{ 'the ', 'u s ', 'us ' }) {
+            while (b.startsWith(lead)) b = b.substring(lead.length()).trim();
+        }
+        if (b.contains('marine') || b == 'usmc')            return 'Marine Corps';
+        if (b.contains('coast')  || b == 'uscg')            return 'Coast Guard';
+        if (b.contains('air')    || b == 'usaf')            return 'Air Force';
+        if (b.contains('navy')   || b == 'usn')             return 'Navy';
+        if (b.contains('army')   || b == 'usa')             return 'Army';
+        if (b.contains('space'))                            return 'Space Force';
+        return branch.trim();
+    }
+
+    @TestVisible
+    private static String normaliseCode(String code) {
+        if (String.isBlank(code)) return '';
+        return code.toUpperCase().replaceAll('[^A-Z0-9]', '');
+    }
+
     @TestVisible
     private static String supplementKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return '~none~';
-        return branch.trim().toUpperCase() + ':' + code.trim().toUpperCase();
+        return normaliseBranch(branch).toUpperCase() + ':' + normaliseCode(code);
     }
 
     /*
@@ -383,7 +532,7 @@ public with sharing class NM_LookupOccupationAction {
      */
     private static String buildKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
-        return branch.trim().toUpperCase() + '|' + code.trim().toUpperCase();
+        return normaliseBranch(branch).toUpperCase() + '|' + normaliseCode(code);
     }
 
     /*
@@ -408,11 +557,11 @@ public with sharing class NM_LookupOccupationAction {
      */
     private static String baseNavyRatingKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
-        String b = branch.trim().toUpperCase();
+        String b = normaliseBranch(branch).toUpperCase();
         // The Coast Guard uses the same rating plus paygrade convention as the
         // Navy, so ME2, BM2 and MK1 were all missing until this included it.
         if (b != 'NAVY' && b != 'COAST GUARD') return null;
-        String c = code.trim().toUpperCase();
+        String c = normaliseCode(code);
         if (!Pattern.matches('^[A-Z]{2,3}[1-9]$', c)) return null;
         return b + '|' + c.substring(0, c.length() - 1);
     }
@@ -432,9 +581,9 @@ public with sharing class NM_LookupOccupationAction {
     private static List<String> afscSkillLevelKeys(String branch, String code) {
         List<String> out = new List<String>();
         if (String.isBlank(branch) || String.isBlank(code)) return out;
-        String b = branch.trim().toUpperCase();
+        String b = normaliseBranch(branch).toUpperCase();
         if (b != 'AIR FORCE' && b != 'SPACE FORCE') return out;
-        String c = code.trim().toUpperCase();
+        String c = normaliseCode(code);
         String prefix = 'AIR FORCE|';      // Space Force resolves against AF codes
         if (c.contains('X')) {
             for (String lvl : new List<String>{'5','7','3','1','9'}) {
@@ -460,8 +609,8 @@ public with sharing class NM_LookupOccupationAction {
 
     private static String baseArmyKey(String branch, String code) {
         if (String.isBlank(branch) || String.isBlank(code)) return null;
-        if (branch.trim().toUpperCase() != 'ARMY') return null;
-        String c = code.trim().toUpperCase();
+        if (normaliseBranch(branch).toUpperCase() != 'ARMY') return null;
+        String c = normaliseCode(code);
         if (!Pattern.matches('^[0-9]{2}[A-Z][0-9]{2}$', c)) return null;
         return 'ARMY|' + c.substring(0, 3);
     }

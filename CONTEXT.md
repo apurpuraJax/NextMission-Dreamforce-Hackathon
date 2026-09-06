@@ -1220,6 +1220,55 @@ signal: a specific tag appearing repeatedly on the same journey, and anything
 visible in the transcript itself, such as two identical consecutive replies.
 Chase those. Re-run before believing a mean.
 
+### Real people type badly, and every test we had typed well
+
+`88 m` told a veteran their code was not in the system. `trim()` strips the ends,
+not the middle. Forty-seven regression conversations, eleven graded journeys and
+three RC suites, and **not one of them typed a code the way a tired person on a
+phone actually types it.** The suites tested the paths we imagined.
+
+Auditing for the same shape found it in four places, all "user input becomes a
+lookup key", all fixed in Apex:
+
+| Where | What failed | Fix |
+| --- | --- | --- |
+| Specialty code | `88 m`, `88-M`, `88M.` | `normaliseCode()` strips everything but A-Z0-9 |
+| **Branch** | **`Marines`, `USMC`, `US Army`, `USN`, `USAF`, `USCG`** | `normaliseBranch()` maps every common name to the five stored values |
+| Email | `" dana@example.com "`, `dana@example.com.` | `cleanEmail()` trims and drops trailing punctuation, stores the cleaned value |
+| Wage title | `Paramedic` singular, when BLS stores `Paramedics` | `resolveTitle()` tries plural and singular forms |
+
+**`Marines` failing is the one to remember.** Most Marines do not say "Marine
+Corps". The agent was *instructed* to normalise the branch before calling, and an
+instruction is a preference.
+
+Two agent-side bugs came out of the same audit:
+
+* A code we do not hold used to route straight to describe-background, which then
+  **classified the code string itself as a description of work** and invented a
+  whole career area for a code that does not exist. It now asks first.
+* `Marine Corps 0311` came back as **"Infantry"** rather than the returned
+  `Rifleman`, because the instruction contains the sentence *"Infantry is not a
+  civilian occupation"*. **Second time an example in the prompt leaked into
+  output**, after Alex R. Any name, title or number written into an instruction
+  is material the model will reach for.
+
+A near miss is now offered, never assumed: `88J` returns *"I do not have 88J for
+the Army, but I do have 88H, Cargo Specialist. Is that the one you meant?"* The
+question is built in Apex and surfaced verbatim, because telling the agent that a
+near match existed was not enough; it ignored the suggestion and invented.
+
+### scripts/messy_input.py — the suite that would have caught all of it
+
+25 single-turn cases plus 4 adaptive journeys. Three rules, hardest first: never
+invent for a code we do not hold, offer a near miss rather than substitute it,
+and resolve messy input. Run it after any change to lookup or matching.
+
+**Two lessons about the harness itself, not the product.** Four parallel workers
+against one agent produced replies from other conversations and three false
+failures; concurrency is now 2 and 1. And a fixed script of turns called the agent
+broken when it was merely a turn behind and still asking, so the journeys now
+answer whatever it asks, the way a person would.
+
 ### The invented mentor: root cause was the PROMPT'S OWN EXAMPLE
 
 The agent told a veteran that Alex R. was a paramedic who moved from Army 68W.

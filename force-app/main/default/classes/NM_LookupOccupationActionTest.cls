@@ -299,4 +299,66 @@ private class NM_LookupOccupationActionTest {
         System.assertEquals(2, NM_LookupOccupationAction.splitCodes(' 1-1.00 ;; 2-2.00 ').size());
         System.assertEquals('1-1.00', NM_LookupOccupationAction.splitCodes(' 1-1.00 ; 2-2.00 ')[0]);
     }
+
+    /* ---------------------------------------------------------------------
+     * Real people type badly. Both of these shipped broken:
+     *   "88 m"    told the veteran their code was not in the system, because
+     *             trim() strips the ends and not the middle.
+     *   "Marines" resolved to nothing, because the crosswalk stores
+     *             "Marine Corps" and the agent was only ASKED to normalise it.
+     * ------------------------------------------------------------------- */
+    @IsTest
+    static void aCodeIsStrippedToWhatTheCrosswalkStores() {
+        for (String typed : new List<String>{
+                '88M', '88m', '88 m', '88-M', '88M.', ' 88 M ', '8 8 M' }) {
+            System.assertEquals('88M', NM_LookupOccupationAction.normaliseCode(typed),
+                'Should normalise to 88M: ' + typed);
+        }
+    }
+
+    @IsTest
+    static void everyWayPeopleNameTheirServiceResolves() {
+        Map<String, String> expected = new Map<String, String>{
+            'Army' => 'Army', 'army' => 'Army', 'US Army' => 'Army',
+            'U.S. Army' => 'Army', 'the army' => 'Army',
+            'Marines' => 'Marine Corps', 'USMC' => 'Marine Corps',
+            'Marine Corps' => 'Marine Corps', 'the Marines' => 'Marine Corps',
+            'Navy' => 'Navy', 'US Navy' => 'Navy', 'USN' => 'Navy',
+            'Air Force' => 'Air Force', 'USAF' => 'Air Force',
+            'Coast Guard' => 'Coast Guard', 'USCG' => 'Coast Guard'
+        };
+        for (String said : expected.keySet()) {
+            System.assertEquals(expected.get(said),
+                NM_LookupOccupationAction.normaliseBranch(said),
+                'Branch not resolved: ' + said);
+        }
+    }
+
+    @IsTest
+    static void editDistanceAbandonsEarlyRatherThanRunningOn() {
+        System.assertEquals(0, NM_LookupOccupationAction.editDistance('88M', '88M', 1));
+        System.assertEquals(1, NM_LookupOccupationAction.editDistance('88J', '88H', 1));
+        System.assertEquals(1, NM_LookupOccupationAction.editDistance('88', '88M', 1));
+        System.assertEquals(-1, NM_LookupOccupationAction.editDistance('ZZ99', '88M', 1),
+            'Two or more edits apart is a different code, not a typo');
+        System.assertEquals(-1, NM_LookupOccupationAction.editDistance('88M', '88MXX', 1),
+            'Length gap beyond the cap must abandon');
+    }
+
+    @IsTest
+    static void aBlankCodeOrBranchDoesNotThrow() {
+        System.assertEquals('', NM_LookupOccupationAction.normaliseCode(null));
+        System.assertEquals('', NM_LookupOccupationAction.normaliseCode('   '));
+        System.assertEquals('', NM_LookupOccupationAction.normaliseBranch(null));
+        System.assertEquals('', NM_LookupOccupationAction.normaliseBranch(''));
+    }
+
+    @IsTest
+    static void anUnknownServiceIsPassedThroughNotMangled() {
+        // Better to miss cleanly than to silently resolve to the wrong service.
+        System.assertEquals('Space Force',
+            NM_LookupOccupationAction.normaliseBranch('Space Force'));
+        System.assertEquals('Foreign Legion',
+            NM_LookupOccupationAction.normaliseBranch('Foreign Legion'));
+    }
 }
