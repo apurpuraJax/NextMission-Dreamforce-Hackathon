@@ -73,12 +73,20 @@ cd scripts/a11y-scan && npm install && node scan.js
 # Contrast: every colour pair measured, not eyeballed
 python3 scripts/check_contrast.py
 
-# 162 Apex tests
+# 171 Apex tests
 sf apex run test --test-level RunLocalTests
 ```
 
-Latest results: **162/162** Apex tests, **47/47** conversations clean, 11 journeys
-at **mean 8.4** with none below 7, every wage figure and mentor name verified,
+```bash
+# Type like a real person: typos, spaces, phonetic codes ("eighty-eight mike"),
+# branches as people say them ("Marines", "USMC"), and codes one letter off a
+# real one, which get asked about rather than guessed at
+python3 scripts/messy_input.py
+```
+
+Latest results: **171/171** Apex tests, **47/47** conversations clean, **40/40**
+messy inputs handled, 11 journeys at **mean 8.4** with none below 7, every wage
+figure and mentor name verified,
 **0 WCAG violations**, 39 contrast pairs with none failing.
 
 ---
