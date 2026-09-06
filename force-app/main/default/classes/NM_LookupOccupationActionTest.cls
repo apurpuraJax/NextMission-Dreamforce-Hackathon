@@ -361,4 +361,42 @@ private class NM_LookupOccupationActionTest {
         System.assertEquals('Foreign Legion',
             NM_LookupOccupationAction.normaliseBranch('Foreign Legion'));
     }
+
+    @IsTest
+    static void aThreeDigitMarineMosGetsItsLeadingZeroBack() {
+        // Marine MOS are four digits and people drop the zero. "311" is 0311,
+        // not a typo, and edit distance once offered 3101, a different job.
+        System.assertEquals('MARINE CORPS|0311',
+            NM_LookupOccupationAction.paddedMosKey('Marines', '311'));
+        System.assertEquals('MARINE CORPS|0311',
+            NM_LookupOccupationAction.paddedMosKey('Marine Corps', '3 11'));
+        System.assertEquals(null,
+            NM_LookupOccupationAction.paddedMosKey('Army', '311'),
+            'Only the Marine Corps writes MOS this way');
+        System.assertEquals(null,
+            NM_LookupOccupationAction.paddedMosKey('Marine Corps', '0311'),
+            'Four digits is already complete');
+        System.assertEquals(null,
+            NM_LookupOccupationAction.paddedMosKey('Marine Corps', '31A'),
+            'Letters are not a dropped zero');
+    }
+
+    @IsTest
+    static void aLevelledAfscTriesItsSiblingsBeforeGuessing() {
+        // 2A551 exists only with an airframe suffix; 2A571, the same job one
+        // level up, exists bare. The crosswalk stores NO X forms, only
+        // expansions, which an earlier version of this fix assumed wrongly.
+        List<String> keys =
+            NM_LookupOccupationAction.afscLevelSwapKeys('Air Force', '2A551');
+        System.assert(keys.contains('AIR FORCE|2A571'),
+            'The craftsman level must be among the siblings tried');
+        System.assert(!keys.contains('AIR FORCE|2A551'),
+            'The level that already missed is not a sibling');
+        System.assertEquals(0,
+            NM_LookupOccupationAction.afscLevelSwapKeys('Air Force', '2A5X1').size(),
+            'An X form is handled by expansion, not by swapping');
+        System.assertEquals(0,
+            NM_LookupOccupationAction.afscLevelSwapKeys('Navy', '2A551').size(),
+            'Skill-level digits are an Air Force convention');
+    }
 }

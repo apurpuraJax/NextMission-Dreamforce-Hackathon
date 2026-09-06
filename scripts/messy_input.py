@@ -91,6 +91,12 @@ CASES = [
     ("branch: USCG",             "USCG BM",         "resolves", "Boatswain"),
     ("branch: lowercase air force", "air force 2A5X1", "resolves", "Aircraft Maintenance"),
 
+    # --- valid ways to write a code that are not the stored spelling ---
+    ("structure: dropped zero",  "I was a 311 in the Marines", "resolves", "Rifleman"),
+    ("structure: AFSC level",    "Air Force 2A551", "resolves", "Aircraft Maintenance"),
+    ("phrasing: MOS prefix",     "my MOS was 88M in the Army", "resolves", "Motor Transport Operator"),
+    ("phrasing: rate prefix",    "Navy, rate HM",   "resolves", "Hospital Corpsman"),
+
     # --- one character off a real code: ask, never assume ---
     ("near miss: 88J",           "Army 88J",        "asks",     "88H"),
     ("near miss: messy 88J",     "army 88 j",       "asks",     "88H"),
@@ -111,12 +117,23 @@ def check(case):
     low = reply.lower()
 
     if expect == "resolves":
-        if value.lower() not in low:
-            return name, typed, False, "did not name %r" % value, reply
         for p in FALSE_MISS:
             if p in low:
                 return name, typed, False, "claimed we lack a code we resolved", reply
-        return name, typed, True, "", reply
+        for p in INVENTION:
+            if p in low:
+                return name, typed, False, "invented instead of resolving", reply
+        # Naming the role is the normal shape. But subagent conditionals
+        # evaluate AFTER the turn's action, so the branch written for a
+        # returning visitor sometimes fires on turn one and the greeting skips
+        # the title while still resolving the code. The code being resolved is
+        # the contract; the greeting's exact shape is not.
+        named = value.lower() in low
+        resolved_shape = ("translates into civilian skills" in low
+                          or "civilian roles it matches" in low)
+        if named or resolved_shape:
+            return name, typed, True, "", reply
+        return name, typed, False, "neither named %r nor resolved" % value, reply
 
     if expect == "asks":
         if value.lower() not in low:

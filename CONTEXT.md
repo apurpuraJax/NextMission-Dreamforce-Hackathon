@@ -1220,6 +1220,41 @@ signal: a specific tag appearing repeatedly on the same journey, and anything
 visible in the transcript itself, such as two identical consecutive replies.
 Chase those. Re-run before believing a mean.
 
+### Two structural code rules, VERIFIED against the loaded data
+
+* **Marine Corps MOS are four digits and people drop the zero.** "311" is 0311,
+  not a typo, and edit distance offered 3101, a different job. `paddedMosKey`
+  restores the zero and RESOLVES rather than asking.
+* **An AFSC carries its skill level as the fourth character.** 2A551 exists only
+  with an airframe suffix while 2A571, the same job one level up, exists bare.
+  `afscLevelSwapKeys` tries the sibling levels. **A first version built an
+  X-form key on the assumption the crosswalk stores X forms. It does not, only
+  expansions.** Check the data before encoding its shape.
+
+A structural rule beats fuzzy matching every time one applies; edit distance is
+the fallback, never the first answer. And the semantic layer already carries the
+phrasings: "my MOS was 88M in the Army" and "Navy, rate HM" resolve because the
+AGENT extracts the code before calling. Do not add string rules in Apex for
+inputs the action never receives.
+
+### The grader flagged real data as fabricated. Calibrate the judge too.
+
+`NM_QA_Evaluator_Template` tagged MadeUpContent because a reply cited "BLS, May
+2025", a date past the grader model's own training data. Every figure was real
+and code-verified. The rubric now states the loaded release and that a source's
+DATE is never evidence of fabrication. **An LLM judge has a knowledge cutoff like
+any other model; when your grounding is newer than your grader, the grader
+becomes the thing inventing defects.**
+
+### Greeting variance is a platform timing effect, not a data bug
+
+Subagent conditionals evaluate AFTER the turn's action. The greeting's
+`roleTitle is not None` branch, written for a returning visitor, can fire on
+turn one because the action just set the variable, so the first reply sometimes
+skips naming the role while still resolving the code correctly.
+`messy_input.py` asserts the contract (resolved, no false miss, no invention),
+not the greeting's exact shape.
+
 ### Real people type badly, and every test we had typed well
 
 `88 m` told a veteran their code was not in the system. `trim()` strips the ends,

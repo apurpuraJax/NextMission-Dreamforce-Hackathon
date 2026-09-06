@@ -170,6 +170,9 @@ public with sharing class NM_LookupOccupationAction {
             String n = baseNavyRatingKey(req.branch, req.code);
             if (n != null) keys.add(n);
             for (String x : afscSkillLevelKeys(req.branch, req.code)) keys.add(x);
+            String pm = paddedMosKey(req.branch, req.code);
+            if (pm != null) keys.add(pm);
+            for (String ax : afscLevelSwapKeys(req.branch, req.code)) keys.add(ax);
         }
 
         // --- Query 1: the military codes ------------------------------------
@@ -289,6 +292,14 @@ public with sharing class NM_LookupOccupationAction {
                     fallback = null;
                     for (String x : afscSkillLevelKeys(req.branch, req.code)) {
                         if (codeByKey.containsKey(x)) { fallback = x; break; }
+                    }
+                }
+                if (fallback == null || !codeByKey.containsKey(fallback)) {
+                    fallback = paddedMosKey(req.branch, req.code);
+                }
+                if (fallback == null || !codeByKey.containsKey(fallback)) {
+                    for (String ax : afscLevelSwapKeys(req.branch, req.code)) {
+                        if (codeByKey.containsKey(ax)) { fallback = ax; break; }
                     }
                 }
                 if (fallback != null && codeByKey.containsKey(fallback)) key = fallback;
@@ -591,6 +602,50 @@ public with sharing class NM_LookupOccupationAction {
             }
         } else if (b == 'SPACE FORCE') {
             out.add(prefix + c);
+        }
+        return out;
+    }
+
+    /*
+     * Purpose:    Marine Corps MOS are four digits and people drop the leading
+     *             zero, so "311" is 0311 and not a typo. Edit distance treated
+     *             it as one and offered 3101, a completely different job.
+     *             A structural rule beats fuzzy matching every time it applies.
+     */
+    @TestVisible
+    private static String paddedMosKey(String branch, String code) {
+        if (normaliseBranch(branch).toUpperCase() != 'MARINE CORPS') return null;
+        String c = normaliseCode(code);
+        if (c.length() != 3 || !c.isNumeric()) return null;
+        return 'MARINE CORPS|0' + c;
+    }
+
+    /*
+     * Purpose:    An AFSC carries its skill level as the fourth character.
+     *             The crosswalk is uneven about which levels it stores bare:
+     *             2A571 (craftsman) exists on its own, while 2A551 (journeyman)
+     *             exists only with an airframe suffix, 2A551A through 2A551D.
+     *             Same aircraft, same civilian occupations, different level.
+     *
+     *             So when a levelled AFSC misses, try its siblings at the other
+     *             levels rather than falling through to edit distance, which
+     *             once offered 2A251, a different career entirely. VERIFIED
+     *             against the loaded data, not assumed: an earlier version
+     *             built an X-form key here and the crosswalk does not store
+     *             X forms at all, only expansions.
+     */
+    @TestVisible
+    private static List<String> afscLevelSwapKeys(String branch, String code) {
+        List<String> out = new List<String>();
+        String b = normaliseBranch(branch).toUpperCase();
+        if (b != 'AIR FORCE' && b != 'SPACE FORCE') return out;
+        String c = normaliseCode(code);
+        if (c.length() < 5 || c.contains('X')) return out;
+        String lvl = c.substring(3, 4);
+        if (!lvl.isNumeric()) return out;
+        for (String other : new List<String>{'7','5','3','1','9'}) {
+            if (other == lvl) continue;
+            out.add('AIR FORCE|' + c.substring(0, 3) + other + c.substring(4));
         }
         return out;
     }
