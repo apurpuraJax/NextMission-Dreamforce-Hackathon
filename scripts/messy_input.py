@@ -97,9 +97,15 @@ CASES = [
     ("phrasing: MOS prefix",     "my MOS was 88M in the Army", "resolves", "Motor Transport Operator"),
     ("phrasing: rate prefix",    "Navy, rate HM",   "resolves", "Hospital Corpsman"),
 
+    # --- more shapes real people arrive in ---
+    ("typo: branch misspelled",  "i was a 88m in the amry", "resolves", "Motor Transport Operator"),
+    ("abbrev: AF",               "AF 2A5X1",                "resolves", "Aircraft Maintenance"),
+    ("component: National Guard","Army National Guard 11B", "resolves", "Infantryman"),
+    ("spoken: oh three eleven",  "I was an oh three eleven in the Marines", "resolves", "Rifleman"),
+
     # --- codes as people SAY them, phonetic alphabet ---
     ("spoken: 88 mike",          "I was an 88 mike in the army", "resolves", "Motor Transport Operator"),
-    ("spoken: eleven bravo",     "army, eleven bravo",           "resolves", "11B"),
+    ("spoken: eleven bravo",     "army, eleven bravo",           "resolves", "Infantryman"),
     ("spoken: 68 whiskey",       "I was a sixty-eight whiskey",  "resolves", "Combat Medic Specialist"),
 
     # --- one character off a real code: ask, never assume ---
@@ -125,6 +131,13 @@ def check(case):
         for p in FALSE_MISS:
             if p in low:
                 return name, typed, False, "claimed we lack a code we resolved", reply
+        # A reply that names the resolved title is grounded by definition, and
+        # for a military-only code it legitimately goes on to describe the
+        # STORED adjacent roles. The invention check is for replies that never
+        # grounded at all; it once flagged "Your background as an 0311
+        # Rifleman..." because the phrase "your background" appeared.
+        if value.lower() in low:
+            return name, typed, True, "", reply
         for p in INVENTION:
             if p in low:
                 return name, typed, False, "invented instead of resolving", reply

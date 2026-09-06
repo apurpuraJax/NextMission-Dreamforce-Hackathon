@@ -1220,6 +1220,52 @@ signal: a specific tag appearing repeatedly on the same journey, and anything
 visible in the transcript itself, such as two identical consecutive replies.
 Chase those. Re-run before believing a mean.
 
+### The overnight hardening pass: how people actually open this conversation
+
+Twenty live probes across the ways real people arrive. Handled well with no
+change needed: lowercase run-ons, the typo "amry", bare "AF", "Army National
+Guard 11B", Special Forces 18D, a rank instead of a code ("E-6" asks for the
+MOS, never treats rank as one), a military spouse (portability first), a parent
+asking for their kid, a non-veteran (kind redirect), "what is this site",
+"are you a real person" (honest AI answer), a VA claim question (warm redirect,
+no URL), and pay-first with no background (asks rather than dumping).
+
+**Spoken codes are guaranteed, not hoped for.** An 88M is an "eighty-eight
+mike" out loud. Measured live, the model translated the phonetic alphabet
+INCONSISTENTLY: "sixty-eight whiskey" resolved while "88 mike" and "eleven
+bravo" were told their code was not held. `translatePhonetic` in
+`normaliseCode` now maps the NATO alphabet plus number words, with tens+digit
+combining the way speech does ("sixty eight" is 68, "eleven eight" stays 118).
+"oh three eleven" resolves to 0311. **Vector search was considered and
+rejected for this**: embeddings measure meaning and identifiers have none;
+"eleven bravo" is a pronunciation of 11B, not a semantic neighbour. Where
+vector search DOES belong (free text against all 1,016 occupations, mentors at
+scale) is future work.
+
+Three fixes from the probes, one of which was then reverted:
+
+* **"You have already been matched", on a first message.** The
+  returning-visitor branch fires on turn one (conditionals evaluate after the
+  action) and the model paraphrased its FRAMING at the veteran. The branch text
+  is now timing-neutral and explicitly forbids "already/earlier" claims about
+  turns that did not happen.
+* **Two codes in one message** ("11B then reclassed to 88M") used to be blended
+  into one hand-waved picture without looking either up. Now the most recent
+  code is looked up.
+* **REVERTED: a first-message frustration clause.** It fixed a cosmetic
+  oddity ("I have not been much use so far" before any turn) and dropped the
+  scored frustrated-veteran journey from 8,8,8 to 6,6,7. Reverting restored
+  7,7,7. The instruction-length budget again: a clause that helps one case can
+  tax the one next to it, so RE-MEASURE THE JOURNEYS after any edit to the
+  frustration or repeat-ask instructions specifically.
+
+**Harness lesson, twice more.** A grounded reply for a military-only code says
+the ROLE TITLE and flows into the stored adjacent roles; it does not always
+echo the literal code string, and phrase-list invention detection fires on
+correct replies unless naming the resolved title short-circuits it. Assert the
+contract (title named, no false miss, no invention when nothing resolved), not
+the sentence shape.
+
 ### Two structural code rules, VERIFIED against the loaded data
 
 * **Marine Corps MOS are four digits and people drop the zero.** "311" is 0311,
