@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Location__c</fullName>
+    <description>Georgia metro/regional area where the mentor is located. Values represent major metropolitan statistical areas and regional groupings across the state. Used to help match veterans with mentors in their area. Created: NM-Hackathon / Location-on-mentor-object.</description>
+    <label>Location (City Region)</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>true</sorted>
+            <value>
+                <fullName>Albany Metro</fullName>
+                <default>false</default>
+                <label>Albany Metro</label>
+            </value>
+            <value>
+                <fullName>Athens Metro</fullName>
+                <default>false</default>
+                <label>Athens Metro</label>
+            </value>
+            <value>
+                <fullName>Atlanta Metro</fullName>
+                <default>false</default>
+                <label>Atlanta Metro</label>
+            </value>
+            <value>
+                <fullName>Augusta Metro</fullName>
+                <default>false</default>
+                <label>Augusta Metro</label>
+            </value>
+            <value>
+                <fullName>Brunswick / Golden Isles</fullName>
+                <default>false</default>
+                <label>Brunswick / Golden Isles</label>
+            </value>
+            <value>
+                <fullName>Columbus Metro</fullName>
+                <default>false</default>
+                <label>Columbus Metro</label>
+            </value>
+            <value>
+                <fullName>Dalton / Northwest Georgia</fullName>
+                <default>false</default>
+                <label>Dalton / Northwest Georgia</label>
+            </value>
+            <value>
+                <fullName>Gainesville / Northeast Georgia</fullName>
+                <default>false</default>
+                <label>Gainesville / Northeast Georgia</label>
+            </value>
+            <value>
+                <fullName>LaGrange / West Georgia</fullName>
+                <default>false</default>
+                <label>LaGrange / West Georgia</label>
+            </value>
+            <value>
+                <fullName>Macon / Warner Robins Metro</fullName>
+                <default>false</default>
+                <label>Macon / Warner Robins Metro</label>
+            </value>
+            <value>
+                <fullName>Rome / Floyd County</fullName>
+                <default>false</default>
+                <label>Rome / Floyd County</label>
+            </value>
+            <value>
+                <fullName>Savannah Metro</fullName>
+                <default>false</default>
+                <label>Savannah Metro</label>
+            </value>
+            <value>
+                <fullName>Statesboro / East Georgia</fullName>
+                <default>false</default>
+                <label>Statesboro / East Georgia</label>
+            </value>
+            <value>
+                <fullName>Valdosta / South Georgia</fullName>
+                <default>false</default>
+                <label>Valdosta / South Georgia</label>
+            </value>
+            <value>
+                <fullName>Other Georgia</fullName>
+                <default>false</default>
+                <label>Other Georgia</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
