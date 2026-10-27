@@ -10,7 +10,7 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** blocked — Deploy blocked 7× by backup check; manual deploy needed to proceed
+**Status:** blocked — Deploy blocked 8× by backup check — manual deploy required to proceed
 
 **Done this session**
 - None
@@ -27,7 +27,7 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Proceed with manual deploy outside approval gate to break blocking cycle
 
 **Blockers**
-- Orchestrate backup check blocks deploy of new permission sets and consumes approval on each retry (7 cycles now)
+- Orchestrate backup check blocks deploy of new permission sets and consumes approval on each retry (8 cycles now)
 
 **Next**
 - Save NM_Agent_Service_User.permissionset-meta.xml locally or commit to feature/NMDH-org-migration
@@ -45,19 +45,15 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-Nothing ran, and the org hasn't changed. This is the seventh time in a row it has stopped the same way:
+Nothing ran again, so the org is unchanged. This is the eighth time it has stopped the same way:
 
-1. Orchestrate's permission-backup check blocked the deploy before it started.
+1. The permission-backup check blocked the deploy.
 2. I saved the backup it asked for. `NM_Agent_Service_User` still isn't in the org (count 0), so there's nothing to restore.
-3. On the retry, the approval gate said your approval had already been used by the blocked attempt, and it put the same command back in the dialog.
+3. On the retry, the approval gate said your approval had already been used and asked for a new one.
 
-The command deploys `NM_Agent_Service_User`, assigns it to the agent user `nm.agent@nextmission.jaxnonprofitpde.com`, and checks that the user now has AgentforceServiceAgentUser. That assignment is the test of whether this org can run the agent.
-
-Approving again will almost certainly go round the same loop. The way through is to deploy the file yourself:
+The command in the dialog deploys `NM_Agent_Service_User`, assigns it to `nm.agent@nextmission.jaxnonprofitpde.com`, and checks that the user now has AgentforceServiceAgentUser. That assignment is still the test of whether this org can run the agent. Approving again will almost certainly go round the same loop. To get past it, deploy the file yourself:
 
 `sf project deploy start --source-dir force-app/main/default/permissionsets/NM_Agent_Service_User.permissionset-meta.xml --target-org jaxnonprofitpde-dev-ed`
 
-The file only exists in this session's copy of the repo; it isn't on GitHub. I can paste its contents here so you can save it. Or I can commit it to `feature/NMDH-org-migration` so you can pull it, but that push will also sto
-
-_[summary truncated — see the session record for the full text]_
+Then tell me to continue and I'll do the assignment and check it. The file only exists in this session's copy of the repo. I can paste it here, or commit it to `feature/NMDH-org-migration` so you can pull it.
 <!-- orchestrate:session-state:end -->
