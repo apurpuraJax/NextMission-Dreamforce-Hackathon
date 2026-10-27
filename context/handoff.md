@@ -10,31 +10,35 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** on track — Agent user permission set assigned successfully. Next: grant builder permissions to your user, then start Step 2 migration.
+**Status:** blocked — Public Sector org lacks Agentforce Service Agent licence — cannot proceed. Nonprofit org is the path forward.
 
 **Done this session**
-- Assigned NM_Agent_Service_User permission set to nm.agent@nextmission.jaxnonprofitpde.com
-- Verified AgentforceServiceAgentUser permission active on agent user
-- Confirmed Agentforce Service Agent User licence auto-assigned without error
+- Verified Public Sector org has zero licences granting AgentforceServiceAgentUser, ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder
+- Confirmed Agentforce Service Agent User licence absent from org
+- Ruled out Public Sector org for service agent deployment
 
 **Open items**
-- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user
-- Verify builder/admin permissions accepted on your user licence
+- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user in Nonprofit org
+- Verify builder/admin permissions accepted on your user licence in Nonprofit org
 - Commit NM_Agent_Service_User permission set file to feature/NMDH-org-migration branch
 - Report backup check issue to Revecast (consumed 11 approvals before fix)
+- Start Step 2 migration in Nonprofit org once your permissions verified
 
 **Decisions**
 - Permission set grants only AgentforceServiceAgentUser on Agentforce Service Agent User licence
 - Deploy outside approval gate to break blocking cycle
 - Truncate description to 210 characters to comply with Salesforce 255-char limit
+- Switch deployment target from Public Sector org to Nonprofit org — Public Sector lacks required licence
 
 **Blockers**
-- None
+- Public Sector org does not have Agentforce Service Agent User licence and cannot grant required permissions
 
 **Next**
-- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user and check licence acceptance
+- Confirm Nonprofit org (nextmission.jaxnonprofitpde.com) has Agentforce Service Agent User licence under Setup → Company Information
+- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user in Nonprofit org
+- Verify licence acceptance on your user in Nonprofit org
 - Commit NM_Agent_Service_User to feature/NMDH-org-migration
-- Start Step 2 migration once your permissions verified
+- Resume Step 2 migration in Nonprofit org
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -43,17 +47,23 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Type | BUILD |
 | Outcome | COMPLETED |
 | Branch | `main` |
-| Name | Deploy Next Mission - Nonprofit Org |
-| Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
+| Name | Deploy Next Mission |
+| Session | `d3f1b5d0-67b8-403a-a331-cde40c98ac0f` |
 **In its own words (excerpt):**
-Salesforce accepted the assignment, so this org can grant the agent user the service-agent permission. That's the step that failed with the licence error in the Public Sector org.
+I'm as sure as the org lets me be. I rechecked it just now, and three separate checks agree that **this org doesn't have Agentforce Service Agent.**
 
-**What the command did:**
-- **Assignment:** the first line didn't print a result. `jq` failed with "Invalid numeric literal", most likely because the CLI printed a warning in front of its JSON. So I don't have the new assignment's record Id. The next two read-backs show the assignment was made.
-- **Permission sets on `nm.agent@nextmission.jaxnonprofitpde.com`:** `NM_Agent_Service_User` is now assigned, with AgentforceServiceAgentUser set to **true**. The other entry, `X00eWs000006fkQ4IAI`, is the permission set that comes with the user's profile. It doesn't grant that permission.
-- **Permission set licences on the user:** **Agentforce Service Agent User**. Salesforce added this licence automatically when it took the assignment, and it didn't raise a licence error.
+**1. No licence in the org can grant the service-agent permissions.** I checked every licence in the org, active or not, for the four permissions a service agent needs. Each check returned zero licences:
 
-**Not covered yet:** this only tests one of the four permissions, AgentforceServiceAgentUser on the agent user. Your Step 1 also needs ManageAgentforceServiceAgent, EinsteinCopilotBuilder and SetupAgentBuilder on your own user. I haven't teste
+| Permission | Licences that can grant it |
+|---|---|
+| `AgentforceServiceAgentUser` (lets the agent user run a service agent) | 0 |
+| `ManageAgentforceServiceAgent` (create and manage service agents) | 0 |
+| `EinsteinCopilotBuilder` (Agent Builder) | 0 |
+| `SetupAgentBuilder` (agent setup) | 0 |
+
+**2. The licence that carries it isn't here.** The org has 36 active licences with "Agent" in the name, including Agentforce for Public Sector, Agentforce Platform User, Employee Service Agent and Service Planner Agent User. None of them is the **Agentforce Service Agent User** licence. Your notes from the Nonprofit org show that this is the licence Salesforce added automatically when the same permission set was assigned there.
+
+**3. Salesforce itself refused.** When I tried to assign those permissions to you earlier, it answered "The user 
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
