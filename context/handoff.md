@@ -10,16 +10,17 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** on track — Permission set deployed successfully. Awaiting approval to assign to agent user & verify licence.
+**Status:** on track — Agent user permission set assigned successfully. Next: grant builder permissions to your user, then start Step 2 migration.
 
 **Done this session**
-- Deployed corrected NM_Agent_Service_User permission set (Id 0PSiw000001Ji9fGAC)
-- Verified permission set exists in org with AgentforceServiceAgentUser enabled
-- Confirmed agent user nm.agent@nextmission.jaxnonprofitpde.com is active on Einstein Agent licence
+- Assigned NM_Agent_Service_User permission set to nm.agent@nextmission.jaxnonprofitpde.com
+- Verified AgentforceServiceAgentUser permission active on agent user
+- Confirmed Agentforce Service Agent User licence auto-assigned without error
 
 **Open items**
-- Approve assignment of NM_Agent_Service_User permission set to nm.agent@nextmission.jaxnonprofitpde.com
-- Verify AgentforceServiceAgentUser permission sticks after assignment
+- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user
+- Verify builder/admin permissions accepted on your user licence
+- Commit NM_Agent_Service_User permission set file to feature/NMDH-org-migration branch
 - Report backup check issue to Revecast (consumed 11 approvals before fix)
 
 **Decisions**
@@ -31,9 +32,9 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - None
 
 **Next**
-- Approve the permission set assignment command
-- Confirm AgentforceServiceAgentUser permission persists on user after assignment
-- Report to Revecast: backup check consumed 11 approvals before passing
+- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user and check licence acceptance
+- Commit NM_Agent_Service_User to feature/NMDH-org-migration
+- Start Step 2 migration once your permissions verified
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -45,18 +46,14 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-━━ Build status (auto-checked from tool results — deploy = sf CLI exit, not runtime effect) ━━
-• Code committed: no new commit in this session run — if an earlier run committed, check the repository
-• Pushed to GitHub: nothing new pushed in this session run — if an earlier run pushed, check the repository
-• Validated (sf deploy validate): yes
-• Deployed to org: yes — jaxnonprofitpde-dev-ed · NOT read back from the org: the deploy's result listed no components (run it with --json, and not --async, so Orchestrate can check the org)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Salesforce accepted the assignment, so this org can grant the agent user the service-agent permission. That's the step that failed with the licence error in the Public Sector org.
 
-The deploy worked this time, and I checked the result in the org. `NM_Agent_Service_User` now exists (Id `0PSiw000001Ji9fGAC`). It's on the **Agentforce Service Agent User** licence and has AgentforceServiceAgentUser turned on. The deploy came back with status 0, 1 component deployed and no failures.
+**What the command did:**
+- **Assignment:** the first line didn't print a result. `jq` failed with "Invalid numeric literal", most likely because the CLI printed a warning in front of its JSON. So I don't have the new assignment's record Id. The next two read-backs show the assignment was made.
+- **Permission sets on `nm.agent@nextmission.jaxnonprofitpde.com`:** `NM_Agent_Service_User` is now assigned, with AgentforceServiceAgentUser set to **true**. The other entry, `X00eWs000006fkQ4IAI`, is the permission set that comes with the user's profile. It doesn't grant that permission.
+- **Permission set licences on the user:** **Agentforce Service Agent User**. Salesforce added this licence automatically when it took the assignment, and it didn't raise a licence error.
 
-I also checked the agent user, `nm.agent@nextmission.jaxnonprofitpde.com`. It's active and on the **Einstein Agent** user licence, which is the licence it needs.
-
-**Waiting for your approval:** the next command assigns the permission set to that user. It then reads back the user's permission sets and permission
+**Not covered yet:** this only tests one of the four permissions, AgentforceServiceAgentUser on the agent user. Your Step 1 also needs ManageAgentforceServiceAgent, EinsteinCopilotBuilder and SetupAgentBuilder on your own user. I haven't teste
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
