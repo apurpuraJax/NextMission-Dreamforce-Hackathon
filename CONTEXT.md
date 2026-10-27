@@ -465,6 +465,41 @@ This is not the only permission set in the org. `NM_Agent_Data_Access` scopes th
 
 Object and field access for all custom objects belong in the story that creates the custom objects (S01 / NMDH-2). Each subsequent story that introduces an Apex class or autolaunched Flow must add that class or Flow to `NM_Agent_Data_Access` in the same commit. A class or Flow deploy and its permission set update always ship together — never split them across separate stories or separate commits.
 
+### The Agent API 404 that was really a cached token (2026-10-26, Nonprofit PDE)
+
+After the move to the Nonprofit PDE org every Agent API call through
+`NM_AgentAPI` returned a bare **404 with an empty body**, including a
+deliberately bogus agent ID (which the docs say returns 400) and a call to the
+Models API through the same external credential. The gateway at
+api.salesforce.com answers 404 to any token it cannot use, so a 404 there means
+"your token", not "your agent".
+
+Two things had to be true, and the order mattered:
+
+1. **The External Client App must issue JWT-based tokens.**
+   `ExtlClntAppGlobalOauthSettings.isNamedUserJwtEnabled` must be `true`
+   (Maya's app has it; the first deploy here did not). An opaque session token
+   from the client-credentials flow is rejected by the gateway with that 404.
+2. **A named credential caches the access token it minted and never re-mints on
+   a 404.** Salesforce token responses carry no `expires_in`, so the only
+   refresh trigger is a 401, which this gateway never sends. Enabling JWT
+   after the principal was saved changed nothing, revoking the AuthSession
+   changed nothing, redeploying the ExternalCredential changed nothing. What
+   worked: **edit the principal in Setup > Named Credentials > External
+   Credentials and save it again with the secret.** That re-runs the token
+   exchange immediately. `OauthToken.UseCount` and `LoginHistory` for the app
+   show whether a mint happened; if the use count never moves, the cached token
+   is still in play.
+
+**Where the API connection lives in this release.** The Agents list in Setup
+no longer has a detail page with a Connections tab. In Agentforce Builder the
+Explorer's Connections node is only editable on a draft version: New Version,
+then the `+` button, Add connections, add Messaging, open Messaging > Settings,
+and the External Apps table is at the bottom. Commit Version, then
+`sf agent activate --version N`. In practice that table listed the ECA on its
+own; the fix above was the token, not the link. Version 2 is the one carrying
+the Messaging connection.
+
 ### Guest users, Named Credentials, and the site
 
 A guest user calling out through a Named Credential backed by an external

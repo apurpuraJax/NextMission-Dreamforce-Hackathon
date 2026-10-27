@@ -10,7 +10,7 @@
     <isDeviceFlowEnabled>false</isDeviceFlowEnabled>
     <isEnforceRefreshTokenTTL>false</isEnforceRefreshTokenTTL>
     <isIntrospectAllTokens>false</isIntrospectAllTokens>
-    <isNamedUserJwtEnabled>false</isNamedUserJwtEnabled>
+    <isNamedUserJwtEnabled>true</isNamedUserJwtEnabled>
     <isPkceRequired>false</isPkceRequired>
     <isRefreshTokenRotationEnabled>false</isRefreshTokenRotationEnabled>
     <isSecretRequiredForRefreshToken>false</isSecretRequiredForRefreshToken>
