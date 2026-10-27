@@ -10,13 +10,10 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** on track — Metadata deployed ✓. Permission set ready for approval; Apex validation blocked by field access.
+**Status:** blocked — Metadata deployed ✓. Permission set approval needed to unblock Apex validation.
 
 **Done this session**
-- Deployed 444 components to jaxnonprofitpde-dev-ed: 11 objects, 65 fields, 305 custom metadata, 55 labels, 3 tabs, 2 remote sites, credentials
-- Verified all components in org with no failures
-- Validated Apex, LWC, permission sets, flows, prompts, reports (code passed; tests blocked by field access)
-- Prepared NM_Admin_Data_Access permission set without Apex class grants, passed dry run, backup saved
+- Confirmed all 444 components deployed to jaxnonprofitpde-dev-ed with no failures
 
 **Open items**
 - Approve deploy of NM_Admin_Data_Access permission set and assignment to user
@@ -37,10 +34,10 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Deploy permission set without Apex class grants until classes exist in org
 
 **Blockers**
-- Apex test failures: field-access errors on new fields (5 classes below 75% coverage) — blocked until NM_Admin_Data_Access assigned
+- Approval gate blocking NM_Admin_Data_Access deploy — requires re-approval after first attempt consumed authorization
 
 **Next**
-- Approve NM_Admin_Data_Access deploy and assignment to your user
+- Re-approve NM_Admin_Data_Access deploy and assignment to user
 - Re-run Apex validation after permission set takes effect
 - Deploy Apex classes with full permission set in next batch
 
@@ -54,16 +51,9 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-━━ Build status (auto-checked from tool results — deploy = sf CLI exit, not runtime effect) ━━
-• Code committed: no new commit in this session run — if an earlier run committed, check the repository
-• Pushed to GitHub: nothing new pushed in this session run — if an earlier run pushed, check the repository
-• Validated (sf deploy validate): yes
-• Deployed to org: yes — jaxnonprofitpde-dev-ed · NOT read back from the org: the deploy's result listed no components (run it with --json, and not --async, so Orchestrate can check the org)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The command didn't run, so nothing in the org has changed. Orchestrate's permission-backup check blocked the deploy before it started. I saved the backup it asked for. `NM_Admin_Data_Access` isn't in the org yet (count 0), so the backup has nothing in it to restore. When I retried, the gate said the blocked attempt had used up your approval, so it's asking you again.
 
-Your approved deploy worked. I checked the org: all 444 components are in `jaxnonprofitpde-dev-ed` (11 objects, 65 fields, 305 custom metadata records, 55 labels, 3 tabs, 2 remote sites, the external and named credentials), with no failures. `NM_Site_Base_Url` reads `https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission`.
+The command in the dialog is unchanged. It deploys the stage-1 `NM_Admin_Data_Access` (45 field, 7 object and 3 tab grants, without the Apex class grants), assigns it to you, and reads the assignment back. Once you have it, the Apex tests should get past the field-access errors, and I can deploy the Apex next.
 
-I then ran a check-only validation of the Apex, LWC, permission sets, flows, prompt templates and reports. It failed on the tests, not on the code. The tests read and write records with field access enforced, and your user has no access yet to the new fields. Every test failure is
-
-_[summary truncated — see the session record for the full text]_
+The last time this happened, with `NM_Agent_Service_User`, the next approval went through, so approving again should work this time.
 <!-- orchestrate:session-state:end -->
