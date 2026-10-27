@@ -10,20 +10,22 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** at risk — Diagnostic probe failed silently; revised probe ready for approval to identify 404 root cause
+**Status:** at risk — Diagnostic probe blocked by credential access; adding grant to NM_Admin_Data_Access for rerun approval
 
 **Done this session**
-- Executed initial diagnostic Apex probe
-- Identified probe design flaw: AuraHandledException masks error details
-- Designed corrected probe: raw HTTP status/body via callout:NM_AgentAPI, no exception filtering
+- Ran corrected diagnostic Apex probe
+- Identified root cause of probe failure: user lacks credential access via permission set
+- Confirmed agent ID 0Xxiw0000002DZ3CAM and org domain are correct
+- Designed fix: grant NM_AgentAPI_Principal credential access to NM_Admin_Data_Access
 
 **Open items**
-- Approve and run corrected diagnostic Apex to capture raw Agent API 404 response
-- Analyze error body to confirm root cause: missing API connection vs endpoint/payload issue
+- Approve and run credential grant addition to NM_Admin_Data_Access permission set
+- Rerun diagnostic Apex probe after credential grant is in place
+- Analyze Agent API HTTP status and response body to confirm 404 root cause
+- Update repo version of NM_Admin_Data_Access with NM_AgentAPI_Principal credential grant
 - User adds NM NextMission ECA as API connection to NM NextMission V2 agent in Agentforce Studio (if confirmed)
 - Test conversation via public site chat endpoint after connection added
 - Run scripts/scenarios.py against live site to verify full flow
-- Verify 171 tests and 88% coverage
 - Commit file changes to feature/NMDH-org-migration
 
 **Decisions**
@@ -37,12 +39,12 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Use diagnostic Apex to inspect full error response before manual remediation
 
 **Blockers**
-- Awaiting approval to run corrected diagnostic Apex that prints raw Agent API HTTP response
+- Awaiting approval to add NM_AgentAPI_Principal credential grant to NM_Admin_Data_Access and rerun probe
 
 **Next**
-- Approve corrected diagnostic Apex execution
-- Analyze returned HTTP status and response body to confirm root cause
-- Proceed with ECA-to-agent connection in Agentforce Studio or fix identified issue
+- Approve credential grant addition to NM_Admin_Data_Access
+- Rerun diagnostic Apex probe to capture raw Agent API HTTP status and response body
+- Analyze returned error to confirm whether 404 is from missing ECA connection, endpoint, or payload
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -54,9 +56,9 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-I ran your approved probe once, unchanged. It printed nothing at all, not even the `NMPROBE DOMAIN` line, which doesn't depend on the agent call. So the script failed before its first output, or its log never came back. The command's `grep` threw away whatever error the CLI returned, so the 404 cause is still unknown. Nothing in the org changed.
+I ran your approved probe once and it worked, but it didn't reach the Agent API, so we still don't know what's causing the 404. Salesforce blocked the callout before it was sent: `System.CalloutException: We couldn't access the credential(s)… "NM_AgentAPI_EC"`. That's because the probe runs as you, and your user can't use the credential. Only `NM_Guest_Site_Access` and `NM_Agent_Data_Access` grant that access, and you don't hold either. The probe did confirm the agent ID `0Xxiw0000002DZ3CAM` and the org domain. Nothing in the org changed.
 
-There was also a flaw in the probe: `NM_AgentController` throws an `AuraHandledException`, and that exception's `getMessage()` usually returns only "Script-thrown exception". Even a clean run would have hidden the error body.
+The command now waiting for your approval adds one record. It gives `NM_Admin_Data_Access`, which you already hold, access to the `NM_AgentAPI_Principal` credential, then reads the grant back. Once that's in, I can rerun the same probe unchanged and get the real Agent API status and error body. The repo version of `NM_Admin_Data_Access` should also get this grant so the change isn't lost on the next deploy.
 
-The command waiting for your approval runs a corrected probe. It makes the same Agent API session call that `startSession` makes, through `callout:NM_AgentAPI`, and prints the raw HTTP status and response body. It also shows any compile or run error instead of filtering it out, and it doesn't write any records. If you approve it, the output should tell us whether the 404 comes from the missing API connection or from the endpoint or payload.
+Sources: checked live: jaxnonprofitpde-dev-ed (probe output, which permission sets grant the credential, your permission set assignments) · not checked: the Agent API response itself
 <!-- orchestrate:session-state:end -->
