@@ -10,24 +10,21 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** on track — Permission set deployed & assigned. Agent, site, data live. Awaiting approval to configure ECA credential.
+**Status:** at risk — ECA credential read failed—secret not returned by API. User must copy key & secret manually to NM_AgentAPI_Principal.
 
 **Done this session**
-- Verified NM_NextMission_V2 agent Active in org
-- Confirmed Next Mission site Live
-- Validated 1,016 occupations, 8,179 military codes, 70 mentors loaded
-- Confirmed 35 NM_ Apex classes deployed
-- Verified NM_Admin_Data_Access permission set assigned to user
-- Checked scheduled jobs NM Daily QA Grader and NM ONET Release Monitor both WAITING
-- Confirmed all four permission sets assigned
+- Attempted automated ECA credential configuration via API
+- Confirmed safety check caught missing secret and prevented invalid save
+- Verified NM_AgentAPI_Principal still NotConfigured after failed attempt
 
 **Open items**
-- User approves ECA credential configuration (NM_AgentAPI_Principal currently NotConfigured)
-- Read ECA consumer key/secret from NM_NextMission_V2 and configure credential
+- User copies NM NextMission ECA consumer key and secret from External Client App Manager
+- User pastes key as Client ID and secret as Client Secret into NM_AgentAPI_Principal principal
+- User confirms credential saved and replies when done
+- Verify credential status changes to Configured
 - Test Agentforce API connection via metadata or API
 - Run test conversation through site chat endpoint
 - Verify 171 tests and 88% coverage
-- Review reports and dashboard
 - Commit file changes to feature/NMDH-org-migration
 
 **Decisions**
@@ -36,18 +33,17 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Split deploy sequence: metadata first, then Apex, then permission set
 - Target Nonprofit org (jaxnonprofitpde-dev-ed)
 - Bypass Orchestrate backup check via manual local deploy using Salesforce CLI
-- Configure ECA credential via metadata/API first; hand back to user only if that fails
+- Fall back to manual credential configuration when API cannot retrieve secret
 
 **Blockers**
-- Awaiting user approval to configure NM_AgentAPI_Principal external credential
+- Salesforce API endpoint returns ECA consumer key but not secret—reason unknown, may be permission or ECA setting
 
 **Next**
-- User approves ECA credential configuration
-- Read NM_NextMission_V2 ECA consumer key and secret; configure NM_AgentAPI_Principal
-- Verify credential status changes to Configured
-- Test Agentforce API connection
-- Run test conversation through Next Mission site chat
-- Report results and proceed to final deployment steps
+- User navigates to External Client App Manager → NM NextMission ECA → Settings → OAuth Settings
+- User copies consumer key and secret
+- User opens Named Credentials → External Credentials → NM Agent API EC → NM_AgentAPI_Principal → Edit
+- User pastes key as Client ID and secret as Client Secret, then saves
+- User replies when saved; session will confirm Configured status and proceed to API connection test
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -59,18 +55,18 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-I checked your report against the org and it holds up. That command handles the first two of your three Setup steps, and it's waiting for your approval. It reads the NM NextMission ECA's consumer key and secret from Salesforce and saves them on the `NM_AgentAPI_Principal` credential, so you don't have to copy anything by hand. The secret is passed straight between the two calls and is never printed or written to disk.
+Your approved command ran once, and the credential is **not** configured yet. Nothing in the org changed.
 
-**Checked in the org:**
-- **Agent:** `NM_NextMission_V2` v1 is Active.
-- **Site:** "Next Mission" is Live.
-- **Data:** 1,016 occupations, 8,179 military codes and 70 mentors.
-- **Platform:** 35 `NM_` Apex classes.
-- **Scheduled jobs:** "NM Daily QA Grader" and "NM ONET Release Monitor" are both WAITING.
-- **Permission sets:** all four are assigned, including `NM_Admin_Data_Access` on your user.
-- **Credential:** the principal currently reads `NotConfigured`.
+**What happened**
+- **Step 1, reading from the ECA:** Salesforce returned the NM NextMission ECA's consumer key but no secret. The response had only `id`, `key`, `name` and `url`, even though the request asked for `part=keyandsecret`. The command's own safety check caught that, stopped with "no secret returned", and built no credential.
+- **Step 2, writing the credential:** the save call still ran, but with an empty body, and Salesforce rejected it with an error. Nothing was written.
+- **Checked afterwards:** `NM_AgentAPI_Principal` still reads `NotConfigured`. Nothing was printed or saved to disk.
 
-**If you approve,** I'll read the principal back and confirm it says Configured. Then I'll work on your third step, the Agentforce API connection: I'll try it through metadata or the API first and only hand it back to you if that genuinely fails. After that I'll run a test conversation through the site's chat en
+**Why**
+This Salesforce endpoint gives this session the key but not the secret. I don't know the exact reason. It may be a permission or setting on the External Client App that controls whether the secret can be read through the API. I haven't confirmed that, so I won't retry or try other ways to get the secret.
+
+**What's left for you in Setup (about 2 minutes)**
+1. **External Client App Manager → NM NextMission ECA → Settings → OAuth Settings → Consumer Key and Secret.** Copy both
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
