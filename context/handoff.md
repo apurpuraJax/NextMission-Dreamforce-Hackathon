@@ -10,11 +10,10 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** at risk — Credential grant added; awaiting probe rerun approval to diagnose Agent API 404
+**Status:** at risk — NM credential grant done; awaiting probe rerun approval. IT Service org checked—unlicensed, needs setup.
 
 **Done this session**
-- Approved and executed credential grant addition to NM_Admin_Data_Access
-- Confirmed NM_AgentAPI_Principal credential access now granted (record 0J0iw00000afQBVCA2)
+- Checked jaxpubsecpde-dev-ed: IT Service objects exist but app, agent, and Knowledge not set up
 
 **Open items**
 - Approve and run diagnostic Apex probe rerun to capture Agent API HTTP status and response body
@@ -24,6 +23,7 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Test conversation via public site chat endpoint after connection added
 - Run scripts/scenarios.py against live site to verify full flow
 - Commit file changes to feature/NMDH-org-migration
+- Decide: enable IT Service management features and Knowledge in jaxpubsecpde-dev-ed, then attempt agent build
 
 **Decisions**
 - Deploy permission set by file name, not folder
@@ -42,6 +42,7 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Approve rerun of diagnostic Apex probe to retrieve Agent API HTTP status and response body
 - Analyze probe output to determine whether 404 originates from missing ECA connection, endpoint, or payload
 - Update repo NM_Admin_Data_Access permission set with credential grant before next deploy
+- Decide whether to enable IT Service features in jaxpubsecpde-dev-ed and attempt agent build
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -50,14 +51,20 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Type | BUILD |
 | Outcome | COMPLETED |
 | Branch | `main` |
-| Name | Deploy Next Mission - Nonprofit Org |
-| Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
+| Name | Deploy Next Mission |
+| Session | `d3f1b5d0-67b8-403a-a331-cde40c98ac0f` |
 **In its own words (excerpt):**
-I ran your approved command once, unchanged, and it worked. `NM_Admin_Data_Access` now has access to the `NM_AgentAPI_Principal` credential. Salesforce created the grant (record `0J0iw00000afQBVCA2`), and reading it back shows three permission sets with access: `NM_Agent_Data_Access`, `NM_Guest_Site_Access` and now `NM_Admin_Data_Access`. You already hold that last one, so the callout should no longer be blocked when it runs as you.
+I checked `jaxpubsecpde-dev-ed` and changed nothing. The IT Service objects and licences are in the org, but the IT Service app, the Agentforce IT Service agent and Knowledge are not set up.
 
-**Next step, waiting for your approval:** a rerun of the corrected diagnostic probe (`probe2.apex`). It makes the same Agent API session call the site makes and prints the raw HTTP status and response body. It writes no records. The command runs the probe twice: once to show any compile or runtime error, and once to print the results. So it will open two short Agent API sessions that are never used, and nothing else changes. Its output should tell us whether the 404 comes from the missing API connection on the agent or from the endpoint or payload.
-
-**Not done yet:** the repo copy of `NM_Admin_Data_Access` doesn't include this credential grant. It needs adding, or the grant could be lost the next time that permission set is deployed. I'll make that cha
+| Item | In the org? | Details |
+|---|---|---|
+| **IT Service app** | No | None of the org's 31 apps is an IT Service app. The closest are "Service", "Service Console" and "IT Compliance". |
+| **Incident object** | Yes | `Incident` exists, along with `Problem`, `ProblemIncident` and `IncidentRelatedItem`. It has 0 records. |
+| **Request object** | Yes | `ServiceRequest` exists. It has 0 records. |
+| **Change object** | Yes | `ChangeRequest` exists, along with the related-item and Change Advisory Board objects. It has 0 records. |
+| **Agentforce IT Service agent** | No | The only agent is `Copilot_for_Salesforce`, the default internal agent. The org has no IT Service agent topics or prompt templates. |
+| **Knowledge** | No | Knowledge is switched off in the settings (`enableKnowledge` = false), and the Knowledge article object isn't available. Licences for it are here: Agentforce Knowledge User has 200 seats and Service Lightning Knowledge Manager has 1. |
+| **Service Cloud licence** | Yes | Th
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
