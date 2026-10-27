@@ -10,17 +10,17 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** at risk — Agent metadata retrieved; awaiting approval to run diagnostic Apex for 404 root cause
+**Status:** at risk — Diagnostic probe failed silently; revised probe ready for approval to identify 404 root cause
 
 **Done this session**
-- Retrieved NM_NextMission_V2 agent metadata with correct name
-- Confirmed ECA settings: client-credentials flow enabled, Chatbot and SFApiPlatform scopes present
-- Prepared anonymous Apex diagnostic to print full Agent API error body
+- Executed initial diagnostic Apex probe
+- Identified probe design flaw: AuraHandledException masks error details
+- Designed corrected probe: raw HTTP status/body via callout:NM_AgentAPI, no exception filtering
 
 **Open items**
-- Approve and run diagnostic Apex to capture full Agent API 404 error response
-- Analyze error body to confirm whether root cause is missing API connection or other (endpoint/payload)
-- User adds NM NextMission ECA as API connection to NM NextMission V2 agent in Agentforce Studio (if confirmed as root cause)
+- Approve and run corrected diagnostic Apex to capture raw Agent API 404 response
+- Analyze error body to confirm root cause: missing API connection vs endpoint/payload issue
+- User adds NM NextMission ECA as API connection to NM NextMission V2 agent in Agentforce Studio (if confirmed)
 - Test conversation via public site chat endpoint after connection added
 - Run scripts/scenarios.py against live site to verify full flow
 - Verify 171 tests and 88% coverage
@@ -37,11 +37,11 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Use diagnostic Apex to inspect full error response before manual remediation
 
 **Blockers**
-- Awaiting approval to run diagnostic Apex that prints Agent API error body
+- Awaiting approval to run corrected diagnostic Apex that prints raw Agent API HTTP response
 
 **Next**
-- Approve diagnostic Apex execution
-- Analyze returned error body to confirm root cause
+- Approve corrected diagnostic Apex execution
+- Analyze returned HTTP status and response body to confirm root cause
 - Proceed with ECA-to-agent connection in Agentforce Studio or fix identified issue
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
@@ -54,7 +54,9 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-You're right. I gave up too early last time. My agent-metadata retrieve "returned nothing" because I used the wrong name. With the right one, `NM_NextMission_V2` and its version came back fine. I also have the ECA's settings, and they look correct: client-credentials flow is on, with the Chatbot and SFApiPlatform scopes.
+I ran your approved probe once, unchanged. It printed nothing at all, not even the `NMPROBE DOMAIN` line, which doesn't depend on the agent call. So the script failed before its first output, or its log never came back. The command's `grep` threw away whatever error the CLI returned, so the 404 cause is still unknown. Nothing in the org changed.
 
-The command now waiting for your approval runs the site's own session-start code once as anonymous Apex. It writes no records. It prints the full Agent API error body, which I skipped last time. That tells us whether the 404 really is the missing API connection or something else, like the endpoint or the payload. Then I can fix it myself instead of guessing.
+There was also a flaw in the probe: `NM_AgentController` throws an `AuraHandledException`, and that exception's `getMessage()` usually returns only "Script-thrown exception". Even a clean run would have hidden the error body.
+
+The command waiting for your approval runs a corrected probe. It makes the same Agent API session call that `startSession` makes, through `callout:NM_AgentAPI`, and prints the raw HTTP status and response body. It also shows any compile or run error instead of filtering it out, and it doesn't write any records. If you approve it, the output should tell us whether the 404 comes from the missing API connection or from the endpoint or payload.
 <!-- orchestrate:session-state:end -->
