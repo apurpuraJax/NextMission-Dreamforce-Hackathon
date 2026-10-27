@@ -11,8 +11,8 @@ asked whether a dollar sign and a source were present.
 import json, re, subprocess, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-BASE = "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
-ORG  = "dreamforce-hackathon"
+BASE = "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
+ORG  = "Nonprofit PDE"
 
 def call(m, p):
     b = {"namespace":"","classname":"NM_AgentController","method":m,

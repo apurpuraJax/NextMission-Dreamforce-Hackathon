@@ -19,9 +19,9 @@ A journey fails if it scores below MIN_SCORE, or carries any tag in FATAL_TAGS.
 import json, re, os, sys, subprocess, tempfile, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-ORG   = os.environ.get("NM_ORG", "dreamforce-hackathon")
+ORG   = os.environ.get("NM_ORG", "Nonprofit PDE")
 BASE  = os.environ.get("NM_BASE",
-        "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute")
+        "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute")
 TAG   = "https://sim-eval"
 
 MIN_SCORE  = 7

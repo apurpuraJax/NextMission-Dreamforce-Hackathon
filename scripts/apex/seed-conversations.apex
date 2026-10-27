@@ -5,7 +5,7 @@
 // CONV-0007 (seed-qa-nmdh19-008) — deliberately bad: off-limits words, ranking, role override.
 // Idempotent by External_Session_Key__c — safe to re-run.
 //
-// Run: sf apex run --file scripts/apex/seed-conversations.apex --target-org dreamforce-hackathon
+// Run: sf apex run --file scripts/apex/seed-conversations.apex --target-org "Nonprofit PDE"
 
 // ── Keys this script manages ──────────────────────────────────────────────────
 Set<String> targetKeys = new Set<String>{

@@ -21,9 +21,9 @@ Two rules, checked against the live roster:
 import json, os, re, subprocess, sys, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-ORG  = os.environ.get("NM_ORG", "dreamforce-hackathon")
+ORG  = os.environ.get("NM_ORG", "Nonprofit PDE")
 BASE = os.environ.get("NM_BASE",
-       "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute")
+       "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute")
 TAG  = "https://mentor-truth"
 
 NAME_SHAPED = re.compile(r'\b[A-Z][a-z]{2,10} [A-Z]\.')

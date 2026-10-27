@@ -7,7 +7,7 @@ reuse call/run/no_repeats/contains/lacks without triggering the smoke gate.
 Run the smoke gate directly with:  python3 scripts/scenarios.py"""
 import json, urllib.request, urllib.error, sys, re, difflib, textwrap
 
-BASE = "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
+BASE = "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
 
 def call(method, params, timeout=180):
     p = {"namespace":"","classname":"NM_AgentController","method":method,

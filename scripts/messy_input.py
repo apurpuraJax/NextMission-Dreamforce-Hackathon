@@ -31,7 +31,7 @@ import json, os, re, sys, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 BASE = os.environ.get("NM_BASE",
-       "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute")
+       "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute")
 TAG = "https://messy-input"
 
 # Phrases that mean the agent has started describing work it has no data for.

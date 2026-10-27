@@ -11,7 +11,7 @@
 const { chromium } = require('playwright');
 const { AxeBuilder } = require('@axe-core/playwright');
 
-const URL = process.env.NM_URL || 'https://orgfarm-3bfff135af.my.site.com/nextmission/';
+const URL = process.env.NM_URL || 'https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/';
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BEST = ['best-practice'];
 

@@ -11,7 +11,7 @@
  */
 const { chromium } = require('playwright-core');
 
-const URL = process.env.NM_URL || 'https://orgfarm-3bfff135af.my.site.com/nextmission/';
+const URL = process.env.NM_URL || 'https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/';
 
 const FIGURES = ['$107,230','$82,320','$58,640','$97,550','$64,650',
                  '$60,600','$129,180','$99,130','$61,860'];

@@ -7,7 +7,7 @@ python3 scripts/broad_run.py [workers]
 import json, urllib.request, urllib.error, sys, re, difflib, textwrap
 from concurrent.futures import ThreadPoolExecutor
 
-BASE = "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
+BASE = "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
 TAG  = "https://broad-run"
 
 def call(method, params, timeout=200):

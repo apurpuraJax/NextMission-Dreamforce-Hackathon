@@ -1,7 +1,7 @@
 """NMDH-36. "Of those, which one" must resolve to the list just offered."""
 import re, json, urllib.request, textwrap, re
 from concurrent.futures import ThreadPoolExecutor
-BASE="https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
+BASE="https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
 def call(m,p):
     b={"namespace":"","classname":"NM_AgentController","method":m,"params":p,"cacheable":False,"isContinuation":False}
     r=urllib.request.Request(BASE,data=json.dumps(b).encode(),headers={"Content-Type":"application/json"})

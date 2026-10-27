@@ -12,7 +12,7 @@ reproduce on the live version.
 import json, urllib.request, urllib.error, sys, re, textwrap
 from concurrent.futures import ThreadPoolExecutor
 
-BASE = "https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
+BASE = "https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
 
 def call(method, params, timeout=200):
     p = {"namespace":"","classname":"NM_AgentController","method":method,

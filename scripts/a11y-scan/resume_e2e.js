@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
-const URL = 'https://orgfarm-3bfff135af.my.site.com/nextmission/';
+const URL = 'https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/';
 const PDF = path.resolve(__dirname, '../../test-files/sample_resume_91B.pdf');
 (async () => {
   const b = await chromium.launch();

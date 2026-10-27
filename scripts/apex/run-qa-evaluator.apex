@@ -2,7 +2,7 @@
 // Einstein Prompt Template REST endpoint. Session ID is captured in the
 // synchronous context (Execute Anonymous) where it is always available.
 //
-// Run: sf apex run --file scripts/apex/run-qa-evaluator.apex --target-org dreamforce-hackathon
+// Run: sf apex run --file scripts/apex/run-qa-evaluator.apex --target-org "Nonprofit PDE"
 //
 // For daily automated grading, NM_QAScheduler enqueues NM_QAEvaluator which
 // passes the same session ID captured at enqueue time.

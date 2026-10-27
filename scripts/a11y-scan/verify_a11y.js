@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const URL = 'https://orgfarm-3bfff135af.my.site.com/nextmission/';
+const URL = 'https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/';
 
 const HELPER = `
   window.__d = (sel) => {

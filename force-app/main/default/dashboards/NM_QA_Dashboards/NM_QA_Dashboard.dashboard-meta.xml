@@ -44,7 +44,6 @@
             <indicatorMiddleColor>#C2C254</indicatorMiddleColor>
             <metricLabel>Conversations</metricLabel>
             <report>NM_QA_Reports/NM_QA_Score_Overview</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
         </components>
         <components>
             <chartAxisRange>Auto</chartAxisRange>
@@ -64,7 +63,6 @@
             <legendPosition>Bottom</legendPosition>
             <maxValuesDisplayed>20</maxValuesDisplayed>
             <report>NM_QA_Reports/NM_QA_Score_Overview</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
             <showValues>true</showValues>
             <sortBy>RowLabelAscending</sortBy>
             <title>Average QA Score by Military Branch</title>
@@ -81,7 +79,6 @@
             <indicatorMiddleColor>#C2C254</indicatorMiddleColor>
             <maxValuesDisplayed>20</maxValuesDisplayed>
             <report>NM_QA_Reports/NM_Conversations_by_Cluster_Branch</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
             <title>Conversations by Cluster and Branch</title>
         </components>
         <components>
@@ -96,7 +93,6 @@
             <indicatorMiddleColor>#C2C254</indicatorMiddleColor>
             <maxValuesDisplayed>20</maxValuesDisplayed>
             <report>NM_QA_Reports/NM_Conversations_Needing_Attention</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
             <title>Conversations Needing Attention</title>
         </components>
     </leftSection>
@@ -115,7 +111,6 @@
             <indicatorMiddleColor>#C2C254</indicatorMiddleColor>
             <metricLabel>Conversations</metricLabel>
             <report>NM_QA_Reports/NM_Conversations_Needing_Attention</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
         </components>
         <components>
             <chartAxisRange>Auto</chartAxisRange>
@@ -135,7 +130,6 @@
             <sortBy>RowValueDescending</sortBy>
             <maxValuesDisplayed>10</maxValuesDisplayed>
             <report>NM_QA_Reports/NM_Sentiment_Split</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
             <showValues>true</showValues>
             <title>Conversation Sentiment</title>
         </components>
@@ -155,7 +149,6 @@
             <indicatorMiddleColor>#C2C254</indicatorMiddleColor>
             <metricLabel>Introductions</metricLabel>
             <report>NM_QA_Reports/NM_Mentor_Introduction_Count</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
         </components>
         <components>
             <chartAxisRange>Auto</chartAxisRange>
@@ -175,12 +168,11 @@
             <sortBy>RowValueDescending</sortBy>
             <maxValuesDisplayed>10</maxValuesDisplayed>
             <report>NM_QA_Reports/NM_QA_Issue_Breakdown</report>
-            <showPicturesOnCharts>false</showPicturesOnCharts>
             <showValues>true</showValues>
             <title>Issue Category Frequency</title>
         </components>
     </rightSection>
-    <runningUser>epic.7be2a1a8831e@orgfarm.salesforce.com</runningUser>
+    <runningUser>andrew.purpura@revecast.io.jaxnonprofitpde</runningUser>
     <textColor>#000000</textColor>
     <title>NM QA Dashboard</title>
     <titleColor>#000000</titleColor>

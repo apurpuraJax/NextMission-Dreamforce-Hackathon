@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
     <columns>
-        <field>NM_Mentor_Introduction__c$Status__c</field>
+        <field>NM_Mentor_Introduction__c$Introduced_At__c</field>
     </columns>
     <description>Count of mentor introductions grouped by month — tracks referral volume over time.</description>
     <format>Summary</format>

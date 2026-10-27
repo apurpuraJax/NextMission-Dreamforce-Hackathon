@@ -17,7 +17,7 @@
 #   sf CLI authenticated to the target org
 #   Set TARGET_ORG below to the sf CLI alias for your org.
 
-TARGET_ORG="${1:-dreamforce-hackathon}"
+TARGET_ORG="${1:-Nonprofit PDE}"
 
 echo "Linking topics to NM_NextMission_Bot_v1 planner in org: $TARGET_ORG"
 echo ""

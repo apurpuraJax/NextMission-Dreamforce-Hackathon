@@ -1,7 +1,7 @@
 """Adaptive driver. Keeps ONE session open across calls so the next message can
 be chosen after reading the last reply, the way a person actually talks."""
 import json, urllib.request, sys, os, textwrap
-BASE="https://orgfarm-3bfff135af.my.site.com/nextmission/webruntime/api/apex/execute"
+BASE="https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/webruntime/api/apex/execute"
 STATE="/tmp/nm_live_session.txt"
 def call(method, params):
     p={"namespace":"","classname":"NM_AgentController","method":method,

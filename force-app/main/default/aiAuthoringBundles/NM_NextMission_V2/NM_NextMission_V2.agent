@@ -10,7 +10,7 @@ config:
     description: "NextMission V2 career-transition coach for U.S. veterans. Agent Script source, edit this file, not the compiled XML. NMDH-20."
 
 access:
-    default_agent_user: "nm.agent@nextmission.dreamforce2026.com"
+    default_agent_user: "nm.agent@nextmission.jaxnonprofitpde.com"
 
 variables:
     EndUserId: linked string

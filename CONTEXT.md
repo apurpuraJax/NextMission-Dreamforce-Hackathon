@@ -1704,11 +1704,18 @@ These apply to every LWC in this project. Run through this list before marking a
 
 ## Target Org and Branch
 
-- **Salesforce org alias:** `dreamforce-hackathon`
+- **Salesforce org:** Nonprofit PDE, `https://jaxnonprofitpde-dev-ed.develop.my.salesforce.com` (org id `00Diw000003pBanEAE`). Local CLI alias: `Nonprofit PDE` (with the space; quote it).
+- **Public site:** `https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission` (Network "Next Mission", bundle `site/Next_Mission1`, guest user nickname `Next_Mission`)
+- **Agent user:** `nm.agent@nextmission.jaxnonprofitpde.com`
 - **GitHub repository:** `apurpuraJax/NextMission-Dreamforce-Hackathon`
 - **Working branch:** `main`
 
-All `sf` CLI commands must include `--target-org dreamforce-hackathon`. Do not omit the flag; the CLI default may resolve to a different org.
+The original hackathon org (`dreamforce-hackathon`, orgfarm, expired 2026-09-23) is gone. Next Mission was moved into the Nonprofit PDE org on 2026-10-26. Every `sf` CLI command must include `--target-org "Nonprofit PDE"`; the CLI default may resolve to a different org.
+
+Differences from the hackathon org that matter:
+- **Models.** This org exposes `sfdc_ai__DefaultGPT4Omni` and `sfdc_ai__DefaultOpenAIGPT4OmniMini` only. `sfdc_ai__DefaultOpenAIGPT4Omni` (the old name) is rejected, so the Classify Cluster and QA Evaluator templates now name `sfdc_ai__DefaultGPT4Omni`.
+- **Prompt templates need a licence to be seen.** A Flow deploy fails with "We can't find the NM_..._Template action" until the deploying user holds `EinsteinGPTPromptTemplateManager`; the agent user holds `EinsteinGPTPromptTemplateUser`.
+- **V1 was not moved.** `NM_NextMission_Bot`, the `genAiPlugins/` and `genAiFunctions/` directories are the hand-wired gen-1 agent and exist only in the repo. The live agent is `NM_NextMission_V2` from the Agent Script bundle, which targets Apex and Flows directly.
 
 ---
 

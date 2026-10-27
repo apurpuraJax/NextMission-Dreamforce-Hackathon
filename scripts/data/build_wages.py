@@ -23,7 +23,7 @@ import json, os, subprocess, sys, zipfile
 import openpyxl
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ORG  = os.environ.get("NM_ORG", "dreamforce-hackathon")
+ORG  = os.environ.get("NM_ORG", "Nonprofit PDE")
 UA   = "NextMission/1.0 (andrew.purpura@jaxconsult.com)"
 
 

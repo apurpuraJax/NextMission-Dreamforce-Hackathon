@@ -1,7 +1,7 @@
 // Seed script: demo mentor records for hackathon — two per cluster minimum,
 // three for CombatArms (highest demo-traffic cluster).
 //
-// Run:    sf apex run --file scripts/apex/seed-demo-mentors.apex --target-org dreamforce-hackathon
+// Run:    sf apex run --file scripts/apex/seed-demo-mentors.apex --target-org "Nonprofit PDE"
 // Safe to re-run: idempotent by Name — existing records are skipped.
 
 List<NM_Mentor__c> toInsert = new List<NM_Mentor__c>();

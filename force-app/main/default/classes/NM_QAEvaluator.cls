@@ -47,7 +47,7 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         // would be OUR OWN test traffic saying so. They are tagged by
         // sourceUrl, so they are excluded here rather than explained away in
         // a dashboard later.
-        String sitePrefix = 'https://orgfarm-3bfff135af.my.site.com/nextmission%';
+        String sitePrefix = 'https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission%';
 
         List<NM_Conversation__c> candidates = [
             SELECT Id, Transcript__c, External_Session_Key__c, Message_Count__c, CreatedDate

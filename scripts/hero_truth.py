@@ -13,7 +13,7 @@ This fails if any figure in nmHero.js is not a median we actually hold.
 """
 import json, os, re, subprocess, sys
 
-ORG = os.environ.get("NM_ORG", "dreamforce-hackathon")
+ORG = os.environ.get("NM_ORG", "Nonprofit PDE")
 HERO = "force-app/main/default/lwc/nmHero/nmHero.js"
 
 

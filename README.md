@@ -3,7 +3,7 @@
 An Agentforce agent that translates military experience into civilian careers, for
 veterans and military spouses.
 
-**Live:** https://orgfarm-3bfff135af.my.site.com/nextmission/
+**Live:** https://jaxnonprofitpde-dev-ed.develop.my.site.com/nextmission/
 
 Give it a specialty code, describe what you did in your own words, or upload a
 resume. It maps that to real civilian occupations, tells you what they pay
