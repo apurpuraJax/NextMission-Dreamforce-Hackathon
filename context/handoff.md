@@ -10,19 +10,21 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** blocked — Public Sector org lacks Agentforce Service Agent licence — cannot proceed. Nonprofit org is the path forward.
+**Status:** waiting — Public Sector org confirmed unable to build service agents. Awaiting confirmation of agent location (Nonprofit org or unsaved).
 
 **Done this session**
-- Verified Public Sector org has zero licences granting AgentforceServiceAgentUser, ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder
-- Confirmed Agentforce Service Agent User licence absent from org
-- Ruled out Public Sector org for service agent deployment
+- Verified Test Agentforce Service Agent not in Public Sector org (jaxpubsecpde-dev-ed)
+- Confirmed no service agent created in Public Sector org in last hour via Setup audit trail
+- Checked agent builder drafts and agents list — no Test agent found
 
 **Open items**
+- Confirm which org contains Test Agentforce Service Agent (check address bar: jaxpubsecpde-dev-ed vs nextmission.jaxnonprofitpde.com)
+- If in Nonprofit org: start new Build session there and resume agent work
+- If in Public Sector org: finish saving agent or send screenshot with URL for retry
 - Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user in Nonprofit org
-- Verify builder/admin permissions accepted on your user licence in Nonprofit org
-- Commit NM_Agent_Service_User permission set file to feature/NMDH-org-migration branch
-- Report backup check issue to Revecast (consumed 11 approvals before fix)
-- Start Step 2 migration in Nonprofit org once your permissions verified
+- Verify licence acceptance on your user in Nonprofit org
+- Commit NM_Agent_Service_User to feature/NMDH-org-migration
+- Resume Step 2 migration in Nonprofit org
 
 **Decisions**
 - Permission set grants only AgentforceServiceAgentUser on Agentforce Service Agent User licence
@@ -31,14 +33,12 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Switch deployment target from Public Sector org to Nonprofit org — Public Sector lacks required licence
 
 **Blockers**
-- Public Sector org does not have Agentforce Service Agent User licence and cannot grant required permissions
+- Public Sector org does not have Agentforce Service Agent User licence and cannot build service agents
 
 **Next**
-- Confirm Nonprofit org (nextmission.jaxnonprofitpde.com) has Agentforce Service Agent User licence under Setup → Company Information
-- Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to your user in Nonprofit org
-- Verify licence acceptance on your user in Nonprofit org
-- Commit NM_Agent_Service_User to feature/NMDH-org-migration
-- Resume Step 2 migration in Nonprofit org
+- Check address bar to confirm which org contains Test Agentforce Service Agent
+- If Nonprofit org: open new Build session there with agent prompt
+- If Public Sector org: complete agent save or provide screenshot with URL for re-check
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -50,20 +50,16 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission |
 | Session | `d3f1b5d0-67b8-403a-a331-cde40c98ac0f` |
 **In its own words (excerpt):**
-I'm as sure as the org lets me be. I rechecked it just now, and three separate checks agree that **this org doesn't have Agentforce Service Agent.**
+I checked this org (`jaxpubsecpde-dev-ed`, ID `00Dhm000005rrBNEAY`) just now, and **"Test Agentforce Service Agent" isn't in it.** My guess is you built it in the Nonprofit org. If it did save there, that's good news.
 
-**1. No licence in the org can grant the service-agent permissions.** I checked every licence in the org, active or not, for the four permissions a service agent needs. Each check returned zero licences:
+**What I checked:**
+- **Agents:** there's still only one, `Copilot_for_Salesforce`, the internal employee agent created at 23:09 UTC. No agent has "Test" in its name, and none is a service agent.
+- **Drafts in the newer agent builder:** there are two, `NM_NextMission_V2_1` (ours) and `Employee_Slack_Help_1`. Neither was created in the last hour.
+- **Setup audit trail:** the last Setup change in this org was at 01:19 UTC, when I created the `SYS Agent Builder` permission set. Nothing has been created since then, and that's over an hour ago. Building a service agent would have left entries, and usually a new agent user as well. There are none.
 
-| Permission | Licences that can grant it |
-|---|---|
-| `AgentforceServiceAgentUser` (lets the agent user run a service agent) | 0 |
-| `ManageAgentforceServiceAgent` (create and manage service agents) | 0 |
-| `EinsteinCopilotBuilder` (Agent Builder) | 0 |
-| `SetupAgentBuilder` (agent setup) | 0 |
+**How to tell which org you're in:** look at the address bar. This org's address starts with `jaxpubsecpde-dev-ed.develop.my.salesforce.com`. The screenshot you sent earlier was from the Nonprofit org, so that tab may still be open.
 
-**2. The licence that carries it isn't here.** The org has 36 active licences with "Agent" in the name, including Agentforce for Public Sector, Agentforce Platform User, Employee Service Agent and Service Planner Agent User. None of them is the **Agentforce Service Agent User** licence. Your notes from the Nonprofit org show that this is the licence Salesforce added automatically when the same permission set was assigned there.
-
-**3. Salesforce itself refused.** When I tried to assign those permissions to you earlier, it answered "The user 
+- **If the agent is in the Nonprofit org:** that confirms the Nonprofit org can build service ag
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
