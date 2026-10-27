@@ -10,36 +10,38 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** at risk — Empty shell deployed successfully; stage-1 deploy blocked by backup check—root cause unclear, may be Orchestrate-side.
+**Status:** blocked — Stage-1 permission set deploy blocked by Orchestrate backup check; manual local deploy required
 
 **Done this session**
-- Created NM_Admin_Data_Access empty permission set in Nonprofit org (Id 0PSiw000001Jl4HGAS)
-- Confirmed shell exists and reads back with correct label, no licence, no permissions
+- Confirmed NM_Admin_Data_Access exists in org (Id 0PSiw000001Jl4HGAS) and org responds to queries normally
+- Identified root cause: Orchestrate's permission-backup check cannot read org profiles/permission sets, not an org or permission set issue
+- Saved backup exports (empty field/object/setup-access, metadata retrieve succeeded)
+- Generated stage-1 deploy file (NM_Admin_Data_Access-stage1.zip) with manual deploy commands
 
 **Open items**
-- Approve stage-1 permission set deploy (45 field, 7 object, 3 tab grants) and assignment
-- Investigate why backup check blocks deploy despite permission set now existing in org
-- If approval gate fails again, obtain manual deploy command to run locally
-- Deploy NM_Admin_Data_Access.permissionset-meta.xml stage-1 once backup check passes
+- Run manual deploy commands locally from NM_Admin_Data_Access-stage1.zip (sf project deploy start + sf org assign permset)
+- Verify 45 field grants and permission set assignment in jaxnonprofitpde-dev-ed after manual deploy
 - Re-run Apex validation after permission set assigned
 - Deploy Apex classes NM_AgentController and dependencies
 - Grant ManageAgentforceServiceAgent, EinsteinCopilotBuilder, SetupAgentBuilder to user
 - Verify licence acceptance on user in Nonprofit org
+- Deploy remaining: LWC, flows, prompt templates, agent bundle, O*NET and mentor data, site, publish agent, schedule NM_ONETReleaseMonitor, test conversation
+- Commit file changes to feature/NMDH-org-migration
 
 **Decisions**
 - Deploy permission set by file name, not folder
 - Stage-1 permission set: no Apex class grants until classes exist in org
 - Split deploy sequence: metadata first, then Apex, then permission set
 - Target Nonprofit org (jaxnonprofitpde-dev-ed)
-- If Orchestrate backup check persists, switch to manual local deploy
+- Bypass Orchestrate backup check via manual local deploy using Salesforce CLI
 
 **Blockers**
-- Backup check cannot query org profiles/permission sets—permission set now exists but check still fails; root cause unknown (Orchestrate-side suspected)
+- Orchestrate's permission-backup check cannot query org profiles/permission sets—root cause unknown, suspected Orchestrate infrastructure issue
 
 **Next**
-- Approve stage-1 deploy command again; if blocked identically, request manual deploy command
-- Diagnose whether backup check failure is Orchestrate infrastructure or org connectivity issue
-- Once stage-1 deploys, proceed with Apex class deploy and permission assignment
+- Run manual deploy commands locally from attached NM_Admin_Data_Access-stage1.zip
+- Report back with deploy success/failure and assignment confirmation
+- Once confirmed, proceed with Apex class deploy and permission assignment validation
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -51,17 +53,18 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-I created the empty permission set and confirmed it exists. The stage-1 deploy that was supposed to follow is waiting for your approval again.
+The command didn't run, and nothing in `jaxnonprofitpde-dev-ed` has changed. Orchestrate's permission-backup check stopped the deploy before it reached Salesforce. It gave the same reason as before: it "could not ask the org which profiles and permission sets exist".
 
-**What your approved command did:**
-- It created `NM_Admin_Data_Access` in `jaxnonprofitpde-dev-ed` (Id `0PSiw000001Jl4HGAS`).
-- Reading it back showed it once, with the label "NM Admin Data Access", no licence, and marked custom. It has no permissions yet.
+**What this tells us**
+- `NM_Admin_Data_Access` now exists in the org (Id `0PSiw000001Jl4HGAS`), and the org answers my queries normally. The check still fails, so the problem is in Orchestrate's check, not in your org or the permission set. My earlier guess (that it failed because the permission set didn't exist yet) was wrong.
+- I saved the backup the check asked for. It has the field, object and setup-access exports (0 rows each, because the shell is empty) and a metadata retrieve. The deploy only adds access, so there's nothing in the org it could remove.
+- I'm not retrying. Each block uses up your approval, so another retry would put you back in the same loop.
 
-**What happened next:** I ran the stage-1 deploy and assignment. The permission-backup check blocked it again with the same message, that it "could not ask the org which profiles and permission sets exist", even though the permission set is now there. So my guess that the check failed because the permission set was missing was wrong.
+**Run it from your own machine**
+The stage-1 file is attached to this session as **NM_Admin_Data_Access-stage1.zip**. It grants 45 fields, 7 objects and 3 tabs, with no Apex class grants. Unzip it and run this from inside the unzipped folder:
 
-This time the backup did have something to save. Its permission exports are empty, and the metadata retrieve succeeded. When I retried, the approval gate said your earlier approval had been used. It's holding the same command for a new approval. That command deploys the stage-1 permission set (45 field grants, 7 object grants and 3 tab grants, no Apex class grants), assigns it to you, and reads the assignment back.
-
-If approving that command gets blocked t
+```
+sf proje
 
 _[summary truncated — see the session record for the full text]_
 <!-- orchestrate:session-state:end -->
