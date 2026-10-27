@@ -46,7 +46,7 @@ Judge on the WORK the veteran describes, not on their branch or their rank.</con
             <required>true</required>
         </inputs>
         <isCitationEnabled>false</isCitationEnabled>
-        <primaryModel>sfdc_ai__DefaultOpenAIGPT4Omni</primaryModel>
+        <primaryModel>sfdc_ai__DefaultGPT41</primaryModel>
         <status>Published</status>
         <versionIdentifier>uRPIo5AHuoShpzOJPvwVdsvCeNNTcmaVJK7+i4kyaGE=_1</versionIdentifier>
     </templateVersions>

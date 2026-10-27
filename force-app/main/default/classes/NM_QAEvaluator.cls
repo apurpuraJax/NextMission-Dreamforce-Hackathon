@@ -47,7 +47,9 @@ public class NM_QAEvaluator implements Queueable, Database.AllowsCallouts {
         // would be OUR OWN test traffic saying so. They are tagged by
         // sourceUrl, so they are excluded here rather than explained away in
         // a dashboard later.
-        String sitePrefix = 'https://orgfarm-3bfff135af.my.site.com/nextmission%';
+        // The site's base URL differs per org, so it lives in a custom label
+        // rather than in code. Update NM_Site_Base_Url when the site moves.
+        String sitePrefix = Label.NM_Site_Base_Url + '%';
 
         List<NM_Conversation__c> candidates = [
             SELECT Id, Transcript__c, External_Session_Key__c, Message_Count__c, CreatedDate
