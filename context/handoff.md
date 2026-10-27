@@ -10,14 +10,15 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** blocked — Permission set deploy stuck in approval loop twice; needs fresh approval or new command
+**Status:** blocked — Permission set deploy stuck in approval loop (4×); now targeting file directly per NM_Agent_Service_User precedent
 
 **Done this session**
-- None
+- Saved permission-backup for NM_Admin_Data_Access (stage-1: 45 field, 7 object, 3 tab grants)
+- Identified root cause: folder deploy vs. file deploy; updated command to name file directly
 
 **Open items**
-- Approve NM_Admin_Data_Access deploy (second approval request, backup now saved)
-- If approval blocked again, deploy as new command (precedent: NM_Agent_Service_User)
+- Approve NM_Admin_Data_Access.permissionset-meta.xml deploy (file-targeted, fourth attempt)
+- If approval blocked again, escalate or deploy as new command
 - Re-run Apex validation after permission set assigned
 - Deploy Apex classes NM_AgentController and dependencies
 - Confirm Test Agentforce Service Agent location (Public Sector vs Nonprofit org)
@@ -26,22 +27,18 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Commit NM_Agent_Service_User to feature/NMDH-org-migration
 
 **Decisions**
-- Permission set grants only AgentforceServiceAgentUser on Agentforce Service Agent User licence
-- Deploy outside approval gate to break blocking cycle
-- Truncate description to 210 characters to comply with Salesforce 255-char limit
-- Switch deployment target from Public Sector org to Nonprofit org
-- Batch remaining deploys to minimize approval rounds
-- Split deploy sequence: metadata first (without permission set), then Apex, then permission set
-- Deploy permission set without Apex class grants until classes exist in org
-- If approval blocked again, redeploy as new command (precedent: NM_Agent_Service_User)
+- Deploy permission set by file name, not folder (precedent: NM_Agent_Service_User broke loop this way)
+- Stage-1 permission set: no Apex class grants until classes exist in org
+- Split deploy sequence: metadata first, then Apex, then permission set
+- Target Nonprofit org (jaxnonprofitpde-dev-ed), not Public Sector
 
 **Blockers**
-- Approval gate consumed authorization on first attempt; second approval request pending
+- Approval gate: folder-based deploy command consumed authorization; file-targeted command now pending approval
 
 **Next**
-- Approve NM_Admin_Data_Access deploy in dialog (backup now saved, should proceed)
-- If approval blocked again, run deploy as new command
-- Re-run Apex validation once permission set takes effect
+- Approve NM_Admin_Data_Access.permissionset-meta.xml deploy in dialog
+- If blocked again, escalate approval or redeploy as new command
+- Re-run Apex validation once permission set takes effect in org
 
 **Checked live on 2026-10-27:** nothing — the status above is as recorded, not re-checked
 ### Last session — 2026-10-27
@@ -53,9 +50,7 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-The command didn't run, so nothing in `jaxnonprofitpde-dev-ed` has changed. It got stuck in the same loop again. The permission-backup check blocked the deploy before it started, so I saved the backup it asked for. `NM_Admin_Data_Access` still isn't in the org (count 0), so the backup has nothing to restore. When I ran the command again, the approval gate said the blocked attempt had already used up your approval, so it's showing you the same command again.
+The command didn't run, so nothing in `jaxnonprofitpde-dev-ed` has changed. The permission-backup check blocked it before it started, for the fourth time. I saved the backup it asked for. `NM_Admin_Data_Access` still isn't in the org (count 0), so there's nothing to restore.
 
-That command deploys the stage-1 `NM_Admin_Data_Access`, with 45 field grants, 7 object grants and 3 tab grants but no Apex class grants. It then assigns the permission set to you and reads the assignment back. You need it so the Apex tests stop failing on field access; after that I can deploy the Apex.
-
-The backup check says it asks once for each set of components, and that backup is now saved. So approving this time should get the command through to Salesforce, the way it eventually did for `NM_Agent_Service_User`.
+The block message says to name each permission set file rather than deploy a whole folder. Your command used `--source-dir force-app`, which is a folder. The `NM_Agent_Service_User` loop broke when its command named the file directly. So the command now in the dialog is the same four steps, except it deploys `force-app/main/default/permissionsets/NM_Admin_Data_Access.permissionset-meta.xml` by name. The file is the same stage-1 copy as before: 45 field grants, 7 object grants and 3 tab grants, with no Apex class grants. If you approve it, the command deploys the permission set, assigns it to you and reads the assignment back. After that the Apex tests can stop failing on field access, and I can deploy the Apex.
 <!-- orchestrate:session-state:end -->
