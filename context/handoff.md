@@ -10,15 +10,16 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 <!-- Written by Orchestrate at the end of each session. Edits inside this block are
      replaced next session; anything OUTSIDE it is yours and is never touched. -->
 ### Engagement state — 2026-10-27
-**Status:** blocked — Permission set deploy stuck in approval loop (4×); now targeting file directly per NM_Agent_Service_User precedent
+**Status:** blocked — Permission set deploy blocked by approval gate twice; file-targeted command ready in dialog, awaiting user approval
 
 **Done this session**
-- Saved permission-backup for NM_Admin_Data_Access (stage-1: 45 field, 7 object, 3 tab grants)
-- Identified root cause: folder deploy vs. file deploy; updated command to name file directly
+- Confirmed file-targeted deploy command syntax matches NM_Agent_Service_User precedent
+- Saved permission-backup for NM_Admin_Data_Access stage-1 (45 field, 7 object, 3 tab grants)
+- Verified backup exists so approval gate should not re-block on retry
 
 **Open items**
-- Approve NM_Admin_Data_Access.permissionset-meta.xml deploy (file-targeted, fourth attempt)
-- If approval blocked again, escalate or deploy as new command
+- Approve NM_Admin_Data_Access.permissionset-meta.xml deploy (file-targeted, now in dialog)
+- If approval blocked again, escalate or redeploy as new command
 - Re-run Apex validation after permission set assigned
 - Deploy Apex classes NM_AgentController and dependencies
 - Confirm Test Agentforce Service Agent location (Public Sector vs Nonprofit org)
@@ -33,10 +34,10 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 - Target Nonprofit org (jaxnonprofitpde-dev-ed), not Public Sector
 
 **Blockers**
-- Approval gate: folder-based deploy command consumed authorization; file-targeted command now pending approval
+- Approval gate: file-targeted deploy command pending user approval in dialog (second attempt after first consumed authorization)
 
 **Next**
-- Approve NM_Admin_Data_Access.permissionset-meta.xml deploy in dialog
+- User approves NM_Admin_Data_Access.permissionset-meta.xml deploy in dialog
 - If blocked again, escalate approval or redeploy as new command
 - Re-run Apex validation once permission set takes effect in org
 
@@ -50,7 +51,9 @@ What the next session needs to know. Orchestrate keeps the session-state block b
 | Name | Deploy Next Mission - Nonprofit Org |
 | Session | `82f48cd6-edb2-4b5d-8033-7c315e6c4ab2` |
 **In its own words (excerpt):**
-The command didn't run, so nothing in `jaxnonprofitpde-dev-ed` has changed. The permission-backup check blocked it before it started, for the fourth time. I saved the backup it asked for. `NM_Admin_Data_Access` still isn't in the org (count 0), so there's nothing to restore.
+The command didn't run, so `jaxnonprofitpde-dev-ed` is unchanged. Before it started, Orchestrate's permission-backup check blocked it again, this time with the file named directly. I saved the backup it asked for. `NM_Admin_Data_Access` still isn't in the org (count 0), so there's nothing to restore.
 
-The block message says to name each permission set file rather than deploy a whole folder. Your command used `--source-dir force-app`, which is a folder. The `NM_Agent_Service_User` loop broke when its command named the file directly. So the command now in the dialog is the same four steps, except it deploys `force-app/main/default/permissionsets/NM_Admin_Data_Access.permissionset-meta.xml` by name. The file is the same stage-1 copy as before: 45 field grants, 7 object grants and 3 tab grants, with no Apex class grants. If you approve it, the command deploys the permission set, assigns it to you and reads the assignment back. After that the Apex tests can stop failing on field access, and I can deploy the Apex.
+When I retried, the approval gate said the blocked attempt had already used up your approval. The same command is now back in the dialog. It deploys the stage-1 `NM_Admin_Data_Access` (45 field grants, 7 object grants and 3 tab grants, with no Apex class grants), assigns it to you and reads the assignment back. You need it so the Apex tests stop failing on field access, and then I can deploy the Apex.
+
+The backup for this exact command is now saved, so the check shouldn't block it again. If you approve, it should reach Salesforce, as it did for `NM_Agent_Service_User`.
 <!-- orchestrate:session-state:end -->
